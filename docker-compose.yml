@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: bublapi-postgres
+    environment:
+      POSTGRES_DB: bublapi_dent
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: bublapi-rabbitmq
+    ports:
+      - "5672:5672"
+
+  redis:
+    image: redis:7
+    container_name: bublapi-redis
+    ports:
+      - "6379:6379"
+volumes:
+  postgres_data:
