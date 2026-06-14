@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-doctor-schedule-exceptions
+      author: Gleb Kovalev
+      changes:
+        - createTable:
+            tableName: doctor_schedule_exceptions
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: doctor_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_time
+                  type: time
+              - column:
+                  name: end_time
+                  type: time
+              - column:
+                  name: type
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reason
+                  type: text
+        - addForeignKeyConstraint:
+            baseTableName: doctor_schedule_exceptions
+            baseColumnNames: doctor_id
+            referencedTableName: doctors
+            referencedColumnNames: id
+            constraintName: fk_doctor_se_id
+        - addUniqueConstraint:
+            tableName: doctor_schedule_exceptions
+            columnNames: doctor_id, date
+            constraintName: uk_doctor_se_date

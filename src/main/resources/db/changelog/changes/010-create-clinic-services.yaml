@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-create-clinic-services
+      author: Gleb Kovalev
+      changes:
+        - createTable:
+            tableName: clinic_services
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: clinic_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: service_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duration_minutes
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: clinic_services
+            baseColumnNames: clinic_id
+            referencedTableName: clinics
+            referencedColumnNames: id
+            constraintName: fk_clinic_services_clinic
+        - addForeignKeyConstraint:
+            baseTableName: clinic_services
+            baseColumnNames: service_id
+            referencedTableName: dental_services
+            referencedColumnNames: id
+            constraintName: fk_clinic_services_service
+        - addUniqueConstraint:
+            tableName: clinic_services
+            columnNames: clinic_id, service_id
+            constraintName: uk_clinic_services_id

@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-create-appointment-services
+      author: Gleb Kovalev
+      changes:
+        - createTable:
+            tableName: appointment_services
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: appointment_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: clinic_service_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duration_minutes
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: smallint
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+              - column:
+                  name: position
+                  type: smallint
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: appointment_services
+            baseColumnNames: appointment_id
+            referencedTableName: appointments
+            referencedColumnNames: id
+            constraintName: fk_appointment_services_appointment
+        - addForeignKeyConstraint:
+            baseTableName: appointment_services
+            baseColumnNames: clinic_service_id
+            referencedTableName: clinic_services
+            referencedColumnNames: id
+            constraintName: fk_appointment_services_clinic_service
+        - addUniqueConstraint:
+            tableName: appointment_services
+            columnNames: appointment_id, position
+            constraintName: uk_appointment_services_position

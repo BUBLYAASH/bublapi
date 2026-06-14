@@ -1,0 +1,81 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-create-appointments
+      author: Gleb Kovalev
+      changes:
+        - createTable:
+            tableName: appointments
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: clinic_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: patient_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: doctor_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: scheduled_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: comment
+                  type: text
+              - column:
+                  name: total_price
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(25)
+                  defaultValue: "CREATED"
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: appointments
+            baseColumnNames: clinic_id
+            referencedTableName: clinics
+            referencedColumnNames: id
+            constraintName: fk_appointments_clinics
+        - addForeignKeyConstraint:
+            baseTableName: appointments
+            baseColumnNames: patient_id
+            referencedTableName: patients
+            referencedColumnNames: id
+            constraintName: fk_appointments_patients
+        - addForeignKeyConstraint:
+            baseTableName: appointments
+            baseColumnNames: doctor_id
+            referencedTableName: doctors
+            referencedColumnNames: id
+            constraintName: fk_appointments_doctor
+        - addUniqueConstraint:
+            tableName: appointments
+            columnNames: doctor_id, scheduled_at
+            constraintName: uk_appointments_doctor_scheduled
