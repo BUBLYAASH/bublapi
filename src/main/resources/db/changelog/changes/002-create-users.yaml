@@ -1,0 +1,77 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-users
+      author: Gleb Kovalev
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone
+                  type: varchar(15)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: middle_name
+                  type: varchar(50)
+              - column:
+                  name: password_hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: clinic_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: joined_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: clinic_id, email
+            constraintName: uk_users_clinic_email
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: clinic_id, phone
+            constraintName: uk_users_clinic_phone
+        - addForeignKeyConstraint:
+            baseTableName: users
+            baseColumnNames: clinic_id
+            referencedTableName: clinics
+            referencedColumnNames: id
+            constraintName: fk_users_clinic

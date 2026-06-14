@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-doctors
+      author: Gleb Kovalev
+      changes:
+        - createTable:
+            tableName: doctors
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: clinic_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: specialty
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: avatar_url
+                  type: text
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: doctors
+            baseColumnNames: clinic_id
+            referencedTableName: clinics
+            referencedColumnNames: id
+            constraintName: fk_doctors_clinic
+        - addForeignKeyConstraint:
+            baseTableName: doctors
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_doctors_user

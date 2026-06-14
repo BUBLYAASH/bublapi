@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-roles
+      author: Gleb Kovalev
+      changes:
+        - createTable:
+            tableName: roles
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    unique: true
+                    nullable: false
