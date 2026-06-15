@@ -2,3 +2,6 @@
 *.lock
 build
 .bin
+gradle
+gradlew
+gradlew.bat
