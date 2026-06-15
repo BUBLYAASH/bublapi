@@ -2,7 +2,6 @@ package org.bublapi.dent.user.dto;
 
 import jakarta.validation.constraints.*;
 import java.util.UUID;
-import org.bublapi.dent.clinic.entity.Clinic;
 
 public record CreateUserRequestDto(
     @NotBlank
