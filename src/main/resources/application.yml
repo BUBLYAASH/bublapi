@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/bublapi
+    url: jdbc:postgresql://localhost:5433/bublapi_dent
     username: postgres
     password: postgres
 
