@@ -3,10 +3,11 @@ package org.bublapi.dent.user.service;
 import java.util.UUID;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
+import org.bublapi.dent.role.entity.Role;
+import org.bublapi.dent.role.repository.RoleRepository;
+import org.bublapi.dent.user.dto.UserRoleResponseDto;
 import org.mindrot.jbcrypt.BCrypt;
-import org.bublapi.dent.user.dto.CreateUserRequestDto;
-import org.bublapi.dent.user.dto.UpdateUserRequestDto;
-import org.bublapi.dent.user.dto.UserResponseDto;
+import org.bublapi.dent.user.dto.*;
 import org.bublapi.dent.user.entity.User;
 import org.bublapi.dent.user.mapper.UserMapper;
 import org.bublapi.dent.user.repository.UserRepository;
@@ -17,12 +18,14 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final ClinicRepository clinicRepository;
+  private final RoleRepository roleRepository;
   private final UserMapper userMapper;
 
   public UserService(UserRepository userRepository, ClinicRepository clinicRepository,
-      UserMapper userMapper) {
+      RoleRepository roleRepository, UserMapper userMapper) {
     this.userRepository = userRepository;
     this.clinicRepository = clinicRepository;
+    this.roleRepository = roleRepository;
     this.userMapper = userMapper;
   }
 
@@ -55,5 +58,37 @@ public class UserService {
     User saved = userRepository.save(user);
 
     return userMapper.toResponse(saved);
+  }
+
+  public UserRoleResponseDto assignRole(UUID userId, UUID roleId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    Role role = roleRepository.findById(roleId)
+        .orElseThrow(() -> new RuntimeException("Role not found"));
+
+    boolean added = user.getRoles().add(role);
+
+    if (!added) {
+      throw new RuntimeException("User already has this role");
+    }
+    userRepository.save(user);
+
+    return new UserRoleResponseDto(user.getId(), role.getId());
+  }
+
+  public UserRoleResponseDto removeRole(UUID userId, UUID roleId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    Role role = roleRepository.findById(roleId)
+        .orElseThrow(() -> new RuntimeException("Role not found"));
+
+    boolean removed = user.getRoles().remove(role);
+
+    if (!removed) {
+      throw new RuntimeException("User does not have this role");
+    }
+    userRepository.save(user);
+
+    return new UserRoleResponseDto(user.getId(), role.getId());
   }
 }
