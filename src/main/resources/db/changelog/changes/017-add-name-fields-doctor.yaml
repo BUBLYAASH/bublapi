@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 017-add-name-fields-doctor
+      author: Gleb Kovalev
+      changes:
+        - addColumn:
+            tableName: doctors
+            columns:
+              - column:
+                  name: first_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: middle_name
+                  type: varchar(50)
