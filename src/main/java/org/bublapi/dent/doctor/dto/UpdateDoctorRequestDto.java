@@ -1,14 +1,14 @@
 package org.bublapi.dent.doctor.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Size;
 
-public record UpdateDoctorRequestDto(@NotBlank @Size(max = 50) String firstName,
+public record UpdateDoctorRequestDto(@Size(max = 50) String firstName,
 
-                                     @NotBlank @Size(max = 50) String lastName,
+                                     @Size(max = 50) String lastName,
 
                                      @Size(max = 50) String middleName,
 
-                                     @NotBlank String specialty,
+                                     String specialty,
 
                                      String avatarUrl,
 
