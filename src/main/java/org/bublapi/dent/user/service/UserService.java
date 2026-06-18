@@ -1,5 +1,6 @@
 package org.bublapi.dent.user.service;
 
+import jakarta.transaction.Transactional;
 import java.util.UUID;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
@@ -44,6 +45,7 @@ public class UserService {
     return userMapper.toResponse(saved);
   }
 
+  @Transactional
   public UserResponseDto update(UUID id, UpdateUserRequestDto request) {
     User user = userRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -55,11 +57,10 @@ public class UserService {
       user.setPasswordHash(hash);
     }
 
-    User saved = userRepository.save(user);
-
-    return userMapper.toResponse(saved);
+    return userMapper.toResponse(user);
   }
 
+  @Transactional
   public UserRoleResponseDto assignRole(UUID userId, UUID roleId) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -71,11 +72,11 @@ public class UserService {
     if (!added) {
       throw new RuntimeException("User already has this role");
     }
-    userRepository.save(user);
 
     return new UserRoleResponseDto(user.getId(), role.getId());
   }
 
+  @Transactional
   public UserRoleResponseDto removeRole(UUID userId, UUID roleId) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
@@ -87,7 +88,6 @@ public class UserService {
     if (!removed) {
       throw new RuntimeException("User does not have this role");
     }
-    userRepository.save(user);
 
     return new UserRoleResponseDto(user.getId(), role.getId());
   }
