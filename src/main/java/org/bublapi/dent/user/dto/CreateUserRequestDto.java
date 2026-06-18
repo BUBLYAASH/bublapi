@@ -1,7 +1,9 @@
 package org.bublapi.dent.user.dto;
 
-import jakarta.validation.constraints.*;
-import java.util.UUID;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public record CreateUserRequestDto(
     @NotBlank
@@ -26,10 +28,7 @@ public record CreateUserRequestDto(
 
     @NotBlank
     @Size(min = 8, max = 72)
-    String password,
-
-    @NotNull
-    UUID clinicId
+    String password
 ) {
 
 }
