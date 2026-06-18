@@ -10,4 +10,6 @@ public record UserResponseDto(
     String lastName,
     String middleName,
     UUID clinicId
-) { }
+) {
+
+}

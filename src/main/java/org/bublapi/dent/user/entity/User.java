@@ -18,6 +18,7 @@ import org.bublapi.dent.role.entity.Role;
     @UniqueConstraint(name = "uk_users_clinic_phone", columnNames = {"clinic_id", "phone"})
 })
 public class User {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;

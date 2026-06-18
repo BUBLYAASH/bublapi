@@ -5,4 +5,6 @@ import java.util.UUID;
 public record UserRoleResponseDto(
     UUID userId,
     UUID roleId
-) { }
+) {
+
+}

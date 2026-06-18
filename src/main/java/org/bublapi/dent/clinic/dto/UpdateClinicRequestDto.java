@@ -27,4 +27,6 @@ public record UpdateClinicRequestDto(
 
     @Size(max = 50)
     String timezone
-) { }
+) {
+
+}

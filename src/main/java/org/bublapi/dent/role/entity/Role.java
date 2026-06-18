@@ -12,6 +12,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "roles")
 public class Role {
+
   @EqualsAndHashCode.Include
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

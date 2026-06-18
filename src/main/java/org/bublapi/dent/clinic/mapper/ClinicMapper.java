@@ -9,6 +9,7 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ClinicMapper {
+
   Clinic toEntity(CreateClinicRequestDto request);
 
   ClinicResponseDto toResponse(Clinic entity);

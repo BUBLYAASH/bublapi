@@ -11,4 +11,6 @@ public record ClinicResponseDto(
     String email,
     String website,
     String timezone
-) { }
+) {
+
+}
