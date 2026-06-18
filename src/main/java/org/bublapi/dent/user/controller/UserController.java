@@ -21,13 +21,13 @@ public class UserController {
 
   @Operation(summary = "Create new user", description = "Create a new user with provided information")
   @PostMapping
-  public UserResponseDto create(@Valid @RequestBody CreateUserRequestDto request) {
+  public UserResponseDto createUser(@Valid @RequestBody CreateUserRequestDto request) {
     return userService.create(request);
   }
 
   @Operation(summary = "Update a user", description = "Update only provided fields of user")
   @PatchMapping("/{userId}")
-  public UserResponseDto update(@PathVariable UUID userId,
+  public UserResponseDto updateUser(@PathVariable UUID userId,
       @Valid @RequestBody UpdateUserRequestDto request) {
     return userService.update(userId, request);
   }

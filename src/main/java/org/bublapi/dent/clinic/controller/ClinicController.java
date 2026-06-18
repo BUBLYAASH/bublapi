@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/clinics")
 public class ClinicController {
+
   private final ClinicService clinicService;
 
   public ClinicController(ClinicService clinicService) {
@@ -20,13 +21,14 @@ public class ClinicController {
 
   @Operation(summary = "Create a new clinic", description = "Add a new clinic to DB")
   @PostMapping
-  public ClinicResponseDto create(@Valid @RequestBody CreateClinicRequestDto request){
+  public ClinicResponseDto createClinic(@Valid @RequestBody CreateClinicRequestDto request) {
     return clinicService.create(request);
   }
 
   @Operation(summary = "Update a clinic", description = "Update only provided fields in clinic")
   @PatchMapping("/{id}")
-  public ClinicResponseDto update(@PathVariable UUID id, @Valid @RequestBody UpdateClinicRequestDto request){
+  public ClinicResponseDto updateClinic(@PathVariable UUID id,
+      @Valid @RequestBody UpdateClinicRequestDto request) {
     return clinicService.update(id, request);
   }
 }
