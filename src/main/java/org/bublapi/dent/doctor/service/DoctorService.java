@@ -1,6 +1,7 @@
 package org.bublapi.dent.doctor.service;
 
-import jakarta.transaction.Transactional;
+import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
@@ -28,7 +29,7 @@ public class DoctorService {
 
   public DoctorResponseDto create(UUID clinicId, CreateDoctorRequestDto request) {
     Clinic clinic = clinicRepository.findById(clinicId)
-        .orElseThrow(() -> new RuntimeException("Clinic not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
 
     Doctor entity = doctorMapper.toEntity(request);
     entity.setClinic(clinic);
@@ -39,7 +40,7 @@ public class DoctorService {
   @Transactional
   public DoctorResponseDto update(UUID clinicId, UUID doctorId, UpdateDoctorRequestDto request) {
     Doctor doctor = doctorRepository.findByIdAndClinic_Id(doctorId, clinicId)
-            .orElseThrow(() -> new RuntimeException("Doctor in clinic not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Doctor in clinic not found"));
 
     doctorMapper.updateEntity(request, doctor);
 

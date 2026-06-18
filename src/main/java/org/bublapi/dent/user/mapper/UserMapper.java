@@ -4,7 +4,10 @@ import org.bublapi.dent.user.dto.CreateUserRequestDto;
 import org.bublapi.dent.user.dto.UpdateUserRequestDto;
 import org.bublapi.dent.user.dto.UserResponseDto;
 import org.bublapi.dent.user.entity.User;
-import org.mapstruct.*;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
