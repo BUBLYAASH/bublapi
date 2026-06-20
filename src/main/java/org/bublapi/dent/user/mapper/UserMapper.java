@@ -4,24 +4,20 @@ import org.bublapi.dent.user.dto.CreateUserRequestDto;
 import org.bublapi.dent.user.dto.UpdateUserRequestDto;
 import org.bublapi.dent.user.dto.UserResponseDto;
 import org.bublapi.dent.user.entity.User;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-  @Mapping(target = "clinic", ignore = true)
-  @Mapping(target = "passwordHash", ignore = true)
-  User toEntity(CreateUserRequestDto request);
+    @Mapping(target = "clinic", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
+    User toEntity(CreateUserRequestDto request);
 
-  @Mapping(target = "clinicId", source = "clinic.id")
-  UserResponseDto toResponse(User user);
+    @Mapping(target = "clinicId", source = "clinic.id")
+    UserResponseDto toResponse(User user);
 
-  @Mapping(target = "clinic", ignore = true)
-  @Mapping(target = "passwordHash", ignore = true)
-  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-  void updateEntity(UpdateUserRequestDto request, @MappingTarget User user);
+    @Mapping(target = "clinic", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(UpdateUserRequestDto request, @MappingTarget User user);
 }

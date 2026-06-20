@@ -8,10 +8,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,12 +21,12 @@ import lombok.Setter;
 @Table(name = "roles")
 public class Role {
 
-  @EqualsAndHashCode.Include
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+   @EqualsAndHashCode.Include
+   @Id
+   @GeneratedValue(strategy = GenerationType.UUID)
+   private UUID id;
 
-  @Enumerated(EnumType.STRING)
-  @Column(length = 50, nullable = false, unique = true)
-  private RoleName name;
+   @Enumerated(EnumType.STRING)
+   @Column(length = 50, nullable = false, unique = true)
+   private RoleName name;
 }

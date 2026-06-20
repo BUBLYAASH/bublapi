@@ -13,14 +13,14 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface PatientMapper {
 
-  @Mapping(target = "clinic", ignore = true)
-  @Mapping(target = "user", ignore = true)
-  Patient toEntity(CreatePatientRequestDto request);
+   @Mapping(target = "clinic", ignore = true)
+   @Mapping(target = "user", ignore = true)
+   Patient toEntity(CreatePatientRequestDto request);
 
-  @Mapping(target = "clinicId", source = "clinic.id")
-  @Mapping(target = "userId", source = "user.id")
-  PatientResponseDto toResponse(Patient entity);
+   @Mapping(target = "clinicId", source = "clinic.id")
+   @Mapping(target = "userId", source = "user.id")
+   PatientResponseDto toResponse(Patient entity);
 
-  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-  void updateEntity(UpdatePatientRequestDto request, @MappingTarget Patient patient);
+   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+   void updateEntity(UpdatePatientRequestDto request, @MappingTarget Patient patient);
 }

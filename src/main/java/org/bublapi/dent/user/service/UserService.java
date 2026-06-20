@@ -1,7 +1,5 @@
 package org.bublapi.dent.user.service;
 
-import java.util.List;
-import java.util.UUID;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
@@ -18,110 +16,113 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 public class UserService {
 
-  private final UserRepository userRepository;
-  private final ClinicRepository clinicRepository;
-  private final RoleRepository roleRepository;
-  private final UserMapper userMapper;
+    private final UserRepository userRepository;
+    private final ClinicRepository clinicRepository;
+    private final RoleRepository roleRepository;
+    private final UserMapper userMapper;
 
-  public UserService(UserRepository userRepository, ClinicRepository clinicRepository,
-      RoleRepository roleRepository, UserMapper userMapper) {
-    this.userRepository = userRepository;
-    this.clinicRepository = clinicRepository;
-    this.roleRepository = roleRepository;
-    this.userMapper = userMapper;
-  }
-
-  public UserResponseDto create(UUID clinicId, CreateUserRequestDto request) {
-    Clinic clinic = clinicRepository.findById(clinicId)
-        .orElseThrow(() -> new ResourceNotFoundException("Clinic with provided ID not found"));
-
-    String hash = BCrypt.hashpw(request.password(), BCrypt.gensalt(12));
-
-    User user = userMapper.toEntity(request);
-    user.setClinic(clinic);
-    user.setPasswordHash(hash);
-
-    User saved = userRepository.save(user);
-
-    return userMapper.toResponse(saved);
-  }
-
-  @Transactional
-  public UserResponseDto update(UUID clinicId, UUID userId, UpdateUserRequestDto request) {
-    User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-    userMapper.updateEntity(request, user);
-
-    if (request.password() != null && !request.password().isBlank()) {
-      String hash = BCrypt.hashpw(request.password(), BCrypt.gensalt(12));
-      user.setPasswordHash(hash);
+    public UserService(UserRepository userRepository, ClinicRepository clinicRepository,
+                       RoleRepository roleRepository, UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.clinicRepository = clinicRepository;
+        this.roleRepository = roleRepository;
+        this.userMapper = userMapper;
     }
 
-    return userMapper.toResponse(user);
-  }
+    public UserResponseDto create(UUID clinicId, CreateUserRequestDto request) {
+        Clinic clinic = clinicRepository.findById(clinicId)
+                .orElseThrow(() -> new ResourceNotFoundException("Clinic with provided ID not found"));
 
-  @Transactional
-  public UserRoleResponseDto assignRole(UUID clinicId, UUID userId, UUID roleId) {
-    User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    Role role = roleRepository.findById(roleId)
-        .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        String hash = BCrypt.hashpw(request.password(), BCrypt.gensalt(12));
 
-    boolean added = user.getRoles().add(role);
+        User user = userMapper.toEntity(request);
+        user.setClinic(clinic);
+        user.setPasswordHash(hash);
 
-    if (!added) {
-      throw new RuntimeException("User already has this role");
+        User saved = userRepository.save(user);
+
+        return userMapper.toResponse(saved);
     }
 
-    return new UserRoleResponseDto(user.getId(), role.getId());
-  }
+    @Transactional
+    public UserResponseDto update(UUID clinicId, UUID userId, UpdateUserRequestDto request) {
+        User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-  @Transactional
-  public UserRoleResponseDto removeRole(UUID clinicId, UUID userId, UUID roleId) {
-    User user = userRepository.findByIdAndClinic_Id(clinicId, userId)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    Role role = roleRepository.findById(roleId)
-        .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        userMapper.updateEntity(request, user);
 
-    boolean removed = user.getRoles().remove(role);
+        if (request.password() != null && !request.password().isBlank()) {
+            String hash = BCrypt.hashpw(request.password(), BCrypt.gensalt(12));
+            user.setPasswordHash(hash);
+        }
 
-    if (!removed) {
-      throw new ResourceNotFoundException("User does not have this role");
+        return userMapper.toResponse(user);
     }
 
-    return new UserRoleResponseDto(user.getId(), role.getId());
-  }
+    @Transactional
+    public UserRoleResponseDto assignRole(UUID clinicId, UUID userId, UUID roleId) {
+        User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-  @Transactional
-  public UserResponseDto deactivate(UUID clinicId, UUID userId) {
-    User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        boolean added = user.getRoles().add(role);
 
-    user.setEnabled(false);
-    user.setDisabledByClinic(false);
+        if (!added) {
+            throw new RuntimeException("User already has this role");
+        }
 
-    return userMapper.toResponse(user);
-  }
+        return new UserRoleResponseDto(user.getId(), role.getId());
+    }
 
-  @Transactional
-  public UserResponseDto activate(UUID clinicId, UUID userId) {
-    User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    @Transactional
+    public UserRoleResponseDto removeRole(UUID clinicId, UUID userId, UUID roleId) {
+        User user = userRepository.findByIdAndClinic_Id(clinicId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-    user.setEnabled(true);
-    user.setDisabledByClinic(false);
-    return userMapper.toResponse(user);
-  }
+        boolean removed = user.getRoles().remove(role);
 
-  public List<UserResponseDto> findAll(UUID clinicId) {
-    clinicRepository.findByIdAndActiveTrue(clinicId)
-        .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+        if (!removed) {
+            throw new ResourceNotFoundException("User does not have this role");
+        }
 
-    return userRepository.findAllByClinic_IdAndEnabledTrue(clinicId).stream()
-        .map(userMapper::toResponse).toList();
-  }
+        return new UserRoleResponseDto(user.getId(), role.getId());
+    }
+
+    @Transactional
+    public UserResponseDto deactivate(UUID clinicId, UUID userId) {
+        User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setEnabled(false);
+        user.setDisabledByClinic(false);
+
+        return userMapper.toResponse(user);
+    }
+
+    @Transactional
+    public UserResponseDto activate(UUID clinicId, UUID userId) {
+        User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setEnabled(true);
+        user.setDisabledByClinic(false);
+        return userMapper.toResponse(user);
+    }
+
+    public List<UserResponseDto> findAll(UUID clinicId) {
+        clinicRepository.findByIdAndActiveTrue(clinicId)
+                .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+
+        return userRepository.findAllByClinic_IdAndEnabledTrue(clinicId).stream()
+                .map(userMapper::toResponse).toList();
+    }
 }

@@ -12,10 +12,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface ClinicMapper {
 
-  Clinic toEntity(CreateClinicRequestDto request);
+   Clinic toEntity(CreateClinicRequestDto request);
 
-  ClinicResponseDto toResponse(Clinic entity);
+   ClinicResponseDto toResponse(Clinic entity);
 
-  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-  void updateEntity(UpdateClinicRequestDto request, @MappingTarget Clinic clinic);
+   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+   void updateEntity(UpdateClinicRequestDto request, @MappingTarget Clinic clinic);
 }
