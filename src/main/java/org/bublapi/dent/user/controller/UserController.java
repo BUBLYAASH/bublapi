@@ -58,14 +58,14 @@ public class UserController {
     return userService.removeRole(clinicId, userId, roleId);
   }
 
-  @Operation(summary = "Deactivate a user", description = "Deactivates user by ID")
-  @PatchMapping("/{userId}/deactivation")
+  @Operation(summary = "Deactivate own user account", description = "Deactivates the user account from profile")
+  @PatchMapping("/{userId}/deactivation") //TODO: Current PATCH -> /api/me/deactivation after integrating JWT and Spring Security
   public UserResponseDto deactivate(@PathVariable UUID clinicId, @PathVariable UUID userId) {
     return userService.deactivate(clinicId, userId);
   }
 
-  @Operation(summary = "Activate a user", description = "Activates user by ID")
-  @PatchMapping("/{userId}/activation")
+  @Operation(summary = "Activate own user account", description = "Activates the user account from profile")
+  @PatchMapping("/{userId}/activation") //TODO: Current PATCH -> /api/me/activation after integrating JWT and Spring Security
   public UserResponseDto activate(@PathVariable UUID clinicId, @PathVariable UUID userId) {
     return userService.activate(clinicId, userId);
   }
