@@ -3,6 +3,7 @@ package org.bublapi.dent.user.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import org.bublapi.dent.user.dto.CreateUserRequestDto;
 import org.bublapi.dent.user.dto.UpdateUserRequestDto;
@@ -10,6 +11,7 @@ import org.bublapi.dent.user.dto.UserResponseDto;
 import org.bublapi.dent.user.dto.UserRoleResponseDto;
 import org.bublapi.dent.user.service.UserService;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,5 +56,23 @@ public class UserController {
   public UserRoleResponseDto removeRole(@PathVariable UUID clinicId, @PathVariable UUID userId,
       @PathVariable UUID roleId) {
     return userService.removeRole(clinicId, userId, roleId);
+  }
+
+  @Operation(summary = "Deactivate a user", description = "Deactivates user by ID")
+  @PatchMapping("/{userId}/deactivation")
+  public UserResponseDto deactivate(@PathVariable UUID clinicId, @PathVariable UUID userId) {
+    return userService.deactivate(clinicId, userId);
+  }
+
+  @Operation(summary = "Activate a user", description = "Activates user by ID")
+  @PatchMapping("/{userId}/activation")
+  public UserResponseDto activate(@PathVariable UUID clinicId, @PathVariable UUID userId) {
+    return userService.activate(clinicId, userId);
+  }
+
+  @Operation(summary = "Get all enabled users in clinic", description = "Get all enabled users in this clinic")
+  @GetMapping
+  public List<UserResponseDto> findAll(@PathVariable UUID clinicId) {
+    return userService.findAll(clinicId);
   }
 }

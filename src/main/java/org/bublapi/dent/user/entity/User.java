@@ -66,6 +66,9 @@ public class User {
   @Column(nullable = false)
   private Boolean enabled = true;
 
+  @Column(name = "disabled_by_clinic", nullable = false)
+  private Boolean disabledByClinic = false;
+
   @ManyToMany
   @JoinTable(
       name = "user_roles",

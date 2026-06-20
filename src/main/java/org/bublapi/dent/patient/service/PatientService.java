@@ -1,5 +1,6 @@
 package org.bublapi.dent.patient.service;
 
+import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import org.bublapi.dent.clinic.entity.Clinic;
@@ -47,5 +48,13 @@ public class PatientService {
     patientMapper.updateEntity(request, patient);
 
     return patientMapper.toResponse(patient);
+  }
+
+  public List<PatientResponseDto> findAll(UUID clinicId) {
+    clinicRepository.findByIdAndActiveTrue(clinicId)
+        .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+
+    return patientRepository.findAllByClinic_Id(clinicId).stream().map(patientMapper::toResponse)
+        .toList();
   }
 }

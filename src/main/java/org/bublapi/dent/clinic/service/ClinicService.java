@@ -1,6 +1,11 @@
 package org.bublapi.dent.clinic.service;
 
+import java.util.List;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.bublapi.dent.patient.entity.Patient;
+import org.bublapi.dent.patient.repository.PatientRepository;
+import org.bublapi.dent.user.entity.User;
+import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import org.bublapi.dent.clinic.dto.ClinicResponseDto;
@@ -15,10 +20,15 @@ import org.springframework.stereotype.Service;
 public class ClinicService {
 
   private final ClinicRepository clinicRepository;
+  private final UserRepository userRepository;
+  private final PatientRepository patientRepository;
   private final ClinicMapper clinicMapper;
 
-  public ClinicService(ClinicRepository clinicRepository, ClinicMapper clinicMapper) {
+  public ClinicService(ClinicRepository clinicRepository, UserRepository userRepository,
+      PatientRepository patientRepository, ClinicMapper clinicMapper) {
     this.clinicRepository = clinicRepository;
+    this.userRepository = userRepository;
+    this.patientRepository = patientRepository;
     this.clinicMapper = clinicMapper;
   }
 
@@ -38,5 +48,53 @@ public class ClinicService {
     clinicMapper.updateEntity(request, clinic);
 
     return clinicMapper.toResponse(clinic);
+  }
+
+  @Transactional
+  public ClinicResponseDto deactivate(UUID id) {
+    Clinic clinic = clinicRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+
+    clinic.setActive(false);
+
+    List<User> users = userRepository.findAllByClinic_IdAndEnabledTrue(id);
+
+    users.forEach(user -> {
+      user.setEnabled(false);
+      user.setDisabledByClinic(true);
+    });
+
+    List<Patient> patients = patientRepository.findAllByClinic_Id(id);
+
+    patients.forEach(patient -> patient.setActive(false));
+
+    return clinicMapper.toResponse(clinic);
+  }
+
+  @Transactional
+  public ClinicResponseDto activate(UUID id) {
+    Clinic clinic = clinicRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+
+    clinic.setActive(true);
+
+    List<User> users = userRepository.findAllByClinic_Id(id);
+
+    users.stream().filter(user -> user.getDisabledByClinic() && !user.getEnabled())
+        .forEach(user -> {
+          user.setDisabledByClinic(false);
+          user.setEnabled(true);
+        });
+
+    List<Patient> patients = patientRepository.findAllByClinic_Id(id);
+
+    patients.stream().filter(patient -> patient.getUser() == null || patient.getUser().getEnabled())
+        .forEach(patient -> patient.setActive(true));
+
+    return clinicMapper.toResponse(clinic);
+  }
+
+  public List<ClinicResponseDto> findAll() {
+    return clinicRepository.findAllByActiveTrue().stream().map(clinicMapper::toResponse).toList();
   }
 }

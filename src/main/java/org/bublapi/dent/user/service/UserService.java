@@ -1,5 +1,6 @@
 package org.bublapi.dent.user.service;
 
+import java.util.List;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
@@ -93,5 +94,34 @@ public class UserService {
     }
 
     return new UserRoleResponseDto(user.getId(), role.getId());
+  }
+
+  @Transactional
+  public UserResponseDto deactivate(UUID clinicId, UUID userId) {
+    User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    user.setEnabled(false);
+    user.setDisabledByClinic(false);
+
+    return userMapper.toResponse(user);
+  }
+
+  @Transactional
+  public UserResponseDto activate(UUID clinicId, UUID userId) {
+    User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    user.setEnabled(true);
+    user.setDisabledByClinic(false);
+    return userMapper.toResponse(user);
+  }
+
+  public List<UserResponseDto> findAll(UUID clinicId) {
+    clinicRepository.findByIdAndActiveTrue(clinicId)
+        .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+
+    return userRepository.findAllByClinic_IdAndEnabledTrue(clinicId).stream()
+        .map(userMapper::toResponse).toList();
   }
 }

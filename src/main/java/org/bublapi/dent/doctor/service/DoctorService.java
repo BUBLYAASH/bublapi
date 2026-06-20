@@ -1,5 +1,6 @@
 package org.bublapi.dent.doctor.service;
 
+import java.util.List;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
@@ -45,5 +46,33 @@ public class DoctorService {
     doctorMapper.updateEntity(request, doctor);
 
     return doctorMapper.toResponse(doctor);
+  }
+
+  @Transactional
+  public DoctorResponseDto deactivate(UUID clinicId, UUID doctorId) {
+    Doctor doctor = doctorRepository.findByIdAndClinic_Id(doctorId, clinicId)
+        .orElseThrow(() -> new ResourceNotFoundException("Doctor not found in this clinic"));
+
+    doctor.setActive(false);
+
+    return doctorMapper.toResponse(doctor);
+  }
+
+  @Transactional
+  public DoctorResponseDto activate(UUID clinicId, UUID doctorId) {
+    Doctor doctor = doctorRepository.findByIdAndClinic_Id(doctorId, clinicId)
+        .orElseThrow(() -> new ResourceNotFoundException("Doctor not found in this clinic"));
+
+    doctor.setActive(true);
+
+    return doctorMapper.toResponse(doctor);
+  }
+
+  public List<DoctorResponseDto> findAll(UUID clinicId) {
+    clinicRepository.findByIdAndActiveTrue(clinicId)
+        .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+
+    return doctorRepository.findAllByClinic_IdAndActiveTrue(clinicId).stream()
+        .map(doctorMapper::toResponse).toList();
   }
 }
