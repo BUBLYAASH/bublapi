@@ -1,11 +1,10 @@
 package org.bublapi.dent.doctor.service;
 
 import java.util.List;
-import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
+import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.doctor.dto.CreateDoctorRequestDto;
 import org.bublapi.dent.doctor.dto.DoctorResponseDto;
 import org.bublapi.dent.doctor.dto.UpdateDoctorRequestDto;
@@ -13,6 +12,7 @@ import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.mapper.DoctorMapper;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DoctorService {

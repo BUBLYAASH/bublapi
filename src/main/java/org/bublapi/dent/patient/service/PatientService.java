@@ -1,7 +1,6 @@
 package org.bublapi.dent.patient.service;
 
 import java.util.List;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
@@ -13,6 +12,7 @@ import org.bublapi.dent.patient.entity.Patient;
 import org.bublapi.dent.patient.mapper.PatientMapper;
 import org.bublapi.dent.patient.repository.PatientRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PatientService {

@@ -1,12 +1,6 @@
 package org.bublapi.dent.clinic.service;
 
 import java.util.List;
-import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.bublapi.dent.patient.entity.Patient;
-import org.bublapi.dent.patient.repository.PatientRepository;
-import org.bublapi.dent.user.entity.User;
-import org.bublapi.dent.user.repository.UserRepository;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import org.bublapi.dent.clinic.dto.ClinicResponseDto;
 import org.bublapi.dent.clinic.dto.CreateClinicRequestDto;
@@ -14,7 +8,13 @@ import org.bublapi.dent.clinic.dto.UpdateClinicRequestDto;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.mapper.ClinicMapper;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
+import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.bublapi.dent.patient.entity.Patient;
+import org.bublapi.dent.patient.repository.PatientRepository;
+import org.bublapi.dent.user.entity.User;
+import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ClinicService {

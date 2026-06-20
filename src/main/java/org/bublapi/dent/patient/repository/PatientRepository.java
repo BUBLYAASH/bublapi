@@ -1,8 +1,8 @@
 package org.bublapi.dent.patient.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.List;
 import org.bublapi.dent.patient.entity.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
 

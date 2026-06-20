@@ -1,22 +1,22 @@
 package org.bublapi.dent.user.service;
 
 import java.util.List;
-import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
+import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.role.entity.Role;
 import org.bublapi.dent.role.repository.RoleRepository;
 import org.bublapi.dent.user.dto.CreateUserRequestDto;
 import org.bublapi.dent.user.dto.UpdateUserRequestDto;
 import org.bublapi.dent.user.dto.UserResponseDto;
 import org.bublapi.dent.user.dto.UserRoleResponseDto;
-import org.mindrot.jbcrypt.BCrypt;
 import org.bublapi.dent.user.entity.User;
 import org.bublapi.dent.user.mapper.UserMapper;
 import org.bublapi.dent.user.repository.UserRepository;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
