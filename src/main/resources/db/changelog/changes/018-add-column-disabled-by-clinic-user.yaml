@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 018-add-column-disabled-by-clinic-user
+      author: Gleb Kovalev
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: disabled_by_clinic
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
