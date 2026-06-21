@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.bublapi.dent.doctor.dto.CreateDoctorRequestDto;
 import org.bublapi.dent.doctor.dto.DoctorResponseDto;
+import org.bublapi.dent.doctor.dto.LinkUserToDoctorRequestDto;
 import org.bublapi.dent.doctor.dto.UpdateDoctorRequestDto;
 import org.bublapi.dent.doctor.service.DoctorService;
 import org.bublapi.dent.doctor_schedule_exception.dto.DoctorScheduleExceptionResponseDto;
@@ -109,5 +110,11 @@ public class DoctorController {
    @DeleteMapping("/{doctorId}/schedule-exceptions/{scheduleExceptionId}")
    public void deleteScheduleException(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @PathVariable UUID scheduleExceptionId) {
       doctorScheduleExceptionService.deleteException(clinicId, doctorId, scheduleExceptionId);
+   }
+
+   @Operation(summary = "Link user to doctor", description = "Connect user profile with doctor profile")
+   @PatchMapping("/{doctorId}/user-link")
+   public DoctorResponseDto linkUserToDoctor(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @Valid @RequestBody LinkUserToDoctorRequestDto request) {
+      return doctorService.linkUser(clinicId, doctorId, request);
    }
 }

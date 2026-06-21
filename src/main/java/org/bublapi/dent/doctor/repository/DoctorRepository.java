@@ -18,4 +18,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
    Optional<Doctor> findAvailableDoctorInClinic(UUID clinicId, UUID doctorId);
 
    Optional<Doctor> findByIdAndClinic_Id(UUID doctorId, UUID clinicId);
+
+   Optional<Doctor> findByUser_Id(UUID userId);
 }

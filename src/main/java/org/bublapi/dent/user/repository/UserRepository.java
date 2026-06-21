@@ -2,6 +2,7 @@ package org.bublapi.dent.user.repository;
 
 import org.bublapi.dent.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +15,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
    List<User> findAllByClinic_Id(UUID clinicId);
 
    Optional<User> findByIdAndClinic_Id(UUID userId, UUID clinicId);
+
+   @Query("""
+           SELECT u FROM User u WHERE u.clinic.id = :clinicId AND (u.email = :email OR u.phone = :phone)
+           """)
+   Optional<User> findByEmailOrPhoneInClinic(String email, String phone, UUID clinicId);
 }
