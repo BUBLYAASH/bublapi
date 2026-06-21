@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 019-doctor-schedule-fix
+      author: Gleb Kovalev
+      changes:
+        - dropColumn:
+            tableName: doctor_working_hours
+            columnName: active
+        - dropUniqueConstraint:
+            tableName: doctor_schedule_exceptions
+            constraintName: uk_doctor_se_date
+        - addUniqueConstraint:
+            tableName: doctor_schedule_exceptions
+            columnNames: doctor_id, date, start_time, end_time
+            constraintName: uk_doctor_se_date
