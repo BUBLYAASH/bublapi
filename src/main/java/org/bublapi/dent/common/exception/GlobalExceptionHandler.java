@@ -26,6 +26,18 @@ public class GlobalExceptionHandler {
       return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
    }
 
+   @ExceptionHandler(BadRequestException.class)
+   public ResponseEntity<Map<String, Object>> handleBadRequest(BadRequestException e) {
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("error", "Bad request");
+      response.put("message", e.getMessage());
+      response.put("status", HttpStatus.BAD_REQUEST.value());
+      response.put("timestamp", LocalDateTime.now());
+
+      return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+   }
+
    @ExceptionHandler(MethodArgumentNotValidException.class)
    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(
            MethodArgumentNotValidException e) {
