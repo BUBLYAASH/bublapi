@@ -1,5 +1,6 @@
 package org.bublapi.dent.patient.mapper;
 
+import org.bublapi.dent.patient.dto.CreatePatientFromProfileRequestDto;
 import org.bublapi.dent.patient.dto.CreatePatientRequestDto;
 import org.bublapi.dent.patient.dto.PatientResponseDto;
 import org.bublapi.dent.patient.dto.UpdatePatientRequestDto;
@@ -16,6 +17,10 @@ public interface PatientMapper {
    @Mapping(target = "clinic", ignore = true)
    @Mapping(target = "user", ignore = true)
    Patient toEntity(CreatePatientRequestDto request);
+
+   @Mapping(target = "clinic", ignore = true)
+   @Mapping(target = "user", ignore = true)
+   Patient toEntity(CreatePatientFromProfileRequestDto request);
 
    @Mapping(target = "clinicId", source = "clinic.id")
    @Mapping(target = "userId", source = "user.id")
