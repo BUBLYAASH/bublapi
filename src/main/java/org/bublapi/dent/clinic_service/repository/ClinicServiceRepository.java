@@ -13,5 +13,7 @@ public interface ClinicServiceRepository extends JpaRepository<ClinicService, UU
 
    Optional<ClinicService> findByIdAndClinic_Id(UUID clinicServiceId, UUID clinicId);
 
+   Optional<ClinicService> findByIdAndClinic_IdAndActiveTrue(UUID clinicServiceId, UUID clinicId);
+
    List<ClinicService> findAllByClinic_Id(UUID clinicId);
 }
