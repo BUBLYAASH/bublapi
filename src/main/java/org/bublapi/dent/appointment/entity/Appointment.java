@@ -3,11 +3,14 @@ package org.bublapi.dent.appointment.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.bublapi.dent.appointment_service.entity.AppointmentServiceItem;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.patient.entity.Patient;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -48,6 +51,9 @@ public class Appointment {
    @Enumerated(EnumType.STRING)
    @Column(length = 25, nullable = false)
    private AppointmentStatus status = AppointmentStatus.CREATED;
+
+   @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
+   private List<AppointmentServiceItem> services = new ArrayList<>();
 
    @PrePersist
    private void prePersist() {

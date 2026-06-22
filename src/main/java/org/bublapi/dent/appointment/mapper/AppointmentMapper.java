@@ -3,10 +3,11 @@ package org.bublapi.dent.appointment.mapper;
 import org.bublapi.dent.appointment.dto.AppointmentResponseDto;
 import org.bublapi.dent.appointment.dto.CreateAppointmentRequestDto;
 import org.bublapi.dent.appointment.entity.Appointment;
+import org.bublapi.dent.appointment_service.mapper.AppointmentServiceMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = AppointmentServiceMapper.class)
 public interface AppointmentMapper {
    @Mapping(target = "clinic", ignore = true)
    @Mapping(target = "patient", ignore = true)

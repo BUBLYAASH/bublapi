@@ -86,6 +86,7 @@ public class AppointmentService {
          AppointmentServiceItem item = new AppointmentServiceItem();
 
          item.setAppointment(saved);
+         saved.getServices().add(item);
          item.setClinicService(clinicService);
          item.setPrice(clinicService.getPrice());
          item.setDurationMinutes(clinicService.getDurationMinutes());
