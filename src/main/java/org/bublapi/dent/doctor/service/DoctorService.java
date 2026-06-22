@@ -82,7 +82,7 @@ public class DoctorService {
          throw new BadRequestException("Email and phone are empty");
       }
 
-      User user = userRepository.findByEmailOrPhoneInClinic(request.email(), request.phone(), clinicId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+      User user = userRepository.findByEmailOrPhoneInClinic(clinicId, request.email(), request.phone()).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       Doctor doctor = doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId).orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 

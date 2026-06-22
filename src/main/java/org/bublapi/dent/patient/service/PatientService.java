@@ -40,7 +40,7 @@ public class PatientService {
       Patient patient = patientMapper.toEntity(request);
 
       if ((request.email() != null && !request.email().isBlank()) || (request.phone() != null && !request.phone().isBlank())) {
-         userRepository.findByEmailOrPhoneInClinic(request.email(), request.phone(), clinicId).ifPresent(u -> {
+         userRepository.findByEmailOrPhoneInClinic(clinicId, request.email(), request.phone()).ifPresent(u -> {
             if (patientRepository.findByUser_Id(u.getId()).isEmpty()) {
                patient.setUser(u);
             }

@@ -19,5 +19,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
    @Query("""
            SELECT u FROM User u WHERE u.clinic.id = :clinicId AND (u.email = :email OR u.phone = :phone)
            """)
-   Optional<User> findByEmailOrPhoneInClinic(String email, String phone, UUID clinicId);
+   Optional<User> findByEmailOrPhoneInClinic(UUID clinicId, String email, String phone);
 }
