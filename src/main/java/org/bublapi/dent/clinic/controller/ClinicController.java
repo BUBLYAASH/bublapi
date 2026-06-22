@@ -7,7 +7,6 @@ import org.bublapi.dent.clinic.dto.ClinicResponseDto;
 import org.bublapi.dent.clinic.dto.CreateClinicRequestDto;
 import org.bublapi.dent.clinic.dto.UpdateClinicRequestDto;
 import org.bublapi.dent.clinic.service.ClinicService;
-import org.bublapi.dent.clinic_service.service.ClinicServiceService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,11 +24,9 @@ import java.util.UUID;
 public class ClinicController {
 
    private final ClinicService clinicService;
-   private final ClinicServiceService clinicServiceService;
 
-   public ClinicController(ClinicService clinicService, ClinicServiceService clinicServiceService) {
+   public ClinicController(ClinicService clinicService) {
       this.clinicService = clinicService;
-      this.clinicServiceService = clinicServiceService;
    }
 
    @Operation(summary = "Create a new clinic", description = "Add a new clinic to DB")
