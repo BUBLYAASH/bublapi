@@ -2,11 +2,12 @@ package org.bublapi.dent.patient.dto;
 
 import java.time.LocalDate;
 
-public record CreatePatientFromProfileRequestDto(LocalDate birthDate,
+public record CreatePatientFromProfileRequestDto(
+        LocalDate birthDate,
 
-                                                 String notes,
+        String notes,
 
-                                                 String allergies,
+        String allergies,
 
-                                                 String chronicDiseases) {
+        String chronicDiseases) {
 }

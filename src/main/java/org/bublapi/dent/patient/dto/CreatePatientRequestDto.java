@@ -7,22 +7,23 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
-public record CreatePatientRequestDto(@NotBlank @Size(max = 50) String firstName,
+public record CreatePatientRequestDto(
+        @NotBlank @Size(max = 50) String firstName,
 
-                                      @NotBlank @Size(max = 50) String lastName,
+        @NotBlank @Size(max = 50) String lastName,
 
-                                      @Size(max = 50) String middleName,
+        @Size(max = 50) String middleName,
 
-                                      @NotBlank @Size(max = 15) @Pattern(regexp = "^\\d{10,15}$") String phone,
+        @NotBlank @Size(max = 15) @Pattern(regexp = "^\\d{10,15}$") String phone,
 
-                                      @Email String email,
+        @Email String email,
 
-                                      LocalDate birthDate,
+        LocalDate birthDate,
 
-                                      String notes,
+        String notes,
 
-                                      String allergies,
+        String allergies,
 
-                                      String chronicDiseases) {
+        String chronicDiseases) {
 
 }

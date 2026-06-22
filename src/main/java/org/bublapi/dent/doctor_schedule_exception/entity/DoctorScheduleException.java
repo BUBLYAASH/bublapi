@@ -12,7 +12,9 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "doctor_schedule_exceptions", uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "date", "start_time", "end_time"}))
+@Table(name = "doctor_schedule_exceptions", uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "date",
+                                                                                                 "start_time",
+                                                                                                 "end_time"}))
 public class DoctorScheduleException {
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)

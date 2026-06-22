@@ -35,11 +35,13 @@ public class PatientService {
    }
 
    public PatientResponseDto create(UUID clinicId, CreatePatientRequestDto request) {
-      Clinic clinic = clinicRepository.findById(clinicId).orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+      Clinic clinic = clinicRepository.findById(clinicId)
+                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
 
       Patient patient = patientMapper.toEntity(request);
 
-      if ((request.email() != null && !request.email().isBlank()) || (request.phone() != null && !request.phone().isBlank())) {
+      if ((request.email() != null && !request.email().isBlank()) || (request.phone() != null && !request.phone()
+                                                                                                         .isBlank())) {
          userRepository.findByEmailOrPhoneInClinic(clinicId, request.email(), request.phone()).ifPresent(u -> {
             if (patientRepository.findByUser_Id(u.getId()).isEmpty()) {
                patient.setUser(u);
@@ -56,9 +58,11 @@ public class PatientService {
 
    @Transactional
    public PatientResponseDto createFromProfile(UUID clinicId, UUID userId, CreatePatientFromProfileRequestDto request) {
-      Clinic clinic = clinicRepository.findByIdAndActiveTrue(clinicId).orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+      Clinic clinic = clinicRepository.findByIdAndActiveTrue(clinicId)
+                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
 
-      User user = userRepository.findByIdAndClinic_Id(userId, clinicId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       patientRepository.findByUser_Id(user.getId()).ifPresent(t -> {
          throw new BadRequestException("User already has patient card");
@@ -81,7 +85,8 @@ public class PatientService {
 
    @Transactional
    public PatientResponseDto update(UUID clinicId, UUID patientId, UpdatePatientRequestDto request) {
-      Patient patient = patientRepository.findByIdAndClinic_Id(patientId, clinicId).orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+      Patient patient = patientRepository.findByIdAndClinic_Id(patientId, clinicId)
+                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
       patientMapper.updateEntity(request, patient);
 
@@ -89,15 +94,18 @@ public class PatientService {
    }
 
    public PatientResponseDto getByUserId(UUID clinicId, UUID userId) {
-      clinicRepository.findByIdAndActiveTrue(clinicId).orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+      clinicRepository.findByIdAndActiveTrue(clinicId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
 
-      Patient patient = patientRepository.findByUser_IdAndClinic_Id(userId, clinicId).orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+      Patient patient = patientRepository.findByUser_IdAndClinic_Id(userId, clinicId)
+                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
       return patientMapper.toResponse(patient);
    }
 
    public List<PatientResponseDto> findAll(UUID clinicId) {
-      clinicRepository.findByIdAndActiveTrue(clinicId).orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+      clinicRepository.findByIdAndActiveTrue(clinicId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
 
       return patientRepository.findAllByClinic_Id(clinicId).stream().map(patientMapper::toResponse).toList();
    }

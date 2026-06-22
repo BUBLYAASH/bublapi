@@ -4,7 +4,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
 
-public record UpdateDoctorWorkingHoursRequestDto(@NotNull LocalTime startTime,
+public record UpdateDoctorWorkingHoursRequestDto(
+        @NotNull LocalTime startTime,
 
-                                                 @NotNull LocalTime endTime) {
+        @NotNull LocalTime endTime) {
 }

@@ -3,16 +3,17 @@ package org.bublapi.dent.doctor.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record CreateDoctorRequestDto(@NotBlank @Size(max = 50) String firstName,
+public record CreateDoctorRequestDto(
+        @NotBlank @Size(max = 50) String firstName,
 
-                                     @NotBlank @Size(max = 50) String lastName,
+        @NotBlank @Size(max = 50) String lastName,
 
-                                     @Size(max = 50) String middleName,
+        @Size(max = 50) String middleName,
 
-                                     @NotBlank String specialty,
+        @NotBlank String specialty,
 
-                                     String avatarUrl,
+        String avatarUrl,
 
-                                     String description) {
+        String description) {
 
 }

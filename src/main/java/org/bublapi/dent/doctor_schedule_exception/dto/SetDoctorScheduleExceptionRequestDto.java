@@ -6,13 +6,14 @@ import org.bublapi.dent.doctor_schedule_exception.entity.ScheduleExceptionType;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public record SetDoctorScheduleExceptionRequestDto(@NotNull LocalDate date,
+public record SetDoctorScheduleExceptionRequestDto(
+        @NotNull LocalDate date,
 
-                                                   @NotNull ScheduleExceptionType type,
+        @NotNull ScheduleExceptionType type,
 
-                                                   LocalTime startTime,
+        LocalTime startTime,
 
-                                                   LocalTime endTime,
+        LocalTime endTime,
 
-                                                   String reason) {
+        String reason) {
 }

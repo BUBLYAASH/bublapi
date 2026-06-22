@@ -28,7 +28,8 @@ public class DoctorScheduleExceptionService {
    }
 
    public DoctorScheduleExceptionResponseDto setException(UUID clinicId, UUID doctorId, SetDoctorScheduleExceptionRequestDto request) {
-      Doctor doctor = doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId).orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+      Doctor doctor = doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
+                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       DoctorScheduleException scheduleException = doctorScheduleExceptionMapper.toEntity(request);
 
@@ -54,7 +55,7 @@ public class DoctorScheduleExceptionService {
 
    public void deleteException(UUID clinicId, UUID doctorId, UUID scheduleExceptionId) {
       DoctorScheduleException scheduleException = doctorScheduleExceptionRepository.findByIdAndDoctor_IdAndDoctor_Clinic_Id(scheduleExceptionId, doctorId, clinicId)
-              .orElseThrow(() -> new ResourceNotFoundException("Schedule Exception not found"));
+                                                                                   .orElseThrow(() -> new ResourceNotFoundException("Schedule Exception not found"));
 
       doctorScheduleExceptionRepository.delete(scheduleException);
    }

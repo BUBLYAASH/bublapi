@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
-public record DoctorScheduleExceptionResponseDto(UUID id, UUID doctorId, LocalDate date, ScheduleExceptionType type,
-                                                 LocalTime startTime, LocalTime endTime, String reason) {
+public record DoctorScheduleExceptionResponseDto(
+        UUID id, UUID doctorId, LocalDate date, ScheduleExceptionType type,
+        LocalTime startTime, LocalTime endTime, String reason) {
 }

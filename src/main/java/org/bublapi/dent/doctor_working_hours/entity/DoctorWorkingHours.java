@@ -11,7 +11,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "doctor_working_hours", uniqueConstraints = {@UniqueConstraint(columnNames = {"doctor_id", "day_of_week", "start_time", "end_time"})})
+@Table(name = "doctor_working_hours", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"doctor_id", "day_of_week", "start_time", "end_time"})})
 public class DoctorWorkingHours {
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)

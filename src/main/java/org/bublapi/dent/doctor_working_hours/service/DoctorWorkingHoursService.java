@@ -27,7 +27,8 @@ public class DoctorWorkingHoursService {
    }
 
    public DoctorWorkingHoursResponseDto setSchedule(UUID clinicId, UUID doctorId, SetDoctorWorkingHoursRequestDto request) {
-      doctorRepository.findAvailableDoctorInClinic(doctorId, clinicId).orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+      doctorRepository.findAvailableDoctorInClinic(doctorId, clinicId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       DoctorWorkingHours workingHours = doctorWorkingHoursMapper.toEntity(request);
 
@@ -38,9 +39,11 @@ public class DoctorWorkingHoursService {
 
    @Transactional
    public DoctorWorkingHoursResponseDto updateSchedule(UUID clinicId, UUID doctorId, UUID scheduleId, UpdateDoctorWorkingHoursRequestDto request) {
-      doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId).orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+      doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
-      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_Id(scheduleId, doctorId).orElseThrow(() -> new ResourceNotFoundException("This schedule for doctor not found or unavailable"));
+      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_Id(scheduleId, doctorId)
+                                                                    .orElseThrow(() -> new ResourceNotFoundException("This schedule for doctor not found or unavailable"));
 
       doctorWorkingHoursMapper.updateEntity(request, workingHours);
 
@@ -48,13 +51,18 @@ public class DoctorWorkingHoursService {
    }
 
    public List<DoctorWorkingHoursResponseDto> getSchedule(UUID clinicId, UUID doctorId) {
-      doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId).orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+      doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
-      return doctorWorkingHoursRepository.findAllByDoctor_Id(doctorId).stream().map(doctorWorkingHoursMapper::toResponse).toList();
+      return doctorWorkingHoursRepository.findAllByDoctor_Id(doctorId)
+                                         .stream()
+                                         .map(doctorWorkingHoursMapper::toResponse)
+                                         .toList();
    }
 
    public void deleteSchedule(UUID clinicId, UUID doctorId, UUID scheduleId) {
-      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_IdAndDoctor_Clinic_Id(scheduleId, doctorId, clinicId).orElseThrow(() -> new ResourceNotFoundException("This schedule for doctor not found or unavailable"));
+      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_IdAndDoctor_Clinic_Id(scheduleId, doctorId, clinicId)
+                                                                    .orElseThrow(() -> new ResourceNotFoundException("This schedule for doctor not found or unavailable"));
 
       doctorWorkingHoursRepository.delete(workingHours);
    }
