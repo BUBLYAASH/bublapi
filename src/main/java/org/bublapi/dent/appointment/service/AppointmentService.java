@@ -46,6 +46,9 @@ public class AppointmentService {
 
    @Transactional
    public AppointmentResponseDto create(UUID clinicId, UUID patientId, CreateAppointmentRequestDto request) {
+      //TODO: Compare to Doctor's working hours and exceptions and check appointments overlaps
+      //TODO: notification after successful creation
+
       Clinic clinic = clinicRepository.findByIdAndActiveTrue(clinicId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
 
@@ -98,4 +101,6 @@ public class AppointmentService {
 
       return appointmentMapper.toResponse(saved);
    }
+
+   //TODO: Complete CRUD
 }
