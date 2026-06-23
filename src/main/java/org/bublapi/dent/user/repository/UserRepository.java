@@ -14,6 +14,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
    List<User> findAllByClinic_Id(UUID clinicId);
 
+   Optional<User> findByEmail(String email);
+
    Optional<User> findByIdAndClinic_Id(UUID userId, UUID clinicId);
 
    @Query("""
