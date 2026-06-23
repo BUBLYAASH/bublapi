@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-fix-appointment-services-column
+      author: Gleb Kovalev
+      changes:
+        - dropColumn:
+            tableName: appointment_services
+            columnName: quantity
+
+        - dropColumn:
+            tableName: appointment_services
+            columnName: position
+
+        - addColumn:
+            tableName: appointment_services
+            columns:
+              - column:
+                  name: quantity
+                  type: int
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: position
+                  type: int
+                  constraints:
+                    nullable: false
