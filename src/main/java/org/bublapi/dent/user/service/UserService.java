@@ -13,7 +13,7 @@ import org.bublapi.dent.user.dto.UserRoleResponseDto;
 import org.bublapi.dent.user.entity.User;
 import org.bublapi.dent.user.mapper.UserMapper;
 import org.bublapi.dent.user.repository.UserRepository;
-import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,13 +28,15 @@ public class UserService {
    private final RoleRepository roleRepository;
    private final PatientRepository patientRepository;
    private final UserMapper userMapper;
+   private final PasswordEncoder passwordEncoder;
 
-   public UserService(UserRepository userRepository, ClinicRepository clinicRepository, RoleRepository roleRepository, PatientRepository patientRepository, UserMapper userMapper) {
+   public UserService(UserRepository userRepository, ClinicRepository clinicRepository, RoleRepository roleRepository, PatientRepository patientRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
       this.userRepository = userRepository;
       this.clinicRepository = clinicRepository;
       this.roleRepository = roleRepository;
       this.patientRepository = patientRepository;
       this.userMapper = userMapper;
+      this.passwordEncoder = passwordEncoder;
    }
 
    @Transactional
@@ -42,11 +44,9 @@ public class UserService {
       Clinic clinic = clinicRepository.findById(clinicId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Clinic with provided ID not found"));
 
-      String hash = BCrypt.hashpw(request.password(), BCrypt.gensalt(12));
-
       User user = userMapper.toEntity(request);
       user.setClinic(clinic);
-      user.setPasswordHash(hash);
+      user.setPasswordHash(passwordEncoder.encode(request.password()));
 
       User saved = userRepository.save(user);
 
@@ -67,8 +67,7 @@ public class UserService {
       userMapper.updateEntity(request, user);
 
       if (request.password() != null && !request.password().isBlank()) {
-         String hash = BCrypt.hashpw(request.password(), BCrypt.gensalt(12));
-         user.setPasswordHash(hash);
+         user.setPasswordHash(passwordEncoder.encode(request.password()));
       }
 
       return userMapper.toResponse(user);
