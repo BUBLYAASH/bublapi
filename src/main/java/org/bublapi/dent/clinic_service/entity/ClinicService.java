@@ -6,7 +6,7 @@ import lombok.Setter;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.dental_service.entity.DentalService;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -33,13 +33,13 @@ public class ClinicService {
    private Integer durationMinutes;
 
    @Column(name = "created_at", nullable = false)
-   private LocalTime createdAt;
+   private LocalDateTime createdAt;
 
    @Column(nullable = false)
    private Boolean active = true;
 
    @PrePersist
    public void prePersist() {
-      this.createdAt = LocalTime.now();
+      this.createdAt = LocalDateTime.now();
    }
 }

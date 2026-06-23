@@ -1,6 +1,7 @@
 package org.bublapi.dent.doctor_working_hours.service;
 
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
 import org.bublapi.dent.doctor_working_hours.dto.DoctorWorkingHoursResponseDto;
 import org.bublapi.dent.doctor_working_hours.dto.SetDoctorWorkingHoursRequestDto;
@@ -27,10 +28,12 @@ public class DoctorWorkingHoursService {
    }
 
    public DoctorWorkingHoursResponseDto setSchedule(UUID clinicId, UUID doctorId, SetDoctorWorkingHoursRequestDto request) {
-      doctorRepository.findAvailableDoctorInClinic(doctorId, clinicId)
-                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+      Doctor doctor = doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
+                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       DoctorWorkingHours workingHours = doctorWorkingHoursMapper.toEntity(request);
+
+      workingHours.setDoctor(doctor);
 
       DoctorWorkingHours saved = doctorWorkingHoursRepository.save(workingHours);
 

@@ -31,7 +31,4 @@ public class DoctorWorkingHours {
 
    @Column(name = "end_time", nullable = false)
    private LocalTime endTime;
-
-   @Column(nullable = false)
-   private Boolean active = true;
 }

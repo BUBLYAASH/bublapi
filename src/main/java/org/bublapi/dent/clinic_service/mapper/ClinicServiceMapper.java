@@ -4,9 +4,11 @@ import org.bublapi.dent.clinic_service.dto.AddClinicServiceRequestDto;
 import org.bublapi.dent.clinic_service.dto.ClinicServiceResponseDto;
 import org.bublapi.dent.clinic_service.dto.UpdateClinicServiceRequestDto;
 import org.bublapi.dent.clinic_service.entity.ClinicService;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface ClinicServiceMapper {
@@ -20,5 +22,6 @@ public interface ClinicServiceMapper {
 
    @Mapping(target = "clinic", ignore = true)
    @Mapping(target = "dentalService", ignore = true)
+   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
    void updateEntity(UpdateClinicServiceRequestDto request, @MappingTarget ClinicService entity);
 }
