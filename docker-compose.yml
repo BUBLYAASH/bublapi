@@ -16,10 +16,5 @@ services:
     ports:
       - "5672:5672"
 
-  redis:
-    image: redis:7
-    container_name: bublapi-redis
-    ports:
-      - "6379:6379"
 volumes:
   postgres_data:
