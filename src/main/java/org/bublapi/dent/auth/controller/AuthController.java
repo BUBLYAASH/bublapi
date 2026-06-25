@@ -1,0 +1,29 @@
+package org.bublapi.dent.auth.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.bublapi.dent.auth.dto.LoginRequestDto;
+import org.bublapi.dent.auth.dto.LoginResponseDto;
+import org.bublapi.dent.auth.service.AuthService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Tag(name = "Auth")
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+   private final AuthService authService;
+
+   public AuthController(AuthService authService) {
+      this.authService = authService;
+   }
+
+   @Operation(summary = "Login a user", description = "Login a user by email and response a token")
+   @PostMapping("/login")
+   public LoginResponseDto login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+      return authService.login(loginRequestDto);
+   }
+}
