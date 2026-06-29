@@ -1,6 +1,7 @@
 package org.bublapi.dent.appointment.service;
 
 import org.bublapi.dent.appointment.dto.AppointmentResponseDto;
+import org.bublapi.dent.appointment.dto.ChangeAppointmentStatusRequestDto;
 import org.bublapi.dent.appointment.dto.CreateAppointmentRequestDto;
 import org.bublapi.dent.appointment.entity.Appointment;
 import org.bublapi.dent.appointment.entity.AppointmentStatus;
@@ -12,6 +13,7 @@ import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
 import org.bublapi.dent.clinic_service.entity.ClinicService;
 import org.bublapi.dent.clinic_service.repository.ClinicServiceRepository;
+import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
@@ -44,11 +46,9 @@ public class AppointmentService {
       this.appointmentMapper = appointmentMapper;
    }
 
-   @Transactional
    public AppointmentResponseDto create(UUID clinicId, UUID patientId, CreateAppointmentRequestDto request) {
       //TODO: Compare to Doctor's working hours and exceptions and check appointments overlaps
       //TODO: notification after successful creation
-
       Clinic clinic = clinicRepository.findByIdAndActiveTrue(clinicId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
 
@@ -100,6 +100,75 @@ public class AppointmentService {
       }
 
       return appointmentMapper.toResponse(saved);
+   }
+
+   @Transactional
+   public AppointmentResponseDto cancel(UUID clinicId, UUID patientId, UUID appointmentId) {
+      Appointment appointment = appointmentRepository.findByIdAndClinic_IdAndPatient_Id(appointmentId, clinicId, patientId)
+                                                     .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+
+      if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
+         throw new BadRequestException("Appointment is already cancelled");
+      }
+
+      if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+         throw new BadRequestException("Completed appointment cannot be cancelled");
+      }
+
+      appointment.setStatus(AppointmentStatus.CANCELLED);
+
+      return appointmentMapper.toResponse(appointment);
+   }
+
+   @Transactional
+   public AppointmentResponseDto createForPatient(UUID userId, UUID clinicId, CreateAppointmentRequestDto request) {
+      Patient patient = patientRepository.findByUser_IdAndClinic_Id(userId, clinicId)
+                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+      return create(clinicId, patient.getId(), request);
+   }
+
+   @Transactional
+   public AppointmentResponseDto cancelByPatient(UUID userId, UUID clinicId, UUID appointmentId) {
+      Patient patient = patientRepository.findByUser_IdAndClinic_Id(userId, clinicId)
+                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+      return cancel(clinicId, patient.getId(), appointmentId);
+   }
+
+   //TODO: for staff methods add user notifications if found by patient id
+   @Transactional
+   public AppointmentResponseDto createForStaff(UUID patientId, UUID clinicId, CreateAppointmentRequestDto request) {
+      patientRepository.findByIdAndClinic_Id(patientId, clinicId)
+                       .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+      return create(clinicId, patientId, request);
+   }
+
+   @Transactional
+   public AppointmentResponseDto cancelByStaff(UUID patientId, UUID clinicId, UUID appointmentId) {
+      patientRepository.findByIdAndClinic_Id(patientId, clinicId)
+                       .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+      return cancel(clinicId, patientId, appointmentId);
+   }
+
+   @Transactional
+   public AppointmentResponseDto changeStatus(UUID clinicId, UUID patientId, UUID appointmentId, ChangeAppointmentStatusRequestDto request) {
+      Appointment appointment = appointmentRepository.findByIdAndClinic_IdAndPatient_Id(appointmentId, clinicId, patientId)
+                                                     .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+
+      if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELLED) {
+         throw new BadRequestException("Appointment's status cannot be changed");
+      }
+
+      if (appointment.getStatus() == request.status()) {
+         throw new BadRequestException("Appointment already has this status");
+      }
+
+      appointment.setStatus(request.status());
+
+      return appointmentMapper.toResponse(appointment);
    }
 
    //TODO: Complete CRUD
