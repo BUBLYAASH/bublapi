@@ -29,4 +29,6 @@ public class AppointmentController {
    public AppointmentResponseDto create(@PathVariable UUID clinicId, @PathVariable UUID patientId, @Valid @RequestBody CreateAppointmentRequestDto request) {
       return appointmentService.create(clinicId, patientId, request);
    }
+   //TODO: add remove, update, changeStatus methods
+   //TODO: after adding API Key for clinic, change endpoint by removing clinicId variable
 }
