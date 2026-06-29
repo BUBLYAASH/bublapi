@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
    @Override
    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
       //TODO: after adding API Key for clinic, change method findByEmail to findByEmailInClinic
-      User user = userRepository.findByEmail(username)
+      User user = userRepository.findByEmailWithRoles(username)
                                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
       return new CustomUserDetails(user);
