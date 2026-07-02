@@ -19,7 +19,6 @@ import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
 import org.bublapi.dent.patient.entity.Patient;
 import org.bublapi.dent.patient.repository.PatientRepository;
-import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,17 +34,15 @@ public class AppointmentService {
    private final ClinicServiceRepository clinicServiceRepository;
    private final PatientRepository patientRepository;
    private final DoctorRepository doctorRepository;
-   private final UserRepository userRepository;
    private final AppointmentMapper appointmentMapper;
 
-   public AppointmentService(AppointmentRepository appointmentRepository, AppointmentServiceRepository appointmentServiceRepository, ClinicRepository clinicRepository, ClinicServiceRepository clinicServiceRepository, PatientRepository patientRepository, DoctorRepository doctorRepository, UserRepository userRepository, AppointmentMapper appointmentMapper) {
+   public AppointmentService(AppointmentRepository appointmentRepository, AppointmentServiceRepository appointmentServiceRepository, ClinicRepository clinicRepository, ClinicServiceRepository clinicServiceRepository, PatientRepository patientRepository, DoctorRepository doctorRepository, AppointmentMapper appointmentMapper) {
       this.appointmentRepository = appointmentRepository;
       this.appointmentServiceRepository = appointmentServiceRepository;
       this.clinicRepository = clinicRepository;
       this.clinicServiceRepository = clinicServiceRepository;
       this.patientRepository = patientRepository;
       this.doctorRepository = doctorRepository;
-      this.userRepository = userRepository;
       this.appointmentMapper = appointmentMapper;
    }
 
