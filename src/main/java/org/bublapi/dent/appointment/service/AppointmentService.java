@@ -19,6 +19,7 @@ import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
 import org.bublapi.dent.patient.entity.Patient;
 import org.bublapi.dent.patient.repository.PatientRepository;
+import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,15 +35,17 @@ public class AppointmentService {
    private final ClinicServiceRepository clinicServiceRepository;
    private final PatientRepository patientRepository;
    private final DoctorRepository doctorRepository;
+   private final UserRepository userRepository;
    private final AppointmentMapper appointmentMapper;
 
-   public AppointmentService(AppointmentRepository appointmentRepository, AppointmentServiceRepository appointmentServiceRepository, ClinicRepository clinicRepository, ClinicServiceRepository clinicServiceRepository, PatientRepository patientRepository, DoctorRepository doctorRepository, AppointmentMapper appointmentMapper) {
+   public AppointmentService(AppointmentRepository appointmentRepository, AppointmentServiceRepository appointmentServiceRepository, ClinicRepository clinicRepository, ClinicServiceRepository clinicServiceRepository, PatientRepository patientRepository, DoctorRepository doctorRepository, UserRepository userRepository, AppointmentMapper appointmentMapper) {
       this.appointmentRepository = appointmentRepository;
       this.appointmentServiceRepository = appointmentServiceRepository;
       this.clinicRepository = clinicRepository;
       this.clinicServiceRepository = clinicServiceRepository;
       this.patientRepository = patientRepository;
       this.doctorRepository = doctorRepository;
+      this.userRepository = userRepository;
       this.appointmentMapper = appointmentMapper;
    }
 
@@ -154,21 +157,29 @@ public class AppointmentService {
    }
 
    @Transactional
-   public AppointmentResponseDto changeStatus(UUID clinicId, UUID patientId, UUID appointmentId, ChangeAppointmentStatusRequestDto request) {
+   public AppointmentResponseDto changeStatusByStaff(UUID clinicId, UUID patientId, UUID appointmentId, ChangeAppointmentStatusRequestDto request) {
       Appointment appointment = appointmentRepository.findByIdAndClinic_IdAndPatient_Id(appointmentId, clinicId, patientId)
                                                      .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
 
-      if (appointment.getStatus() == AppointmentStatus.COMPLETED || appointment.getStatus() == AppointmentStatus.CANCELLED) {
-         throw new BadRequestException("Appointment's status cannot be changed");
-      }
-
-      if (appointment.getStatus() == request.status()) {
-         throw new BadRequestException("Appointment already has this status");
-      }
+      validateTransition(appointment.getStatus(), request.status());
 
       appointment.setStatus(request.status());
 
       return appointmentMapper.toResponse(appointment);
+   }
+
+   private void validateTransition(AppointmentStatus from, AppointmentStatus to) {
+      if (from == AppointmentStatus.COMPLETED || from == AppointmentStatus.CANCELLED) {
+         throw new BadRequestException("Status is final");
+      }
+
+      if (from == to) {
+         throw new BadRequestException("Appointment already has this status");
+      }
+
+      if (from == AppointmentStatus.CONFIRMED && to == AppointmentStatus.CREATED) {
+         throw new BadRequestException("Confirmed appointment cannot be created");
+      }
    }
 
    //TODO: Complete CRUD
