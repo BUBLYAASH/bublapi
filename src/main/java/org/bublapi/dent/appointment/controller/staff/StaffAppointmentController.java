@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.bublapi.dent.appointment.dto.AppointmentResponseDto;
+import org.bublapi.dent.appointment.dto.ChangeAppointmentStatusRequestDto;
 import org.bublapi.dent.appointment.dto.CreateAppointmentRequestDto;
 import org.bublapi.dent.appointment.service.AppointmentService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,13 +33,22 @@ public class StaffAppointmentController {
 
    @Operation(summary = "Create new appointment", description = "Creates new appointment by staff for specified patient")
    @PostMapping
+   @PreAuthorize("@clinicSecurity.hasAccess(authentication, #clinicId)")
    public AppointmentResponseDto create(@PathVariable UUID patientId, @PathVariable UUID clinicId, @Valid @RequestBody CreateAppointmentRequestDto request) {
       return appointmentService.createForStaff(patientId, clinicId, request);
    }
 
    @Operation(summary = "Cancel an appointment", description = "Cancels an appointment by staff for specified patient")
    @PatchMapping("/{appointmentId}/cancel")
+   @PreAuthorize("@clinicSecurity.hasAccess(authentication, #clinicId)")
    public AppointmentResponseDto cancel(@PathVariable UUID patientId, @PathVariable UUID clinicId, @PathVariable UUID appointmentId) {
       return appointmentService.cancelByStaff(patientId, clinicId, appointmentId);
+   }
+
+   @Operation(summary = "Change appointment's status", description = "Changes appointment's status by staff")
+   @PatchMapping("/{appointmentId}/change")
+   @PreAuthorize("@clinicSecurity.hasAccess(authentication, #clinicId)")
+   public AppointmentResponseDto changeStatus(@PathVariable UUID patientId, @PathVariable UUID clinicId, @PathVariable UUID appointmentId, @Valid @RequestBody ChangeAppointmentStatusRequestDto request) {
+      return appointmentService.changeStatusByStaff(clinicId, patientId, appointmentId, request);
    }
 }

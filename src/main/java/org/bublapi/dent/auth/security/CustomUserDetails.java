@@ -19,6 +19,10 @@ public class CustomUserDetails implements UserDetails {
       return user.getId();
    }
 
+   public UUID getClinicId() {
+      return user.getClinic().getId();
+   }
+
    @Override
    public String getUsername() {
       return user.getEmail();
