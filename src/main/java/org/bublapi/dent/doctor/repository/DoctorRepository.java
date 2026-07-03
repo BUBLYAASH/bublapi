@@ -12,6 +12,8 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
 
    List<Doctor> findAllByClinic_IdAndActiveTrue(UUID clinicId);
 
+   List<Doctor> findAllByClinic_Id(UUID clinicId);
+
    @Query("""
            SELECT d FROM Doctor d WHERE d.id = :doctorId AND d.active = true AND d.clinic.id = :clinicId AND d.clinic.active = true
            """)

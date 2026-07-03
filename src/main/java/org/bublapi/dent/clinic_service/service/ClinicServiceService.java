@@ -15,6 +15,7 @@ import org.bublapi.dent.dental_service.repository.DentalServiceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -85,5 +86,26 @@ public class ClinicServiceService {
       clinicService.setActive(true);
 
       return clinicServiceMapper.toResponse(clinicService);
+   }
+
+   public List<ClinicServiceResponseDto> findAllActiveForPublic(UUID clinicId) {
+      return clinicServiceRepository.findAllByClinic_IdAndActiveTrue(clinicId)
+                                    .stream()
+                                    .map(clinicServiceMapper::toResponse)
+                                    .toList();
+   }
+
+   public ClinicServiceResponseDto findById(UUID clinicId, UUID clinicServiceId) {
+      ClinicService clinicService = clinicServiceRepository.findByIdAndClinic_IdAndActiveTrue(clinicServiceId, clinicId)
+                                                           .orElseThrow(() -> new ResourceNotFoundException("Clinic service not found"));
+
+      return clinicServiceMapper.toResponse(clinicService);
+   }
+
+   public List<ClinicServiceResponseDto> findAllForStaff(UUID clinicId) {
+      return clinicServiceRepository.findAllByClinic_Id(clinicId)
+                                    .stream()
+                                    .map(clinicServiceMapper::toResponse)
+                                    .toList();
    }
 }

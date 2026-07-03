@@ -1,9 +1,27 @@
 package org.bublapi.dent.role.entity;
 
 public enum RoleName {
-   OWNER,
    ADMIN,
+   OWNER,
    DOCTOR,
    RECEPTIONIST,
-   PATIENT
+   PATIENT;
+
+   public boolean canAssign(RoleName targetRole) {
+      return switch (this) {
+         case ADMIN -> true;
+         case OWNER -> targetRole == DOCTOR || targetRole == RECEPTIONIST;
+         case RECEPTIONIST -> targetRole == DOCTOR;
+         case DOCTOR, PATIENT -> false;
+      };
+   }
+
+   public boolean canRemove(RoleName targetRole) {
+      return switch (this) {
+         case ADMIN -> true;
+         case OWNER -> targetRole == DOCTOR || targetRole == RECEPTIONIST;
+         case RECEPTIONIST -> targetRole == DOCTOR;
+         case DOCTOR, PATIENT -> false;
+      };
+   }
 }

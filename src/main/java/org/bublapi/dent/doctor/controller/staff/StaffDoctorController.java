@@ -1,6 +1,7 @@
-package org.bublapi.dent.doctor.controller;
+package org.bublapi.dent.doctor.controller.staff;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.bublapi.dent.doctor.dto.CreateDoctorRequestDto;
@@ -16,6 +17,7 @@ import org.bublapi.dent.doctor_working_hours.dto.SetDoctorWorkingHoursRequestDto
 import org.bublapi.dent.doctor_working_hours.dto.UpdateDoctorWorkingHoursRequestDto;
 import org.bublapi.dent.doctor_working_hours.service.DoctorWorkingHoursService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -29,16 +31,21 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Doctors")
+@Tag(name = "Doctors management for staff")
 @RestController
 @RequestMapping("/api/clinics/{clinicId}/doctors")
-public class DoctorController {
+@SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("""
+        hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')
+        and @clinicSecurity.hasAccess(authentication, #clinicId)
+        """)
+public class StaffDoctorController {
 
    private final DoctorService doctorService;
    private final DoctorWorkingHoursService doctorWorkingHoursService;
    private final DoctorScheduleExceptionService doctorScheduleExceptionService;
 
-   public DoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService, DoctorScheduleExceptionService doctorScheduleExceptionService) {
+   public StaffDoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService, DoctorScheduleExceptionService doctorScheduleExceptionService) {
       this.doctorService = doctorService;
       this.doctorWorkingHoursService = doctorWorkingHoursService;
       this.doctorScheduleExceptionService = doctorScheduleExceptionService;
@@ -68,10 +75,10 @@ public class DoctorController {
       return doctorService.activate(clinicId, doctorId);
    }
 
-   @Operation(summary = "Get all doctors in clinic", description = "Show all doctors in this clinic")
+   @Operation(summary = "Get all doctors in clinic", description = "Shows all doctors in current clinic")
    @GetMapping
    public List<DoctorResponseDto> findAll(@PathVariable UUID clinicId) {
-      return doctorService.findAll(clinicId);
+      return doctorService.findAllForStaff(clinicId);
    }
 
    @Operation(summary = "Set doctor's working hours", description = "Set working hours for a doctor on a specific day of week")
@@ -84,12 +91,6 @@ public class DoctorController {
    @PatchMapping("/{doctorId}/working-hours/{scheduleId}")
    public DoctorWorkingHoursResponseDto updateWorkingHours(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @PathVariable UUID scheduleId, @Valid @RequestBody UpdateDoctorWorkingHoursRequestDto request) {
       return doctorWorkingHoursService.updateSchedule(clinicId, doctorId, scheduleId, request);
-   }
-
-   @Operation(summary = "Get doctor's working hours", description = "Get all doctor's working hours")
-   @GetMapping("/{doctorId}/working-hours")
-   public List<DoctorWorkingHoursResponseDto> getSchedule(@PathVariable UUID clinicId, @PathVariable UUID doctorId) {
-      return doctorWorkingHoursService.getSchedule(clinicId, doctorId);
    }
 
    @Operation(summary = "Delete doctor's working hours", description = "Delete a specific day of week from working hours for a doctor")

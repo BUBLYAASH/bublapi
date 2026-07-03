@@ -74,7 +74,14 @@ public class DoctorService {
       return doctorMapper.toResponse(doctor);
    }
 
-   public List<DoctorResponseDto> findAll(UUID clinicId) {
+   public List<DoctorResponseDto> findAllForStaff(UUID clinicId) {
+      clinicRepository.findByIdAndActiveTrue(clinicId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+
+      return doctorRepository.findAllByClinic_Id(clinicId).stream().map(doctorMapper::toResponse).toList();
+   }
+
+   public List<DoctorResponseDto> findAllActiveForPublic(UUID clinicId) {
       clinicRepository.findByIdAndActiveTrue(clinicId)
                       .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
 

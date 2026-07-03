@@ -166,16 +166,12 @@ public class AppointmentService {
    }
 
    private void validateTransition(AppointmentStatus from, AppointmentStatus to) {
-      if (from == AppointmentStatus.COMPLETED || from == AppointmentStatus.CANCELLED) {
-         throw new BadRequestException("Status is final");
-      }
-
       if (from == to) {
          throw new BadRequestException("Appointment already has this status");
       }
 
-      if (from == AppointmentStatus.CONFIRMED && to == AppointmentStatus.CREATED) {
-         throw new BadRequestException("Confirmed appointment cannot be created");
+      if (!from.canTransitionTo(to)) {
+         throw new BadRequestException("Cannot change appointment status from " + from + " to " + to);
       }
    }
 

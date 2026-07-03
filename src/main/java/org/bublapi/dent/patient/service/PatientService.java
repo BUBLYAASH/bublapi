@@ -6,6 +6,7 @@ import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.patient.dto.CreatePatientFromProfileRequestDto;
 import org.bublapi.dent.patient.dto.CreatePatientRequestDto;
+import org.bublapi.dent.patient.dto.PatientByPhoneRequestDto;
 import org.bublapi.dent.patient.dto.PatientResponseDto;
 import org.bublapi.dent.patient.dto.UpdatePatientRequestDto;
 import org.bublapi.dent.patient.entity.Patient;
@@ -64,9 +65,9 @@ public class PatientService {
       User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-      patientRepository.findByUser_Id(user.getId()).ifPresent(t -> {
+      if (patientRepository.existsByUser_Id(user.getId())) {
          throw new BadRequestException("User already has patient card");
-      });
+      }
 
       Patient patient = patientMapper.toEntity(request);
 
@@ -93,11 +94,28 @@ public class PatientService {
       return patientMapper.toResponse(patient);
    }
 
+   @Transactional
+   public PatientResponseDto updateByUserId(UUID clinicId, UUID userId, UpdatePatientRequestDto request) {
+      Patient patient = patientRepository.findByUser_IdAndClinic_Id(userId, clinicId)
+                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+      patientMapper.updateEntity(request, patient);
+
+      return patientMapper.toResponse(patient);
+   }
+
    public PatientResponseDto getByUserId(UUID clinicId, UUID userId) {
       clinicRepository.findByIdAndActiveTrue(clinicId)
                       .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
 
       Patient patient = patientRepository.findByUser_IdAndClinic_Id(userId, clinicId)
+                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+      return patientMapper.toResponse(patient);
+   }
+
+   public PatientResponseDto getByPhone(UUID clinicId, PatientByPhoneRequestDto request) {
+      Patient patient = patientRepository.findByPhoneAndClinic_Id(request.phone(), clinicId)
                                          .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
       return patientMapper.toResponse(patient);

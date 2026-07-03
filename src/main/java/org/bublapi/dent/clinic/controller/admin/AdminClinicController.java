@@ -1,12 +1,14 @@
-package org.bublapi.dent.clinic.controller;
+package org.bublapi.dent.clinic.controller.admin;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.bublapi.dent.clinic.dto.ClinicResponseDto;
 import org.bublapi.dent.clinic.dto.CreateClinicRequestDto;
 import org.bublapi.dent.clinic.dto.UpdateClinicRequestDto;
 import org.bublapi.dent.clinic.service.ClinicService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,14 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Clinics")
+@Tag(name = "Clinics management for admin")
 @RestController
-@RequestMapping("/api/clinics")
-public class ClinicController {
+@RequestMapping("/api/admin/clinics")
+@SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasRole('ADMIN')")
+public class AdminClinicController {
 
    private final ClinicService clinicService;
 
-   public ClinicController(ClinicService clinicService) {
+   public AdminClinicController(ClinicService clinicService) {
       this.clinicService = clinicService;
    }
 
@@ -36,21 +40,21 @@ public class ClinicController {
    }
 
    @Operation(summary = "Update a clinic", description = "Update provided fields in clinic by ID")
-   @PatchMapping("/{id}")
-   public ClinicResponseDto updateClinic(@PathVariable UUID id, @Valid @RequestBody UpdateClinicRequestDto request) {
-      return clinicService.update(id, request);
+   @PatchMapping("/{clinicId}")
+   public ClinicResponseDto updateClinic(@PathVariable UUID clinicId, @Valid @RequestBody UpdateClinicRequestDto request) {
+      return clinicService.update(clinicId, request);
    }
 
    @Operation(summary = "Deactivate a clinic", description = "Deactivates clinic by ID")
-   @PatchMapping("/{id}/deactivation")
-   public ClinicResponseDto deactivateClinic(@PathVariable UUID id) {
-      return clinicService.deactivate(id);
+   @PatchMapping("/{clinicId}/deactivation")
+   public ClinicResponseDto deactivateClinic(@PathVariable UUID clinicId) {
+      return clinicService.deactivate(clinicId);
    }
 
    @Operation(summary = "Activate a clinic", description = "Activates clinic by ID")
-   @PatchMapping("/{id}/activation")
-   public ClinicResponseDto activateClinic(@PathVariable UUID id) {
-      return clinicService.activate(id);
+   @PatchMapping("/{clinicId}/activation")
+   public ClinicResponseDto activateClinic(@PathVariable UUID clinicId) {
+      return clinicService.activate(clinicId);
    }
 
    @Operation(summary = "Get all available clinics", description = "Get a list of all available clinics")

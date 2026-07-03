@@ -13,7 +13,10 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "patients")
+@Table(name = "patients", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"clinic_id", "phone"}),
+        @UniqueConstraint(columnNames = {"user_id"})
+})
 public class Patient {
 
    @Id

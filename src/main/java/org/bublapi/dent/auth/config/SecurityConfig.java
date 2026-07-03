@@ -36,11 +36,11 @@ public class SecurityConfig {
           .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
           .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**")
                                              .permitAll()
-                                             .requestMatchers(HttpMethod.GET, "/api/clinics/**")
+                                             .requestMatchers(HttpMethod.GET, "/api/public/**")
                                              .permitAll()
                                              .anyRequest()
                                              .authenticated())
-          //TODO: /api/clinics/** permit only for ADMIN and all public methods put into /api/public endpoint
+          //TODO: /api/clinics/** permit only for ADMIN and all public methods put into /api/public/** endpoint
           .formLogin(AbstractHttpConfigurer::disable)
           .httpBasic(AbstractHttpConfigurer::disable)
           .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

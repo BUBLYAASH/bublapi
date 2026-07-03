@@ -52,7 +52,7 @@ public class DentalServiceService {
    }
 
    public List<DentalServiceResponseDto> findAll() {
-      return dentalServiceRepository.findAllByActiveTrue().stream().map(dentalServiceMapper::toResponse).toList();
+      return dentalServiceRepository.findAll().stream().map(dentalServiceMapper::toResponse).toList();
    }
 
    public DentalServiceResponseDto findById(UUID dentalServiceId) {
@@ -60,6 +60,10 @@ public class DentalServiceService {
                                                            .orElseThrow(() -> new ResourceNotFoundException("Dental Service not found or unavailable"));
 
       return dentalServiceMapper.toResponse(dentalService);
+   }
+
+   public List<DentalServiceResponseDto> findAllActive() {
+      return dentalServiceRepository.findAllByActiveTrue().stream().map(dentalServiceMapper::toResponse).toList();
    }
 
    @Transactional
