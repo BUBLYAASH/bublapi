@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 021-add-unique-constraint-patients
+      author: Gleb Kovalev
+      changes:
+        - addUniqueConstraint:
+            tableName: patients
+            columnNames: user_id
+            constraintName: uk_patients_user
