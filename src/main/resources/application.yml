@@ -2,6 +2,9 @@ server:
   port: 8080
 
 spring:
+  config:
+    import: optional:file:./local.properties
+      
   datasource:
     url: jdbc:postgresql://localhost:5433/bublapi_dent
     username: postgres
@@ -15,3 +18,7 @@ spring:
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: 2592000000
