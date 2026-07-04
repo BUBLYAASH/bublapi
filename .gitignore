@@ -3,6 +3,4 @@
 build
 .bin
 .gradle
-gradle
-gradlew
-gradlew.bat
+local.properties
