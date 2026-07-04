@@ -12,6 +12,7 @@ import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.mapper.DoctorMapper;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
 import org.bublapi.dent.role.entity.Role;
+import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.role.repository.RoleRepository;
 import org.bublapi.dent.user.entity.User;
 import org.bublapi.dent.user.repository.UserRepository;
@@ -105,7 +106,7 @@ public class DoctorService {
       Doctor doctor = doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
-      Role doctorRole = roleRepository.findByName("DOCTOR")
+      Role doctorRole = roleRepository.findByName(RoleName.DOCTOR)
                                       .orElseThrow(() -> new ResourceNotFoundException("Role DOCTOR not found"));
 
       if (doctor.getUser() != null) {
