@@ -8,14 +8,22 @@ import java.util.UUID;
 @Component("clinicSecurity")
 public class ClinicSecurity {
    public boolean hasAccess(Authentication auth, UUID clinicId) {
+      if (auth == null || !auth.isAuthenticated()) {
+         return false;
+      }
+
       boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
       if (isAdmin) {
          return true;
       }
 
-      CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+      Object principal = auth.getPrincipal();
 
+      if (!(principal instanceof CustomUserDetails userDetails)) {
+         return false;
+      }
+      
       return userDetails.getClinicId().equals(clinicId);
    }
 }
