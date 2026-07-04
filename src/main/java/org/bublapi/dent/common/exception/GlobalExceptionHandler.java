@@ -3,6 +3,8 @@ package org.bublapi.dent.common.exception;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -63,6 +65,30 @@ public class GlobalExceptionHandler {
       response.put("timestamp", LocalDateTime.now());
 
       return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+   }
+
+   @ExceptionHandler(AccessDeniedException.class)
+   public ResponseEntity<Map<String, Object>> handleAccessDenied() {
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("error", "Forbidden");
+      response.put("message", "Access denied");
+      response.put("status", HttpStatus.FORBIDDEN.value());
+      response.put("timestamp", LocalDateTime.now());
+
+      return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+   }
+
+   @ExceptionHandler(AuthenticationException.class)
+   public ResponseEntity<Map<String, Object>> handleAuthentication() {
+      Map<String, Object> response = new HashMap<>();
+
+      response.put("error", "Unauthorized");
+      response.put("message", "Authentication required");
+      response.put("status", HttpStatus.UNAUTHORIZED.value());
+      response.put("timestamp", LocalDateTime.now());
+
+      return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
    }
 
    @ExceptionHandler(Exception.class)
