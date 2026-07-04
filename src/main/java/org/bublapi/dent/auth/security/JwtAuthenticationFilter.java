@@ -54,7 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
          }
       } catch (JwtException | IllegalArgumentException | UsernameNotFoundException ignored) {
-
+         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+         return;
       }
 
       filterChain.doFilter(request, response);
