@@ -48,7 +48,7 @@ public class UserService {
       Clinic clinic = clinicRepository.findByIdAndActiveTrue(clinicId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Clinic with provided ID not found"));
 
-      Role patientRole = roleRepository.findByName("PATIENT")
+      Role patientRole = roleRepository.findByName(RoleName.PATIENT)
                                        .orElseThrow(() -> new ResourceNotFoundException("PATIENT role not found"));
 
       User user = userMapper.toEntity(request);
