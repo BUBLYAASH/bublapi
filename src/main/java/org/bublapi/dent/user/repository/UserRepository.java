@@ -17,6 +17,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
    Optional<User> findByEmail(String email);
 
+   Optional<User> findByEmailAndClinic_Id(String email, UUID clinicId);
+
    Optional<User> findByIdAndClinic_Id(UUID userId, UUID clinicId);
 
    @Query("""
@@ -28,4 +30,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
            SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.email = :email
            """)
    Optional<User> findByEmailWithRoles(@Param("email") String email);
+
+   @Query("""
+           SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id
+           """)
+   Optional<User> findByIdWithRoles(@Param("id") UUID id);
 }
