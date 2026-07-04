@@ -1,5 +1,6 @@
 package org.bublapi.dent.auth.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,11 +9,13 @@ import org.bublapi.dent.auth.service.JwtService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -35,19 +38,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
          return;
       }
 
-      String token = authHeader.substring(7);
+      try {
+         String token = authHeader.substring(7);
 
-      String email = jwtService.extractUsername(token);
+         UUID userId = UUID.fromString(jwtService.extractUserId(token));
 
-      UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+         UserDetails userDetails = userDetailsService.loadUserByUserId(userId);
 
-      if (jwtService.isTokenValid(token, userDetails) && SecurityContextHolder.getContext()
-                                                                              .getAuthentication() == null) {
-         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+         if (jwtService.isTokenValid(token, userId) && userDetails.isEnabled() && SecurityContextHolder.getContext()
+                                                                                                       .getAuthentication() == null) {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+         }
+      } catch (JwtException | IllegalArgumentException | UsernameNotFoundException ignored) {
+
       }
 
       filterChain.doFilter(request, response);
