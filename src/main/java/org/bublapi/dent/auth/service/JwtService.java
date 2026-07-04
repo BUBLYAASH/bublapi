@@ -3,29 +3,36 @@ package org.bublapi.dent.auth.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
-   private static final String secret = "my-super-secret-key-my-super-secret-key-123456";
+   private final String secret;
+   private final long expirationMs;
 
-   public String generateToken(String email) {
-      return generateToken(Map.of(), email);
+   public JwtService(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration-ms}") long expirationMs) {
+      this.secret = secret;
+      this.expirationMs = expirationMs;
    }
 
-   private String generateToken(Map<String, Object> claims, String email) {
+   public String generateToken(UUID userId) {
+      return generateToken(Map.of(), userId.toString());
+   }
+
+   private String generateToken(Map<String, Object> claims, String userId) {
       return Jwts.builder()
                  .claims(claims)
-                 .subject(email)
+                 .subject(userId)
                  .issuedAt(new Date())
-                 .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30))
+                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                  .signWith(getSignKey())
                  .compact();
    }
@@ -34,7 +41,7 @@ public class JwtService {
       return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
    }
 
-   public String extractUsername(String token) {
+   public String extractUserId(String token) {
       return extractClaim(token, Claims::getSubject);
    }
 
@@ -44,6 +51,7 @@ public class JwtService {
 
    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
       Claims claims = extractAllClaims(token);
+
       return claimsResolver.apply(claims);
    }
 
@@ -53,11 +61,13 @@ public class JwtService {
 
    private boolean isTokenExpired(String token) {
       Date expiration = extractExpiration(token);
+
       return expiration.before(new Date());
    }
 
-   public boolean isTokenValid(String token, UserDetails userDetails) {
-      String username = extractUsername(token);
-      return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+   public boolean isTokenValid(String token, UUID userId) {
+      String tokenUserId = extractUserId(token);
+
+      return tokenUserId.equals(userId.toString()) && !isTokenExpired(token);
    }
 }
