@@ -68,7 +68,6 @@ public class ClinicServiceService {
 
    @Transactional
    public ClinicServiceResponseDto deactivate(UUID clinicId, UUID clinicServiceId) {
-      //TODO: after creating Appointment Entity -> check if clinicServiceId in appointment then soft delete if not - hard delete
       //TODO: after adding notifications - notify user that service that them chosen - currently unavailable
       ClinicService clinicService = clinicServiceRepository.findByIdAndClinic_Id(clinicServiceId, clinicId)
                                                            .orElseThrow(() -> new ResourceNotFoundException("Clinic Service not found or unavailable"));
@@ -89,6 +88,9 @@ public class ClinicServiceService {
    }
 
    public List<ClinicServiceResponseDto> findAllActiveForPublic(UUID clinicId) {
+      clinicRepository.findByIdAndActiveTrue(clinicId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+
       return clinicServiceRepository.findAllByClinic_IdAndActiveTrue(clinicId)
                                     .stream()
                                     .map(clinicServiceMapper::toResponse)
@@ -96,6 +98,9 @@ public class ClinicServiceService {
    }
 
    public ClinicServiceResponseDto findById(UUID clinicId, UUID clinicServiceId) {
+      clinicRepository.findByIdAndActiveTrue(clinicId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+
       ClinicService clinicService = clinicServiceRepository.findByIdAndClinic_IdAndActiveTrue(clinicServiceId, clinicId)
                                                            .orElseThrow(() -> new ResourceNotFoundException("Clinic service not found"));
 
