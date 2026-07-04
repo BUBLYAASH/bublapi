@@ -128,9 +128,9 @@ public class UserService {
          throw new AccessDeniedException("You cannot remove this role");
       }
 
-      if (role.getName().equals(RoleName.PATIENT) && !actorUser.getRoles()
-                                                               .stream()
-                                                               .anyMatch(r -> r.getName() == RoleName.ADMIN)) {
+      if (role.getName().equals(RoleName.PATIENT) && actorUser.getRoles()
+                                                              .stream()
+                                                              .noneMatch(r -> r.getName() == RoleName.ADMIN)) {
          throw new AccessDeniedException("You cannot remove PATIENT role");
       }
 
