@@ -11,6 +11,8 @@ import org.bublapi.dent.doctor.dto.UpdateDoctorRequestDto;
 import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.mapper.DoctorMapper;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
+import org.bublapi.dent.role.entity.Role;
+import org.bublapi.dent.role.repository.RoleRepository;
 import org.bublapi.dent.user.entity.User;
 import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -25,12 +27,14 @@ public class DoctorService {
    private final DoctorRepository doctorRepository;
    private final ClinicRepository clinicRepository;
    private final UserRepository userRepository;
+   private final RoleRepository roleRepository;
    private final DoctorMapper doctorMapper;
 
-   public DoctorService(DoctorRepository doctorRepository, ClinicRepository clinicRepository, UserRepository userRepository, DoctorMapper doctorMapper) {
+   public DoctorService(DoctorRepository doctorRepository, ClinicRepository clinicRepository, UserRepository userRepository, RoleRepository roleRepository, DoctorMapper doctorMapper) {
       this.doctorRepository = doctorRepository;
       this.clinicRepository = clinicRepository;
       this.userRepository = userRepository;
+      this.roleRepository = roleRepository;
       this.doctorMapper = doctorMapper;
    }
 
@@ -101,15 +105,19 @@ public class DoctorService {
       Doctor doctor = doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
+      Role doctorRole = roleRepository.findByName("DOCTOR")
+                                      .orElseThrow(() -> new ResourceNotFoundException("Role DOCTOR not found"));
+
       if (doctor.getUser() != null) {
-         throw new BadRequestException("User is already linked to doctor's profile");
+         throw new BadRequestException("Doctor profile is already linked to a user");
       }
 
       doctorRepository.findByUser_Id(user.getId()).ifPresent(e -> {
-         throw new ResourceNotFoundException("User not found");
+         throw new BadRequestException("User is already linked to another doctor profile");
       });
 
       doctor.setUser(user);
+      user.getRoles().add(doctorRole);
 
       return doctorMapper.toResponse(doctor);
    }
