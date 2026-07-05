@@ -1,0 +1,11 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  liquibase:
+    enabled: true
+
+jwt:
+  secret: test-secret-test-secret-test-secret
+  expiration-ms: 3600000
