@@ -65,4 +65,10 @@ public class StaffUserController {
    public List<UserResponseDto> findAll(@PathVariable UUID clinicId) {
       return userService.findAll(clinicId);
    }
+
+   @Operation(summary = "Get one user by ID", description = "Get one user by ID")
+   @GetMapping("/{userId}")
+   public UserResponseDto findById(@PathVariable UUID clinicId, @PathVariable UUID userId) {
+      return userService.findById(clinicId, userId);
+   }
 }

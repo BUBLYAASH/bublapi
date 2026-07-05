@@ -170,4 +170,14 @@ public class UserService {
 
       return userRepository.findAllByClinic_Id(clinicId).stream().map(userMapper::toResponse).toList();
    }
+
+   public UserResponseDto findById(UUID clinicId, UUID userId) {
+      clinicRepository.findByIdAndActiveTrue(clinicId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+
+      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found or unavailable"));
+
+      return userMapper.toResponse(user);
+   }
 }
