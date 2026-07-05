@@ -1,5 +1,7 @@
 package org.bublapi.dent.user.mapper;
 
+import org.bublapi.dent.role.entity.Role;
+import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.user.dto.CreateUserRequestDto;
 import org.bublapi.dent.user.dto.UpdateUserRequestDto;
 import org.bublapi.dent.user.dto.UserResponseDto;
@@ -24,4 +26,8 @@ public interface UserMapper {
    @Mapping(target = "passwordHash", ignore = true)
    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
    void updateEntity(UpdateUserRequestDto request, @MappingTarget User user);
+
+   default RoleName toRoleName(Role role) {
+      return role.getName();
+   }
 }
