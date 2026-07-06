@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 022-add-grace-until-field-api-keys
+      author: Gleb Kovalev
+      changes:
+        - addColumn:
+            tableName: api_keys
+            columns:
+              - column:
+                  name: grace_until
+                  type: timestamp
+                  constraints:
+                    nullable: false
