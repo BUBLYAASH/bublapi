@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.role.entity.Role;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,6 +16,8 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@FilterDef(name = "clinicFilter", parameters = @ParamDef(name = "clinicId", type = UUID.class))
+@Filter(name = "clinicFilter", condition = "clinic_id = :clinicId")
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(name = "uk_users_clinic_email", columnNames = {"clinic_id", "email"}),
