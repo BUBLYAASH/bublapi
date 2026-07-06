@@ -52,6 +52,22 @@ public class ApiKeyService {
       return new CreateApiKeyResponseDto(rawKey);
    }
 
+   @Transactional
+   public void renewApiKey(UUID clinicId) {
+      ApiKey apiKey = apiKeyRepository.findByClinic_IdAndActiveTrue(clinicId)
+                                      .orElseThrow(() -> new ResourceNotFoundException("API Key not found"));
+
+      LocalDateTime now = LocalDateTime.now();
+
+      if (apiKey.getGraceUntil().isAfter(now)) {
+         apiKey.setExpiresAt(apiKey.getExpiresAt().plusMonths(1));
+         apiKey.setGraceUntil(apiKey.getGraceUntil().plusMonths(1));
+      } else {
+         apiKey.setExpiresAt(now.plusMonths(1));
+         apiKey.setGraceUntil(now.plusMonths(1).plusDays(14));
+      }
+   }
+
    public ApiKey validate(String rawKey) {
       ParsedKey parsed = parse(rawKey);
 

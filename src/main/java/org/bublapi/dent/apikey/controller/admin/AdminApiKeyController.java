@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bublapi.dent.apikey.dto.CreateApiKeyRequestDto;
 import org.bublapi.dent.apikey.dto.CreateApiKeyResponseDto;
 import org.bublapi.dent.apikey.service.ApiKeyService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,5 +33,12 @@ public class AdminApiKeyController {
    @PostMapping
    public CreateApiKeyResponseDto create(@PathVariable UUID clinicId, @RequestBody CreateApiKeyRequestDto request) {
       return apiKeyService.createApiKey(clinicId, request.name());
+   }
+
+   @Operation(summary = "Renew API Key for clinic", description = "Renews an API Key subscription for the clinic")
+   @PatchMapping("/renew")
+   public ResponseEntity<Void> renew(@PathVariable UUID clinicId) {
+      apiKeyService.renewApiKey(clinicId);
+      return ResponseEntity.ok().build();
    }
 }
