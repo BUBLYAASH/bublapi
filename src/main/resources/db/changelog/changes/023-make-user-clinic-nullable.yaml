@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 023-make-user-clinic-nullable
+      author: Gleb Kovalev
+      changes:
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: clinic_id
+            columnDataType: uuid
