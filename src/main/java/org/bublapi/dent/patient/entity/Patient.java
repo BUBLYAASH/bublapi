@@ -18,7 +18,7 @@ import java.util.UUID;
         @UniqueConstraint(columnNames = {"clinic_id", "phone"}),
         @UniqueConstraint(columnNames = {"user_id"})
 })
-@Filter(name = "clinicFilter", condition = "clinic_id = :clinicId")
+@Filter(name = "clinicFilter")
 public class Patient {
 
    @Id

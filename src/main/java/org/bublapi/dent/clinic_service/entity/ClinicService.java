@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "clinic_services", uniqueConstraints = @UniqueConstraint(columnNames = {"clinic_id", "service_id"}))
-@Filter(name = "clinicFilter", condition = "clinic_id = :clinicId")
+@Filter(name = "clinicFilter")
 public class ClinicService {
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)

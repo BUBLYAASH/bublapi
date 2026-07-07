@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "doctors")
-@Filter(name = "clinicFilter", condition = "clinic_id = :clinicId")
+@Filter(name = "clinicFilter")
 public class Doctor {
 
    @Id
