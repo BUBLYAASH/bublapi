@@ -114,8 +114,6 @@ public class PatientService {
    }
 
    public List<PatientResponseDto> findAll() {
-      Clinic clinic = ClinicContext.get();
-
-      return patientRepository.findAllByClinic_Id(clinic.getId()).stream().map(patientMapper::toResponse).toList();
+      return patientRepository.findAll().stream().map(patientMapper::toResponse).toList();
    }
 }
