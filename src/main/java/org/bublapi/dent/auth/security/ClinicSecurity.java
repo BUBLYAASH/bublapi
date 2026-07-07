@@ -1,5 +1,6 @@
 package org.bublapi.dent.auth.security;
 
+import org.bublapi.dent.common.context.ClinicContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -7,7 +8,7 @@ import java.util.UUID;
 
 @Component("clinicSecurity")
 public class ClinicSecurity {
-   public boolean hasAccess(Authentication auth, UUID clinicId) {
+   public boolean hasAccess(Authentication auth) {
       if (auth == null || !auth.isAuthenticated()) {
          return false;
       }
@@ -23,7 +24,10 @@ public class ClinicSecurity {
       if (!(principal instanceof CustomUserDetails userDetails)) {
          return false;
       }
-      
-      return userDetails.getClinicId().equals(clinicId);
+
+      UUID userClinicId = userDetails.getClinicId();
+      UUID apiClinicId = ClinicContext.getClinicId();
+
+      return userClinicId.equals(apiClinicId);
    }
 }
