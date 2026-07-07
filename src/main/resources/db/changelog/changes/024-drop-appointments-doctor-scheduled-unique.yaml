@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 024-drop-appointments-scheduled-unique
+      author: Gleb Kovalev
+      changes:
+        - dropUniqueConstraint:
+            tableName: appointments
+            constraintName: uk_appointments_doctor_scheduled
