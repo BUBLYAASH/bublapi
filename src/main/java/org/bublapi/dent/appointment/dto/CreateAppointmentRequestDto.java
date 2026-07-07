@@ -12,7 +12,7 @@ public record CreateAppointmentRequestDto(
 
         @NotNull LocalDateTime scheduledAt,
 
-        @NotEmpty List<UUID> serviceIds,
+        @NotEmpty List<AppointmentServiceRequestDto> services,
 
         String comment) {
 }
