@@ -1,5 +1,6 @@
 package org.bublapi.dent.doctor_working_hours.repository;
 
+import org.bublapi.dent.doctor_working_hours.entity.DayOfWeek;
 import org.bublapi.dent.doctor_working_hours.entity.DoctorWorkingHours;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +12,6 @@ public interface DoctorWorkingHoursRepository extends JpaRepository<DoctorWorkin
    Optional<DoctorWorkingHours> findByIdAndDoctor_Id(UUID id, UUID doctorId);
 
    List<DoctorWorkingHours> findAllByDoctor_Id(UUID doctorId);
+
+   List<DoctorWorkingHours> findAllByDoctor_IdAndDayOfWeek(UUID doctorId, DayOfWeek dayOfWeek);
 }
