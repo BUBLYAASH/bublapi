@@ -10,7 +10,8 @@ public record ClinicResponseDto(
         String phone,
         String email,
         String website,
-        String timezone
+        String timezone,
+        boolean active
 ) {
 
 }
