@@ -23,7 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/patient/patient-card")
 @SecurityRequirement(name = "bearerAuth")
 @SecurityRequirement(name = "apiKey")
-@PreAuthorize("hasRole('PATIENT')")
+@PreAuthorize("""
+        hasRole('PATIENT')
+        and @clinicSecurity.hasAccess(authentication)
+        """)
 public class PatientPatientController {
    private final PatientService patientService;
 
@@ -39,8 +42,7 @@ public class PatientPatientController {
 
    @Operation(summary = "Update a patient card from profile", description = "Update provided fields in patient card from profile")
    @PatchMapping
-   public PatientResponseDto updatePatient(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                           @Valid @RequestBody UpdatePatientRequestDto request) {
+   public PatientResponseDto updatePatient(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody UpdatePatientRequestDto request) {
       return patientService.updateByUserId(userDetails.getId(), request);
    }
 

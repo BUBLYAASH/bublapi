@@ -16,7 +16,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/catalog/dental-services")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')")
+@PreAuthorize("""
+        hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')
+        and @clinicSecurity.hasAccess(authentication)
+        """)
 public class StaffDentalServiceController {
    private final DentalServiceService dentalServiceService;
 

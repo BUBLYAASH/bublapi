@@ -24,7 +24,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/users")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')")
+@PreAuthorize("""
+        hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')
+        and @clinicSecurity.hasAccess(authentication)
+        """)
 public class StaffUserController {
 
    private final UserService userService;

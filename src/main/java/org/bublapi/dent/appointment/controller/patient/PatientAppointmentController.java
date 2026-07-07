@@ -23,7 +23,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/patient/appointments")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasRole('PATIENT')")
+@PreAuthorize("""
+        hasRole('PATIENT')
+        and @clinicSecurity.hasAccess(authentication)
+        """)
 public class PatientAppointmentController {
    private final AppointmentService appointmentService;
 
