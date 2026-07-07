@@ -5,9 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.role.entity.Role;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -16,13 +13,10 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@FilterDef(name = "clinicFilter", parameters = @ParamDef(name = "clinicId", type = UUID.class))
-@Filter(name = "clinicFilter", condition = "clinic_id = :clinicId")
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(name = "uk_users_clinic_email", columnNames = {"clinic_id", "email"}),
-        @UniqueConstraint(name = "uk_users_clinic_phone", columnNames = {"clinic_id", "phone"})
-})
+        @UniqueConstraint(name = "uk_users_clinic_phone", columnNames = {"clinic_id", "phone"})})
 public class User {
 
    @Id
@@ -64,11 +58,7 @@ public class User {
    private Boolean disabledByClinic = false;
 
    @ManyToMany
-   @JoinTable(
-           name = "user_roles",
-           joinColumns = @JoinColumn(name = "user_id"),
-           inverseJoinColumns = @JoinColumn(name = "role_id")
-   )
+   @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
    private Set<Role> roles = new HashSet<>();
 
    @PrePersist
