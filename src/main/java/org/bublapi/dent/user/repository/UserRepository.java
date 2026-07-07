@@ -15,11 +15,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
    List<User> findAllByClinic_Id(UUID clinicId);
 
-   Optional<User> findByEmailAndClinic_Id(String email, UUID clinicId);
-
    Optional<User> findByEmail(String email);
-
-   Optional<User> findByIdAndClinic_Id(UUID userId, UUID clinicId);
 
    @Query("""
            SELECT u FROM User u WHERE u.email = :email OR u.phone = :phone
