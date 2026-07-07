@@ -3,7 +3,6 @@ package org.bublapi.dent.integration.security;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.integration.IntegrationTestBase;
 import org.bublapi.dent.integration.testdata.TestDataFactory;
-import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.user.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +25,13 @@ class ClinicSecurityIntegrationTest extends IntegrationTestBase {
 
       User user = dataFactory.createUser(clinicA, "user@mail.com");
 
-      String token = jwtHelper.token(user.getId());
+      String userAToken = jwtHelper.token(user.getId());
 
-      mockMvc.perform(get("/api/clinics/" + clinicB.getId() + "/patients").header("Authorization", token))
+      String apiKeyClinicB = dataFactory.createApiKey(clinicB).rawKey();
+
+      mockMvc.perform(get("/api/patients").header("Authorization", userAToken)
+                                          .header("X-API-KEY", apiKeyClinicB))
              .andExpect(status().isForbidden());
-   }
-
-   @Test
-   void shouldAllowAccessToOwnClinic() throws Exception {
-      Clinic clinic = dataFactory.createClinic();
-
-      User user = dataFactory.createUser(clinic, "user@mail.com");
-
-      String token = jwtHelper.token(user.getId());
-
-      mockMvc.perform(get("/api/public/clinics/" + clinic.getId() + "/doctors").header("Authorization", token))
-             .andExpect(status().isOk());
    }
 
    @Test
@@ -52,20 +42,23 @@ class ClinicSecurityIntegrationTest extends IntegrationTestBase {
 
       String token = jwtHelper.token(user.getId()) + "asd";
 
-      mockMvc.perform(get("/api/patient/clinics/" + clinic.getId() + "/patient-card").header("Authorization", token))
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(get("/api/patient/patient-card").header("Authorization", token).header("X-API-KEY", apiKey))
              .andExpect(status().isUnauthorized());
    }
 
    @Test
-   void shouldAllowAdminAcrossClinics() throws Exception {
-      Clinic clinicA = dataFactory.createClinic();
-      Clinic clinicB = dataFactory.createClinic();
+   void adminShouldAccessAnyClinic() throws Exception {
+      Clinic clinic = dataFactory.createClinic();
 
-      User admin = dataFactory.createUserWithRoles(clinicA, "admin@mail.com", RoleName.PATIENT, RoleName.ADMIN);
+      User admin = dataFactory.createAdmin("admin@mail.com");
 
       String token = jwtHelper.token(admin.getId());
 
-      mockMvc.perform(get("/api/clinics/" + clinicB.getId() + "/patients").header("Authorization", token))
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(get("/api/patients").header("Authorization", token).header("X-API-KEY", apiKey))
              .andExpect(status().isOk());
    }
 }

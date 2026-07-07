@@ -36,10 +36,13 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       dataFactory.createUser(clinic, email);
 
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
       LoginRequestDto request = new LoginRequestDto(email, TestDataFactory.DEFAULT_PASSWORD);
 
-      mockMvc.perform(post("/api/auth/" + clinic.getId() + "/login").contentType(MediaType.APPLICATION_JSON)
-                                                                    .content(objectMapper.writeValueAsString(request)))
+      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                                             .content(objectMapper.writeValueAsString(request))
+                                             .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.token").exists());
    }
@@ -51,11 +54,13 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       User user = dataFactory.createUserWithRoles(clinic, email, RoleName.RECEPTIONIST);
 
-      User adminUser = dataFactory.createUserWithRoles(clinic, "admin@mail.com", RoleName.ADMIN);
+      User adminUser = dataFactory.createAdmin("admin@mail.com");
 
       String adminToken = jwtHelper.token(adminUser.getId());
 
-      mockMvc.perform(get("/api/clinics/" + clinic.getId() + "/users/" + user.getId()).header("Authorization", adminToken))
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(get("/api/users/" + user.getId()).header("Authorization", adminToken).header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.roles", hasItem("RECEPTIONIST")))
              .andExpect(jsonPath("$.roles.length()").value(1));
@@ -68,11 +73,13 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       User user = dataFactory.createUserWithRoles(clinic, email, RoleName.PATIENT, RoleName.RECEPTIONIST);
 
-      User adminUser = dataFactory.createUserWithRoles(clinic, "admin@mail.com", RoleName.ADMIN);
+      User adminUser = dataFactory.createAdmin("admin@mail.com");
 
       String adminToken = jwtHelper.token(adminUser.getId());
 
-      mockMvc.perform(get("/api/clinics/" + clinic.getId() + "/users/" + user.getId()).header("Authorization", adminToken))
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(get("/api/users/" + user.getId()).header("Authorization", adminToken).header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.roles", hasItems("PATIENT", "RECEPTIONIST")))
              .andExpect(jsonPath("$.roles.length()").value(2));
@@ -85,11 +92,13 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       User user = dataFactory.createDisabledUser(clinic, email);
 
-      User adminUser = dataFactory.createUserWithRoles(clinic, "admin@mail.com", RoleName.ADMIN);
+      User adminUser = dataFactory.createAdmin("admin@mail.com");
 
       String adminToken = jwtHelper.token(adminUser.getId());
 
-      mockMvc.perform(get("/api/clinics/" + clinic.getId() + "/users/" + user.getId()).header("Authorization", adminToken))
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(get("/api/users/" + user.getId()).header("Authorization", adminToken).header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.enabled").value(false));
    }
@@ -101,11 +110,14 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       User user = dataFactory.createUser(clinic, email);
 
-      User adminUser = dataFactory.createUserWithRoles(clinic, "admin@mail.com", RoleName.ADMIN);
+      User adminUser = dataFactory.createAdmin("admin@mail.com");
 
       String adminToken = jwtHelper.token(adminUser.getId());
 
-      mockMvc.perform(patch("/api/clinics/" + clinic.getId() + "/users/" + user.getId() + "/deactivation").header("Authorization", adminToken))
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(patch("/api/users/" + user.getId() + "/deactivation").header("Authorization", adminToken)
+                                                                           .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.enabled").value(false));
    }
@@ -117,11 +129,14 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       User user = dataFactory.createDisabledUser(clinic, email);
 
-      User adminUser = dataFactory.createUserWithRoles(clinic, "admin@mail.com", RoleName.ADMIN);
+      User adminUser = dataFactory.createAdmin("admin@mail.com");
 
       String adminToken = jwtHelper.token(adminUser.getId());
 
-      mockMvc.perform(patch("/api/clinics/" + clinic.getId() + "/users/" + user.getId() + "/activation").header("Authorization", adminToken))
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(patch("/api/users/" + user.getId() + "/activation").header("Authorization", adminToken)
+                                                                         .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.enabled").value(true));
    }
@@ -135,9 +150,11 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       LoginRequestDto request = new LoginRequestDto(email, TestDataFactory.DEFAULT_PASSWORD);
 
-      mockMvc.perform(post("/api/auth/" + clinic.getId() + "/login").content(objectMapper.writeValueAsString(request))
-                                                                    .contentType(MediaType.APPLICATION_JSON))
-             .andExpect(status().isBadRequest());
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(post("/api/auth/login").content(objectMapper.writeValueAsString(request))
+                                             .contentType(MediaType.APPLICATION_JSON)
+                                             .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
 
    @Test
@@ -148,16 +165,25 @@ class UserIntegrationTest extends IntegrationTestBase {
       RegisterRequestDto duplicatePhoneRequest = new RegisterRequestDto("User2FirstName", "User2LastName", "User2MiddleName", "user2@mail.ru", "79314056195", TestDataFactory.DEFAULT_PASSWORD);
       RegisterRequestDto uniquePhoneRequest = new RegisterRequestDto("User2FirstName", "User2LastName", "User2MiddleName", "user2@mail.ru", "79314056196", TestDataFactory.DEFAULT_PASSWORD);
 
-      mockMvc.perform(post("/api/auth/{clinicId}/register", clinic.getId()).content(objectMapper.writeValueAsString(firstRequest))
-                                                                           .contentType(MediaType.APPLICATION_JSON))
-             .andExpect(status().isOk());
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(post("/api/auth/{clinicId}/register", clinic.getId()).content(objectMapper.writeValueAsString(duplicatePhoneRequest))
-                                                                           .contentType(MediaType.APPLICATION_JSON))
-             .andExpect(status().isConflict());
+      mockMvc.perform(post("/api/auth/register").content(objectMapper.writeValueAsString(firstRequest))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .header("X-API-KEY", apiKey)).andExpect(status().isOk());
 
-      mockMvc.perform(post("/api/auth/{clinicId}/register", clinic.getId()).content(objectMapper.writeValueAsString(uniquePhoneRequest))
-                                                                           .contentType(MediaType.APPLICATION_JSON))
+      mockMvc.perform(post("/api/auth/register").content(objectMapper.writeValueAsString(duplicatePhoneRequest))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .header("X-API-KEY", apiKey)).andExpect(status().isConflict());
+
+      mockMvc.perform(post("/api/auth/register").content(objectMapper.writeValueAsString(uniquePhoneRequest))
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .header("X-API-KEY", apiKey)).andExpect(status().isOk());
+   }
+
+   @Test
+   void adminShouldAccessWithoutApiKey() throws Exception {
+      User admin = dataFactory.createAdmin("admin@mail.com");
+      mockMvc.perform(get("/api/admin/clinics").header("Authorization", jwtHelper.token(admin.getId())))
              .andExpect(status().isOk());
    }
 }

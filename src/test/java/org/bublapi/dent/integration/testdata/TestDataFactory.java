@@ -1,6 +1,8 @@
 package org.bublapi.dent.integration.testdata;
 
 import lombok.RequiredArgsConstructor;
+import org.bublapi.dent.apikey.dto.CreateApiKeyResponseDto;
+import org.bublapi.dent.apikey.service.ApiKeyService;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
 import org.bublapi.dent.clinic_service.entity.ClinicService;
@@ -41,6 +43,7 @@ public class TestDataFactory {
    private final PatientRepository patientRepository;
    private final DentalServiceRepository dentalServiceRepository;
    private final ClinicServiceRepository clinicServiceRepository;
+   private final ApiKeyService apiKeyService;
 
    public User createUser(Clinic clinic, String email) {
       return createUserWithRoles(clinic, email, RoleName.PATIENT);
@@ -70,11 +73,27 @@ public class TestDataFactory {
 
       User user = new User();
       user.setEmail(email);
-      user.setPhone(UUID.randomUUID().toString().replace("-", "").substring(0, 15));
+      user.setPhone("7999" + UUID.randomUUID().toString().replaceAll("\\D", "").substring(0, 7));
       user.setFirstName("Test");
       user.setLastName("User");
       user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
       user.setClinic(clinic);
+      user.setRoles(roles);
+      user.setEnabled(true);
+
+      return userRepository.save(user);
+   }
+
+   public User createAdmin(String email) {
+      Set<Role> roles = Set.of(roleRepository.findByName(RoleName.ADMIN).orElseThrow());
+
+      User user = new User();
+      user.setEmail(email);
+      user.setPhone("7999" + UUID.randomUUID().toString().replaceAll("\\D", "").substring(0, 7));
+      user.setFirstName("Super");
+      user.setLastName("Admin");
+      user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
+      user.setClinic(null);
       user.setRoles(roles);
       user.setEnabled(true);
 
@@ -86,6 +105,10 @@ public class TestDataFactory {
       user.setEnabled(false);
 
       return userRepository.save(user);
+   }
+
+   public CreateApiKeyResponseDto createApiKey(Clinic clinic) {
+      return apiKeyService.createApiKey(clinic.getId(), "IntegrationTestAPIKey");
    }
 
    public Clinic createClinic() {
@@ -170,5 +193,9 @@ public class TestDataFactory {
 
    public Role getRole(RoleName roleName) {
       return roleRepository.findByName(roleName).orElseThrow();
+   }
+
+   public User saveUser(User user) {
+      return userRepository.save(user);
    }
 }

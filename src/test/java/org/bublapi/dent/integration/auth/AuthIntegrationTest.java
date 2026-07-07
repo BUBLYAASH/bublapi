@@ -28,8 +28,11 @@ class AuthIntegrationTest extends IntegrationTestBase {
 
       LoginRequestDto request = new LoginRequestDto(email, TestDataFactory.DEFAULT_PASSWORD);
 
-      mockMvc.perform(post("/api/auth/" + clinic.getId() + "/login").contentType(MediaType.APPLICATION_JSON)
-                                                                    .content(objectMapper.writeValueAsString(request)))
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                                             .content(objectMapper.writeValueAsString(request))
+                                             .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.token").exists());
    }
@@ -43,9 +46,11 @@ class AuthIntegrationTest extends IntegrationTestBase {
 
       LoginRequestDto request = new LoginRequestDto(email, TestDataFactory.DEFAULT_PASSWORD);
 
-      mockMvc.perform(post("/api/auth/" + clinic.getId() + "/login").contentType(MediaType.APPLICATION_JSON)
-                                                                    .content(objectMapper.writeValueAsString(request)))
-             .andExpect(status().isBadRequest());
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                                             .content(objectMapper.writeValueAsString(request))
+                                             .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
 
    @Test
@@ -57,9 +62,11 @@ class AuthIntegrationTest extends IntegrationTestBase {
 
       LoginRequestDto request = new LoginRequestDto(email, "randompassword");
 
-      mockMvc.perform(post("/api/auth/" + clinic.getId() + "/login").contentType(MediaType.APPLICATION_JSON)
-                                                                    .content(objectMapper.writeValueAsString(request)))
-             .andExpect(status().isBadRequest());
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                                             .content(objectMapper.writeValueAsString(request))
+                                             .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
 
    @Test
@@ -71,8 +78,10 @@ class AuthIntegrationTest extends IntegrationTestBase {
 
       LoginRequestDto request = new LoginRequestDto("test@mail.com", TestDataFactory.DEFAULT_PASSWORD);
 
-      mockMvc.perform(post("/api/auth/" + clinic.getId() + "/login").contentType(MediaType.APPLICATION_JSON)
-                                                                    .content(objectMapper.writeValueAsString(request)))
-             .andExpect(status().isBadRequest());
+      String apiKey = dataFactory.createApiKey(clinic).rawKey();
+
+      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                                             .content(objectMapper.writeValueAsString(request))
+                                             .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
 }
