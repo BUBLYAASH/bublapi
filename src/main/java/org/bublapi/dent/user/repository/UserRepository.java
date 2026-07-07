@@ -11,9 +11,7 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-   List<User> findAllByClinic_IdAndEnabledTrue(UUID clinicId);
-
-   List<User> findAllByClinic_Id(UUID clinicId);
+   List<User> findAllByEnabledTrue();
 
    Optional<User> findByEmail(String email);
 
