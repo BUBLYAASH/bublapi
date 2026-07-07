@@ -22,12 +22,9 @@ import java.util.UUID;
 
 @Tag(name = "Clinic Services")
 @RestController
-@RequestMapping("/api/clinics/{clinicId}/services")
+@RequestMapping("/api/services")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("""
-        hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')
-        and @clinicSecurity.hasAccess(authentication, #clinicId)
-        """)
+@PreAuthorize("hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')")
 public class StaffClinicServiceController {
    private final ClinicServiceService clinicServiceService;
 
@@ -37,31 +34,31 @@ public class StaffClinicServiceController {
 
    @Operation(summary = "Add new clinic service", description = "Add new clinic service from global catalog")
    @PostMapping("/{dentalServiceId}")
-   public ClinicServiceResponseDto addService(@PathVariable UUID clinicId, @PathVariable UUID dentalServiceId, @Valid @RequestBody AddClinicServiceRequestDto request) {
-      return clinicServiceService.add(clinicId, dentalServiceId, request);
+   public ClinicServiceResponseDto addService(@PathVariable UUID dentalServiceId, @Valid @RequestBody AddClinicServiceRequestDto request) {
+      return clinicServiceService.add(dentalServiceId, request);
    }
 
    @Operation(summary = "Update a clinic service", description = "Update provided fields in a clinic service by ID")
    @PatchMapping("/{clinicServiceId}")
-   public ClinicServiceResponseDto updateService(@PathVariable UUID clinicId, @PathVariable UUID clinicServiceId, @Valid @RequestBody UpdateClinicServiceRequestDto request) {
-      return clinicServiceService.update(clinicId, clinicServiceId, request);
+   public ClinicServiceResponseDto updateService(@PathVariable UUID clinicServiceId, @Valid @RequestBody UpdateClinicServiceRequestDto request) {
+      return clinicServiceService.update(clinicServiceId, request);
    }
 
    @Operation(summary = "Deactivate a clinic service", description = "Deactivates a clinic service by ID")
    @PatchMapping("/{clinicServiceId}/deactivation")
-   public ClinicServiceResponseDto deactivateService(@PathVariable UUID clinicId, @PathVariable UUID clinicServiceId) {
-      return clinicServiceService.deactivate(clinicId, clinicServiceId);
+   public ClinicServiceResponseDto deactivateService(@PathVariable UUID clinicServiceId) {
+      return clinicServiceService.deactivate(clinicServiceId);
    }
 
    @Operation(summary = "Activate a clinic service", description = "Activates a clinic service by ID")
    @PatchMapping("/{clinicServiceId}/activation")
-   public ClinicServiceResponseDto activateService(@PathVariable UUID clinicId, @PathVariable UUID clinicServiceId) {
-      return clinicServiceService.activate(clinicId, clinicServiceId);
+   public ClinicServiceResponseDto activateService(@PathVariable UUID clinicServiceId) {
+      return clinicServiceService.activate(clinicServiceId);
    }
 
    @Operation(summary = "Get all services in clinic", description = "Get all (active and not active) services in current clinic")
    @GetMapping
-   public List<ClinicServiceResponseDto> findAll(@PathVariable UUID clinicId) {
-      return clinicServiceService.findAllForStaff(clinicId);
+   public List<ClinicServiceResponseDto> findAll() {
+      return clinicServiceService.findAllForStaff();
    }
 }

@@ -21,10 +21,9 @@ import java.util.UUID;
 
 @Tag(name = "Appointments for patients")
 @RestController
-@RequestMapping("/api/patient/clinics/{clinicId}/appointments")
+@RequestMapping("/api/patient/appointments")
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('PATIENT')")
-//TODO: after adding API Key for clinic, change endpoint by removing clinicId variable
 public class PatientAppointmentController {
    private final AppointmentService appointmentService;
 
@@ -34,13 +33,13 @@ public class PatientAppointmentController {
 
    @Operation(summary = "Create new appointment", description = "Creates new appointment by patient card for the current authenticated patient")
    @PostMapping
-   public AppointmentResponseDto create(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID clinicId, @Valid @RequestBody CreateAppointmentRequestDto request) {
-      return appointmentService.createForPatient(userDetails.getId(), clinicId, request);
+   public AppointmentResponseDto create(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody CreateAppointmentRequestDto request) {
+      return appointmentService.createForPatient(userDetails.getId(), request);
    }
 
    @Operation(summary = "Cancel an appointment", description = "Cancels an appointment")
    @PatchMapping("/{appointmentId}/cancel")
-   public AppointmentResponseDto cancel(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID clinicId, @PathVariable UUID appointmentId) {
-      return appointmentService.cancelByPatient(userDetails.getId(), clinicId, appointmentId);
+   public AppointmentResponseDto cancel(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID appointmentId) {
+      return appointmentService.cancelByPatient(userDetails.getId(), appointmentId);
    }
 }

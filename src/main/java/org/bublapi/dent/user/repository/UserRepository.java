@@ -17,12 +17,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
    Optional<User> findByEmailAndClinic_Id(String email, UUID clinicId);
 
+   Optional<User> findByEmail(String email);
+
    Optional<User> findByIdAndClinic_Id(UUID userId, UUID clinicId);
 
    @Query("""
-           SELECT u FROM User u WHERE u.clinic.id = :clinicId AND (u.email = :email OR u.phone = :phone)
+           SELECT u FROM User u WHERE u.email = :email OR u.phone = :phone
            """)
-   Optional<User> findByEmailOrPhoneInClinic(UUID clinicId, String email, String phone);
+   Optional<User> findByEmailOrPhone(String email, String phone);
 
    @Query("""
            SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.email = :email

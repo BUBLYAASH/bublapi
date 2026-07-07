@@ -23,12 +23,9 @@ import java.util.UUID;
 
 @Tag(name = "Patients management for staff")
 @RestController
-@RequestMapping("/api/clinics/{clinicId}/patients")
+@RequestMapping("/api/patients")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("""
-        hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')
-        and @clinicSecurity.hasAccess(authentication, #clinicId)
-        """)
+@PreAuthorize("hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')")
 public class StaffPatientController {
    private final PatientService patientService;
 
@@ -38,32 +35,31 @@ public class StaffPatientController {
 
    @Operation(summary = "Create a patient card from reception", description = "Create a patient card from reception")
    @PostMapping
-   public PatientResponseDto createPatient(@PathVariable UUID clinicId, @Valid @RequestBody CreatePatientRequestDto request) {
-      return patientService.create(clinicId, request);
+   public PatientResponseDto createPatient(@Valid @RequestBody CreatePatientRequestDto request) {
+      return patientService.create(request);
    }
 
    @Operation(summary = "Update a patient card by receptionist", description = "Update provided fields in patient card by receptionist")
    @PatchMapping("/{patientId}")
-   public PatientResponseDto updatePatient(@PathVariable UUID clinicId, @PathVariable UUID patientId,
-                                           @Valid @RequestBody UpdatePatientRequestDto request) {
-      return patientService.update(clinicId, patientId, request);
+   public PatientResponseDto updatePatient(@PathVariable UUID patientId, @Valid @RequestBody UpdatePatientRequestDto request) {
+      return patientService.update(patientId, request);
    }
 
    @Operation(summary = "Get user's patient card by user ID", description = "Get user's patient card by user ID")
    @GetMapping("/by-user/{userId}")
-   public PatientResponseDto getPatientByUserId(@PathVariable UUID clinicId, @PathVariable UUID userId) {
-      return patientService.getByUserId(clinicId, userId);
+   public PatientResponseDto getPatientByUserId(@PathVariable UUID userId) {
+      return patientService.getByUserId(userId);
    }
 
    @Operation(summary = "Get user's patient card by phone", description = "Get user's patient card by their phone")
    @PostMapping("/search/by-phone")
-   public PatientResponseDto getPatientByPhone(@PathVariable UUID clinicId, @Valid @RequestBody PatientByPhoneRequestDto request) {
-      return patientService.getByPhone(clinicId, request);
+   public PatientResponseDto getPatientByPhone(@Valid @RequestBody PatientByPhoneRequestDto request) {
+      return patientService.getByPhone(request);
    }
 
    @Operation(summary = "Get all patients in clinic", description = "Get all patients in this clinic")
    @GetMapping
-   public List<PatientResponseDto> findAll(@PathVariable UUID clinicId) {
-      return patientService.findAll(clinicId);
+   public List<PatientResponseDto> findAll() {
+      return patientService.findAll();
    }
 }

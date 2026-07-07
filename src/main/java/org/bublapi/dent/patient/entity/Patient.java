@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.user.entity.User;
+import org.hibernate.annotations.Filter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.UUID;
         @UniqueConstraint(columnNames = {"clinic_id", "phone"}),
         @UniqueConstraint(columnNames = {"user_id"})
 })
+@Filter(name = "clinicFilter", condition = "clinic_id = :clinicId")
 public class Patient {
 
    @Id

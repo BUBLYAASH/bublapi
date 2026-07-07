@@ -33,12 +33,9 @@ import java.util.UUID;
 
 @Tag(name = "Doctors management for staff")
 @RestController
-@RequestMapping("/api/clinics/{clinicId}/doctors")
+@RequestMapping("/api/doctors")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("""
-        hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')
-        and @clinicSecurity.hasAccess(authentication, #clinicId)
-        """)
+@PreAuthorize("hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')")
 public class StaffDoctorController {
 
    private final DoctorService doctorService;
@@ -53,69 +50,69 @@ public class StaffDoctorController {
 
    @Operation(summary = "Add a new doctor", description = "Add a new doctor to provided clinic")
    @PostMapping
-   public DoctorResponseDto createDoctor(@PathVariable UUID clinicId, @Valid @RequestBody CreateDoctorRequestDto request) {
-      return doctorService.create(clinicId, request);
+   public DoctorResponseDto createDoctor(@Valid @RequestBody CreateDoctorRequestDto request) {
+      return doctorService.create(request);
    }
 
    @Operation(summary = "Update doctor's profile", description = "Update provided fields in doctor's profile")
    @PatchMapping("/{doctorId}")
-   public DoctorResponseDto updateDoctor(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @Valid @RequestBody UpdateDoctorRequestDto request) {
-      return doctorService.update(clinicId, doctorId, request);
+   public DoctorResponseDto updateDoctor(@PathVariable UUID doctorId, @Valid @RequestBody UpdateDoctorRequestDto request) {
+      return doctorService.update(doctorId, request);
    }
 
    @Operation(summary = "Deactivate doctor", description = "Deactivates doctor by ID")
    @PatchMapping("/{doctorId}/deactivation")
-   public DoctorResponseDto deactivateDoctor(@PathVariable UUID clinicId, @PathVariable UUID doctorId) {
-      return doctorService.deactivate(clinicId, doctorId);
+   public DoctorResponseDto deactivateDoctor(@PathVariable UUID doctorId) {
+      return doctorService.deactivate(doctorId);
    }
 
    @Operation(summary = "Activate doctor", description = "Activates doctor by ID")
    @PatchMapping("/{doctorId}/activation")
-   public DoctorResponseDto activateDoctor(@PathVariable UUID clinicId, @PathVariable UUID doctorId) {
-      return doctorService.activate(clinicId, doctorId);
+   public DoctorResponseDto activateDoctor(@PathVariable UUID doctorId) {
+      return doctorService.activate(doctorId);
    }
 
    @Operation(summary = "Get all doctors in clinic", description = "Shows all doctors in current clinic")
    @GetMapping
-   public List<DoctorResponseDto> findAll(@PathVariable UUID clinicId) {
-      return doctorService.findAllForStaff(clinicId);
+   public List<DoctorResponseDto> findAll() {
+      return doctorService.findAllForStaff();
    }
 
    @Operation(summary = "Set doctor's working hours", description = "Set working hours for a doctor on a specific day of week")
    @PostMapping("/{doctorId}/working-hours")
-   public DoctorWorkingHoursResponseDto setSchedule(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @Valid @RequestBody SetDoctorWorkingHoursRequestDto request) {
-      return doctorWorkingHoursService.setSchedule(clinicId, doctorId, request);
+   public DoctorWorkingHoursResponseDto setSchedule(@PathVariable UUID doctorId, @Valid @RequestBody SetDoctorWorkingHoursRequestDto request) {
+      return doctorWorkingHoursService.setSchedule(doctorId, request);
    }
 
    @Operation(summary = "Update doctor's working hours", description = "Update working hours for a doctor on a specific day of week")
    @PatchMapping("/{doctorId}/working-hours/{scheduleId}")
-   public DoctorWorkingHoursResponseDto updateWorkingHours(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @PathVariable UUID scheduleId, @Valid @RequestBody UpdateDoctorWorkingHoursRequestDto request) {
-      return doctorWorkingHoursService.updateSchedule(clinicId, doctorId, scheduleId, request);
+   public DoctorWorkingHoursResponseDto updateWorkingHours(@PathVariable UUID doctorId, @PathVariable UUID scheduleId, @Valid @RequestBody UpdateDoctorWorkingHoursRequestDto request) {
+      return doctorWorkingHoursService.updateSchedule(doctorId, scheduleId, request);
    }
 
    @Operation(summary = "Delete doctor's working hours", description = "Delete a specific day of week from working hours for a doctor")
    @ResponseStatus(HttpStatus.NO_CONTENT)
    @DeleteMapping("/{doctorId}/working-hours/{scheduleId}")
-   public void deleteWorkingHours(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @PathVariable UUID scheduleId) {
-      doctorWorkingHoursService.deleteSchedule(clinicId, doctorId, scheduleId);
+   public void deleteWorkingHours(@PathVariable UUID doctorId, @PathVariable UUID scheduleId) {
+      doctorWorkingHoursService.deleteSchedule(doctorId, scheduleId);
    }
 
    @Operation(summary = "Set doctor's schedule exception", description = "Set schedule exception for doctor")
    @PostMapping("/{doctorId}/schedule-exceptions")
-   public DoctorScheduleExceptionResponseDto setScheduleException(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @Valid @RequestBody SetDoctorScheduleExceptionRequestDto request) {
-      return doctorScheduleExceptionService.setException(clinicId, doctorId, request);
+   public DoctorScheduleExceptionResponseDto setScheduleException(@PathVariable UUID doctorId, @Valid @RequestBody SetDoctorScheduleExceptionRequestDto request) {
+      return doctorScheduleExceptionService.setException(doctorId, request);
    }
 
    @Operation(summary = "Delete doctor's schedule exception", description = "Delete schedule exception for doctor")
    @ResponseStatus(HttpStatus.NO_CONTENT)
    @DeleteMapping("/{doctorId}/schedule-exceptions/{scheduleExceptionId}")
-   public void deleteScheduleException(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @PathVariable UUID scheduleExceptionId) {
-      doctorScheduleExceptionService.deleteException(clinicId, doctorId, scheduleExceptionId);
+   public void deleteScheduleException(@PathVariable UUID doctorId, @PathVariable UUID scheduleExceptionId) {
+      doctorScheduleExceptionService.deleteException(doctorId, scheduleExceptionId);
    }
 
    @Operation(summary = "Link user to doctor", description = "Connect user profile with doctor profile")
    @PatchMapping("/{doctorId}/user-link")
-   public DoctorResponseDto linkUserToDoctor(@PathVariable UUID clinicId, @PathVariable UUID doctorId, @Valid @RequestBody LinkUserToDoctorRequestDto request) {
-      return doctorService.linkUser(clinicId, doctorId, request);
+   public DoctorResponseDto linkUserToDoctor(@PathVariable UUID doctorId, @Valid @RequestBody LinkUserToDoctorRequestDto request) {
+      return doctorService.linkUser(doctorId, request);
    }
 }

@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Tag(name = "Public Clinic Services")
 @RestController
-@RequestMapping("/api/public/clinics/{clinicId}/services")
+@RequestMapping("/api/public/services")
 public class PublicClinicServiceController {
    private final ClinicServiceService clinicServiceService;
 
@@ -24,13 +24,13 @@ public class PublicClinicServiceController {
 
    @Operation(summary = "Get all active services in clinic", description = "Gets all active services in current clinic")
    @GetMapping
-   public List<ClinicServiceResponseDto> findAll(@PathVariable UUID clinicId) {
-      return clinicServiceService.findAllActiveForPublic(clinicId);
+   public List<ClinicServiceResponseDto> findAll() {
+      return clinicServiceService.findAllActiveForPublic();
    }
 
    @Operation(summary = "Get information about one service in clinic", description = "Get information about one service in current clinic")
    @GetMapping("/{clinicServiceId}")
-   public ClinicServiceResponseDto findById(@PathVariable UUID clinicId, @PathVariable UUID clinicServiceId) {
-      return clinicServiceService.findById(clinicId, clinicServiceId);
+   public ClinicServiceResponseDto findById(@PathVariable UUID clinicServiceId) {
+      return clinicServiceService.findById(clinicServiceId);
    }
 }

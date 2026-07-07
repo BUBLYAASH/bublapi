@@ -9,12 +9,14 @@ import org.bublapi.dent.apikey.entity.ApiKey;
 import org.bublapi.dent.apikey.service.ApiKeyService;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.hibernate.Session;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Component
+@Order(1)
 public class ApiKeyFilter extends OncePerRequestFilter {
    private final ApiKeyService apiKeyService;
    private final EntityManager entityManager;
@@ -31,7 +33,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
       String path = request.getRequestURI();
 
-      if (path.startsWith("/api/auth") || path.startsWith("/actuator") || path.startsWith("/swagger") || path.startsWith("/v3/api-docs")) {
+      if (path.startsWith("/api/admin") || path.startsWith("/actuator/health") || path.startsWith("/swagger") || path.startsWith("/v3/api-docs")) {
          filterChain.doFilter(request, response);
          return;
       }

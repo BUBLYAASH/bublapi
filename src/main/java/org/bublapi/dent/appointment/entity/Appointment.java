@@ -7,6 +7,7 @@ import org.bublapi.dent.appointment_service.entity.AppointmentServiceItem;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.patient.entity.Patient;
+import org.hibernate.annotations.Filter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "appointments", uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "scheduled_at"}))
+@Filter(name = "clinicFilter", condition = "clinic_id = :clinicId")
 public class Appointment {
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)

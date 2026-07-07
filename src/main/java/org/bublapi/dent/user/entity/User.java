@@ -48,7 +48,7 @@ public class User {
    private String passwordHash;
 
    @ManyToOne
-   @JoinColumn(name = "clinic_id", nullable = false)
+   @JoinColumn(name = "clinic_id")
    private Clinic clinic;
 
    @Column(name = "joined_at", nullable = false)

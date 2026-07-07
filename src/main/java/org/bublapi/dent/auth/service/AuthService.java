@@ -12,8 +12,6 @@ import org.bublapi.dent.user.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 public class AuthService {
    private final UserRepository userRepository;
@@ -28,11 +26,9 @@ public class AuthService {
       this.userService = userService;
    }
 
-   public LoginResponseDto login(UUID clinicId, LoginRequestDto request) {
-      User user = userRepository.findByEmailAndClinic_Id(request.email(), clinicId)
+   public LoginResponseDto login(LoginRequestDto request) {
+      User user = userRepository.findByEmail(request.email())
                                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
-      // TODO: after adding clinic API Key authentication
-      //  find user by its email and clinic_id
 
       boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPasswordHash());
 
@@ -49,7 +45,7 @@ public class AuthService {
       return new LoginResponseDto(token);
    }
 
-   public UserResponseDto register(UUID clinicId, RegisterRequestDto request) {
-      return userService.create(clinicId, new CreateUserRequestDto(request.email(), request.phone(), request.firstName(), request.lastName(), request.middleName(), request.password()));
+   public UserResponseDto register(RegisterRequestDto request) {
+      return userService.create(new CreateUserRequestDto(request.email(), request.phone(), request.firstName(), request.lastName(), request.middleName(), request.password()));
    }
 }

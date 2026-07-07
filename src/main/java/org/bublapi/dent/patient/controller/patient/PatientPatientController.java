@@ -13,22 +13,17 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
-
 @Tag(name = "Patient card from user profile")
 @RestController
-@RequestMapping("/api/patient/clinics/{clinicId}/patient-card")
+@RequestMapping("/api/patient/patient-card")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("""
-        hasRole('PATIENT')
-        and @clinicSecurity.hasAccess(authentication, #clinicId)
-        """)
+@SecurityRequirement(name = "apiKey")
+@PreAuthorize("hasRole('PATIENT')")
 public class PatientPatientController {
    private final PatientService patientService;
 
@@ -38,20 +33,20 @@ public class PatientPatientController {
 
    @Operation(summary = "Create a patient card from profile", description = "Create a patient card from user's profile")
    @PostMapping
-   public PatientResponseDto createPatientFromProfile(@PathVariable UUID clinicId, @AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody CreatePatientFromProfileRequestDto request) {
-      return patientService.createFromProfile(clinicId, userDetails.getId(), request);
+   public PatientResponseDto createPatientFromProfile(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody CreatePatientFromProfileRequestDto request) {
+      return patientService.createFromProfile(userDetails.getId(), request);
    }
 
    @Operation(summary = "Update a patient card from profile", description = "Update provided fields in patient card from profile")
    @PatchMapping
-   public PatientResponseDto updatePatient(@PathVariable UUID clinicId, @AuthenticationPrincipal CustomUserDetails userDetails,
+   public PatientResponseDto updatePatient(@AuthenticationPrincipal CustomUserDetails userDetails,
                                            @Valid @RequestBody UpdatePatientRequestDto request) {
-      return patientService.updateByUserId(clinicId, userDetails.getId(), request);
+      return patientService.updateByUserId(userDetails.getId(), request);
    }
 
    @Operation(summary = "Get user's patient card", description = "Returns authenticated user's patient card")
    @GetMapping
-   public PatientResponseDto getPatientByUserId(@PathVariable UUID clinicId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-      return patientService.getByUserId(clinicId, userDetails.getId());
+   public PatientResponseDto getPatientByUserId(@AuthenticationPrincipal CustomUserDetails userDetails) {
+      return patientService.getByUserId(userDetails.getId());
    }
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.user.entity.User;
+import org.hibernate.annotations.Filter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "doctors")
+@Filter(name = "clinicFilter", condition = "clinic_id = :clinicId")
 public class Doctor {
 
    @Id

@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
 
-   Optional<Appointment> findByIdAndClinic_IdAndPatient_Id(UUID appointmentId, UUID clinicId, UUID patientId);
+   Optional<Appointment> findByIdAndPatient_Id(UUID appointmentId, UUID patientId);
 }

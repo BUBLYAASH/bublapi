@@ -20,7 +20,7 @@ public class CustomUserDetails implements UserDetails {
    }
 
    public UUID getClinicId() {
-      return user.getClinic().getId();
+      return user.getClinic() != null ? user.getClinic().getId() : null;
    }
 
    @Override

@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface DoctorScheduleExceptionRepository extends JpaRepository<DoctorScheduleException, UUID> {
 
-   Optional<DoctorScheduleException> findByIdAndDoctor_IdAndDoctor_Clinic_Id(UUID scheduleExceptionId, UUID doctorId, UUID clinicId);
+   Optional<DoctorScheduleException> findByIdAndDoctor_Id(UUID scheduleExceptionId, UUID doctorId);
 }

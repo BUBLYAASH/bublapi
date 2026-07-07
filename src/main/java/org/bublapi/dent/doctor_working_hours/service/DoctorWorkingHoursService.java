@@ -27,8 +27,9 @@ public class DoctorWorkingHoursService {
       this.doctorWorkingHoursMapper = doctorWorkingHoursMapper;
    }
 
-   public DoctorWorkingHoursResponseDto setSchedule(UUID clinicId, UUID doctorId, SetDoctorWorkingHoursRequestDto request) {
-      Doctor doctor = doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
+   @Transactional
+   public DoctorWorkingHoursResponseDto setSchedule(UUID doctorId, SetDoctorWorkingHoursRequestDto request) {
+      Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       DoctorWorkingHours workingHours = doctorWorkingHoursMapper.toEntity(request);
@@ -41,8 +42,8 @@ public class DoctorWorkingHoursService {
    }
 
    @Transactional
-   public DoctorWorkingHoursResponseDto updateSchedule(UUID clinicId, UUID doctorId, UUID scheduleId, UpdateDoctorWorkingHoursRequestDto request) {
-      doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
+   public DoctorWorkingHoursResponseDto updateSchedule(UUID doctorId, UUID scheduleId, UpdateDoctorWorkingHoursRequestDto request) {
+      doctorRepository.findByIdAndActiveTrue(doctorId)
                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_Id(scheduleId, doctorId)
@@ -53,8 +54,8 @@ public class DoctorWorkingHoursService {
       return doctorWorkingHoursMapper.toResponse(workingHours);
    }
 
-   public List<DoctorWorkingHoursResponseDto> getSchedule(UUID clinicId, UUID doctorId) {
-      doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
+   public List<DoctorWorkingHoursResponseDto> getSchedule(UUID doctorId) {
+      doctorRepository.findByIdAndActiveTrue(doctorId)
                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       return doctorWorkingHoursRepository.findAllByDoctor_Id(doctorId)
@@ -63,8 +64,8 @@ public class DoctorWorkingHoursService {
                                          .toList();
    }
 
-   public void deleteSchedule(UUID clinicId, UUID doctorId, UUID scheduleId) {
-      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_IdAndDoctor_Clinic_Id(scheduleId, doctorId, clinicId)
+   public void deleteSchedule(UUID doctorId, UUID scheduleId) {
+      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_Id(scheduleId, doctorId)
                                                                     .orElseThrow(() -> new ResourceNotFoundException("This schedule for doctor not found or unavailable"));
 
       doctorWorkingHoursRepository.delete(workingHours);

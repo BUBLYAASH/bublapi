@@ -10,7 +10,5 @@ import java.util.UUID;
 public interface DoctorWorkingHoursRepository extends JpaRepository<DoctorWorkingHours, UUID> {
    Optional<DoctorWorkingHours> findByIdAndDoctor_Id(UUID id, UUID doctorId);
 
-   Optional<DoctorWorkingHours> findByIdAndDoctor_IdAndDoctor_Clinic_Id(UUID id, UUID doctorId, UUID clinicId);
-
    List<DoctorWorkingHours> findAllByDoctor_Id(UUID doctorId);
 }

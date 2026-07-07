@@ -22,12 +22,9 @@ import java.util.UUID;
 
 @Tag(name = "Users management for staff")
 @RestController
-@RequestMapping("/api/clinics/{clinicId}/users")
+@RequestMapping("/api/users")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("""
-        hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')
-        and @clinicSecurity.hasAccess(authentication, #clinicId)
-        """)
+@PreAuthorize("hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')")
 public class StaffUserController {
 
    private final UserService userService;
@@ -38,37 +35,37 @@ public class StaffUserController {
 
    @Operation(summary = "Assign a role", description = "Adds selected role to user")
    @PostMapping("/{userId}/roles/{roleId}")
-   public UserRoleResponseDto assignRole(@PathVariable UUID clinicId, @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID userId, @PathVariable UUID roleId) {
-      return userService.assignRole(clinicId, userDetails.getId(), userId, roleId);
+   public UserRoleResponseDto assignRole(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID userId, @PathVariable UUID roleId) {
+      return userService.assignRole(userDetails.getId(), userId, roleId);
    }
 
    @Operation(summary = "Remove a role", description = "Removes selected role¬ from user")
    @DeleteMapping("/{userId}/roles/{roleId}")
-   public UserRoleResponseDto removeRole(@PathVariable UUID clinicId, @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID userId, @PathVariable UUID roleId) {
-      return userService.removeRole(clinicId, userDetails.getId(), userId, roleId);
+   public UserRoleResponseDto removeRole(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID userId, @PathVariable UUID roleId) {
+      return userService.removeRole(userDetails.getId(), userId, roleId);
    }
 
    @Operation(summary = "Deactivate user's account", description = "Deactivates the user account by user ID")
    @PatchMapping("/{userId}/deactivation")
-   public UserResponseDto deactivate(@PathVariable UUID clinicId, @PathVariable UUID userId) {
-      return userService.deactivate(clinicId, userId);
+   public UserResponseDto deactivate(@PathVariable UUID userId) {
+      return userService.deactivate(userId);
    }
 
    @Operation(summary = "Activate user's account", description = "Activates the user account by user ID")
    @PatchMapping("/{userId}/activation")
-   public UserResponseDto activate(@PathVariable UUID clinicId, @PathVariable UUID userId) {
-      return userService.activate(clinicId, userId);
+   public UserResponseDto activate(@PathVariable UUID userId) {
+      return userService.activate(userId);
    }
 
    @Operation(summary = "Get all enabled users in clinic", description = "Get all enabled users in this clinic")
    @GetMapping
-   public List<UserResponseDto> findAll(@PathVariable UUID clinicId) {
-      return userService.findAll(clinicId);
+   public List<UserResponseDto> findAll() {
+      return userService.findAll();
    }
 
    @Operation(summary = "Get one user by ID", description = "Get one user by ID")
    @GetMapping("/{userId}")
-   public UserResponseDto findById(@PathVariable UUID clinicId, @PathVariable UUID userId) {
-      return userService.findById(clinicId, userId);
+   public UserResponseDto findById(@PathVariable UUID userId) {
+      return userService.findById(userId);
    }
 }

@@ -11,6 +11,7 @@ import org.bublapi.dent.doctor_schedule_exception.entity.ScheduleExceptionType;
 import org.bublapi.dent.doctor_schedule_exception.mapper.DoctorScheduleExceptionMapper;
 import org.bublapi.dent.doctor_schedule_exception.repository.DoctorScheduleExceptionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.UUID;
@@ -27,8 +28,9 @@ public class DoctorScheduleExceptionService {
       this.doctorScheduleExceptionMapper = doctorScheduleExceptionMapper;
    }
 
-   public DoctorScheduleExceptionResponseDto setException(UUID clinicId, UUID doctorId, SetDoctorScheduleExceptionRequestDto request) {
-      Doctor doctor = doctorRepository.findAvailableDoctorInClinic(clinicId, doctorId)
+   @Transactional
+   public DoctorScheduleExceptionResponseDto setException(UUID doctorId, SetDoctorScheduleExceptionRequestDto request) {
+      Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       DoctorScheduleException scheduleException = doctorScheduleExceptionMapper.toEntity(request);
@@ -53,8 +55,8 @@ public class DoctorScheduleExceptionService {
       return doctorScheduleExceptionMapper.toResponse(saved);
    }
 
-   public void deleteException(UUID clinicId, UUID doctorId, UUID scheduleExceptionId) {
-      DoctorScheduleException scheduleException = doctorScheduleExceptionRepository.findByIdAndDoctor_IdAndDoctor_Clinic_Id(scheduleExceptionId, doctorId, clinicId)
+   public void deleteException(UUID doctorId, UUID scheduleExceptionId) {
+      DoctorScheduleException scheduleException = doctorScheduleExceptionRepository.findByIdAndDoctor_Id(scheduleExceptionId, doctorId)
                                                                                    .orElseThrow(() -> new ResourceNotFoundException("Schedule Exception not found"));
 
       doctorScheduleExceptionRepository.delete(scheduleException);

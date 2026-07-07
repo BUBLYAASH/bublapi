@@ -1,7 +1,7 @@
 package org.bublapi.dent.user.service;
 
 import org.bublapi.dent.clinic.entity.Clinic;
-import org.bublapi.dent.clinic.repository.ClinicRepository;
+import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.patient.repository.PatientRepository;
@@ -28,15 +28,13 @@ import java.util.UUID;
 public class UserService {
 
    private final UserRepository userRepository;
-   private final ClinicRepository clinicRepository;
    private final RoleRepository roleRepository;
    private final PatientRepository patientRepository;
    private final UserMapper userMapper;
    private final PasswordEncoder passwordEncoder;
 
-   public UserService(UserRepository userRepository, ClinicRepository clinicRepository, RoleRepository roleRepository, PatientRepository patientRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+   public UserService(UserRepository userRepository, RoleRepository roleRepository, PatientRepository patientRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
       this.userRepository = userRepository;
-      this.clinicRepository = clinicRepository;
       this.roleRepository = roleRepository;
       this.patientRepository = patientRepository;
       this.userMapper = userMapper;
@@ -44,9 +42,8 @@ public class UserService {
    }
 
    @Transactional
-   public UserResponseDto create(UUID clinicId, CreateUserRequestDto request) {
-      Clinic clinic = clinicRepository.findByIdAndActiveTrue(clinicId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic with provided ID not found"));
+   public UserResponseDto create(CreateUserRequestDto request) {
+      Clinic clinic = ClinicContext.get();
 
       Role patientRole = roleRepository.findByName(RoleName.PATIENT)
                                        .orElseThrow(() -> new ResourceNotFoundException("PATIENT role not found"));
@@ -58,7 +55,7 @@ public class UserService {
 
       User saved = userRepository.save(user);
 
-      patientRepository.findByEmailOrPhoneInClinic(clinicId, request.email(), request.phone()).ifPresent(patient -> {
+      patientRepository.findByEmailOrPhone(request.email(), request.phone()).ifPresent(patient -> {
          if (patient.getUser() == null) {
             patient.setUser(saved);
          } else {
@@ -70,9 +67,8 @@ public class UserService {
    }
 
    @Transactional
-   public UserResponseDto update(UUID clinicId, UUID userId, UpdateUserRequestDto request) {
-      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+   public UserResponseDto update(UUID userId, UpdateUserRequestDto request) {
+      User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       userMapper.updateEntity(request, user);
 
@@ -84,11 +80,11 @@ public class UserService {
    }
 
    @Transactional
-   public UserRoleResponseDto assignRole(UUID clinicId, UUID actorUserId, UUID targetUserId, UUID roleId) {
-      User actorUser = userRepository.findByIdAndClinic_Id(actorUserId, clinicId)
+   public UserRoleResponseDto assignRole(UUID actorUserId, UUID targetUserId, UUID roleId) {
+      User actorUser = userRepository.findById(actorUserId)
                                      .orElseThrow(() -> new ResourceNotFoundException("Actor user not found"));
 
-      User targetUser = userRepository.findByIdAndClinic_Id(targetUserId, clinicId)
+      User targetUser = userRepository.findById(targetUserId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Target user not found"));
 
       Role role = roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
@@ -111,11 +107,11 @@ public class UserService {
    }
 
    @Transactional
-   public UserRoleResponseDto removeRole(UUID clinicId, UUID actorUserId, UUID targetUserId, UUID roleId) {
-      User actorUser = userRepository.findByIdAndClinic_Id(actorUserId, clinicId)
+   public UserRoleResponseDto removeRole(UUID actorUserId, UUID targetUserId, UUID roleId) {
+      User actorUser = userRepository.findById(actorUserId)
                                      .orElseThrow(() -> new ResourceNotFoundException("Actor user not found"));
 
-      User targetUser = userRepository.findByIdAndClinic_Id(targetUserId, clinicId)
+      User targetUser = userRepository.findById(targetUserId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Target user not found"));
 
       Role role = roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
@@ -144,9 +140,8 @@ public class UserService {
    }
 
    @Transactional
-   public UserResponseDto deactivate(UUID clinicId, UUID userId) {
-      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+   public UserResponseDto deactivate(UUID userId) {
+      User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       user.setEnabled(false);
       user.setDisabledByClinic(false);
@@ -155,27 +150,20 @@ public class UserService {
    }
 
    @Transactional
-   public UserResponseDto activate(UUID clinicId, UUID userId) {
-      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+   public UserResponseDto activate(UUID userId) {
+      User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       user.setEnabled(true);
       user.setDisabledByClinic(false);
       return userMapper.toResponse(user);
    }
 
-   public List<UserResponseDto> findAll(UUID clinicId) {
-      clinicRepository.findByIdAndActiveTrue(clinicId)
-                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
-
-      return userRepository.findAllByClinic_Id(clinicId).stream().map(userMapper::toResponse).toList();
+   public List<UserResponseDto> findAll() {
+      return userRepository.findAll().stream().map(userMapper::toResponse).toList();
    }
 
-   public UserResponseDto findById(UUID clinicId, UUID userId) {
-      clinicRepository.findByIdAndActiveTrue(clinicId)
-                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
-
-      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+   public UserResponseDto findById(UUID userId) {
+      User user = userRepository.findById(userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found or unavailable"));
 
       return userMapper.toResponse(user);
