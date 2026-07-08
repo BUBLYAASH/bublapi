@@ -53,7 +53,7 @@ public class ClinicService {
 
       clinic.setActive(false);
 
-      List<User> users = userRepository.findAllByEnabledTrue();
+      List<User> users = userRepository.findAllByClinic_IdAndEnabledTrue(clinic.getId());
 
       users.forEach(user -> {
          user.setEnabled(false);
@@ -70,7 +70,7 @@ public class ClinicService {
 
       clinic.setActive(true);
 
-      List<User> users = userRepository.findAll();
+      List<User> users = userRepository.findAllByClinic_IdAndDisabledByClinicTrue(clinic.getId());
 
       users.stream().filter(user -> user.getDisabledByClinic() && !user.getEnabled()).forEach(user -> {
          user.setDisabledByClinic(false);

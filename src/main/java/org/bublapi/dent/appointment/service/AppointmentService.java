@@ -185,7 +185,7 @@ public class AppointmentService {
          item.setDurationMinutes(clinicService.getDurationMinutes());
          item.setQuantity(resolvedService.quantity());
          item.setPosition(position++);
-         
+
          appointmentServiceRepository.save(item);
       }
 

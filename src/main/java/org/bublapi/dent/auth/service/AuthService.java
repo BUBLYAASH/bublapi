@@ -3,6 +3,7 @@ package org.bublapi.dent.auth.service;
 import org.bublapi.dent.auth.dto.LoginRequestDto;
 import org.bublapi.dent.auth.dto.LoginResponseDto;
 import org.bublapi.dent.auth.dto.RegisterRequestDto;
+import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.user.dto.CreateUserRequestDto;
 import org.bublapi.dent.user.dto.UserResponseDto;
@@ -11,6 +12,8 @@ import org.bublapi.dent.user.repository.UserRepository;
 import org.bublapi.dent.user.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -27,7 +30,9 @@ public class AuthService {
    }
 
    public LoginResponseDto login(LoginRequestDto request) {
-      User user = userRepository.findByEmail(request.email())
+      UUID clinicId = ClinicContext.getClinicId();
+
+      User user = userRepository.findByEmailAndClinic_Id(request.email(), clinicId)
                                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
 
       boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPasswordHash());

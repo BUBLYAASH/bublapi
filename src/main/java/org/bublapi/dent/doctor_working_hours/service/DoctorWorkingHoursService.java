@@ -1,5 +1,6 @@
 package org.bublapi.dent.doctor_working_hours.service;
 
+import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
@@ -29,6 +30,10 @@ public class DoctorWorkingHoursService {
 
    @Transactional
    public DoctorWorkingHoursResponseDto setSchedule(UUID doctorId, SetDoctorWorkingHoursRequestDto request) {
+      if (!request.startTime().isBefore(request.endTime())) {
+         throw new BadRequestException("Start time must be before end time");
+      }
+
       Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 

@@ -1,5 +1,6 @@
 package org.bublapi.dent.appointment.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,7 +13,7 @@ public record CreateAppointmentRequestDto(
 
         @NotNull LocalDateTime scheduledAt,
 
-        @NotEmpty List<AppointmentServiceRequestDto> services,
+        @NotEmpty List<@Valid AppointmentServiceRequestDto> services,
 
         String comment) {
 }

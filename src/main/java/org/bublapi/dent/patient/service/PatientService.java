@@ -40,7 +40,7 @@ public class PatientService {
 
       if ((request.email() != null && !request.email().isBlank()) || (request.phone() != null && !request.phone()
                                                                                                          .isBlank())) {
-         userRepository.findByEmailOrPhone(request.email(), request.phone()).ifPresent(u -> {
+         userRepository.findByEmailOrPhoneInClinic(request.email(), request.phone(), clinic.getId()).ifPresent(u -> {
             if (patientRepository.findByUser_Id(u.getId()).isEmpty()) {
                patient.setUser(u);
             }
@@ -58,7 +58,8 @@ public class PatientService {
    public PatientResponseDto createFromProfile(UUID userId, CreatePatientFromProfileRequestDto request) {
       Clinic clinic = ClinicContext.get();
 
-      User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+      User user = userRepository.findByIdAndClinicId(userId, clinic.getId())
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       if (patientRepository.existsByUser_Id(user.getId())) {
          throw new BadRequestException("User already has patient card");

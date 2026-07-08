@@ -17,6 +17,7 @@ public interface AppointmentMapper {
    @Mapping(target = "endAt", ignore = true)
    @Mapping(target = "totalPrice", ignore = true)
    @Mapping(target = "status", ignore = true)
+   @Mapping(target = "createdAt", ignore = true)
    Appointment toEntity(CreateAppointmentRequestDto request);
 
    @Mapping(target = "clinicId", source = "clinic.id")

@@ -1,5 +1,6 @@
 package org.bublapi.dent.auth.security;
 
+import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.user.entity.User;
 import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +20,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
    @Override
    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-      User user = userRepository.findByEmailWithRoles(username)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      User user = userRepository.findByEmailWithRolesInClinic(username, clinicId)
                                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
       return new CustomUserDetails(user);

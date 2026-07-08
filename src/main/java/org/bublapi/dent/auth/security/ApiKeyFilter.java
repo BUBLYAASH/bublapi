@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.bublapi.dent.apikey.entity.ApiKey;
 import org.bublapi.dent.apikey.service.ApiKeyService;
 import org.bublapi.dent.common.context.ClinicContext;
+import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -46,6 +47,8 @@ public class ApiKeyFilter extends OncePerRequestFilter {
          ClinicContext.set(key.getClinic());
 
          filterChain.doFilter(request, response);
+      } catch (IllegalArgumentException | ResourceNotFoundException e) {
+         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       } finally {
          ClinicContext.clear();
       }

@@ -86,12 +86,14 @@ public class DoctorService {
 
    @Transactional
    public DoctorResponseDto linkUser(UUID doctorId, LinkUserToDoctorRequestDto request) {
+      UUID clinicId = ClinicContext.getClinicId();
+
       if ((request.email() == null || request.email().isBlank()) && (request.phone() == null || request.phone()
                                                                                                        .isBlank())) {
          throw new BadRequestException("Email and phone are empty");
       }
 
-      User user = userRepository.findByEmailOrPhone(request.email(), request.phone())
+      User user = userRepository.findByEmailOrPhoneInClinic(request.email(), request.phone(), clinicId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
