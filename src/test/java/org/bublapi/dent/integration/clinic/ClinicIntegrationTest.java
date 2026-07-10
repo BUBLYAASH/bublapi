@@ -31,7 +31,10 @@ class ClinicIntegrationTest extends IntegrationTestBase {
       String token = jwtHelper.token(admin.getId());
 
 
-      CreateClinicRequestDto request = new CreateClinicRequestDto("Dental Clinic", "Best clinic", "Moscow, Red Square 1", "79991234567", "clinic@mail.com", "https://clinic.com", "Europe/Moscow");
+      CreateClinicRequestDto request = new CreateClinicRequestDto("Dental Clinic", "Best clinic",
+                                                                  "Moscow, Red Square 1", "79991234567",
+                                                                  "clinic@mail.com", "https://clinic.com",
+                                                                  "Europe/Moscow");
 
 
       mockMvc.perform(post("/api/admin/clinics").header("Authorization", token)
@@ -52,7 +55,8 @@ class ClinicIntegrationTest extends IntegrationTestBase {
       String token = jwtHelper.token(admin.getId());
 
 
-      CreateClinicRequestDto request = new CreateClinicRequestDto("Dental Clinic", null, "Same address", "79991234567", "clinic1@mail.com", null, "Europe/Moscow");
+      CreateClinicRequestDto request = new CreateClinicRequestDto("Dental Clinic", null, "Same address", "79991234567",
+                                                                  "clinic1@mail.com", null, "Europe/Moscow");
 
 
       mockMvc.perform(post("/api/admin/clinics").header("Authorization", token)
@@ -76,7 +80,8 @@ class ClinicIntegrationTest extends IntegrationTestBase {
       String token = jwtHelper.token(admin.getId());
 
 
-      CreateClinicRequestDto request = new CreateClinicRequestDto("Active Clinic", null, "Some address", "79990000000", "active@mail.com", null, "Europe/Moscow");
+      CreateClinicRequestDto request = new CreateClinicRequestDto("Active Clinic", null, "Some address", "79990000000",
+                                                                  "active@mail.com", null, "Europe/Moscow");
 
 
       mockMvc.perform(post("/api/admin/clinics").header("Authorization", token)

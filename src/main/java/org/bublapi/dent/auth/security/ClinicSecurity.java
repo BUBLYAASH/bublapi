@@ -28,6 +28,6 @@ public class ClinicSecurity {
       UUID userClinicId = userDetails.getClinicId();
       UUID apiClinicId = ClinicContext.getClinicId();
 
-      return userClinicId.equals(apiClinicId);
+      return userClinicId != null && userClinicId.equals(apiClinicId);
    }
 }

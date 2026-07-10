@@ -34,7 +34,8 @@ public abstract class IntegrationTestSupport extends IntegrationTestBase {
 
    protected static final String STAFF_APPOINTMENTS_URL = "/api/patients/{patientId}/appointments";
    protected static final String PATIENT_APPOINTMENTS_URL = "/api/patient/appointments";
-   protected static final DateTimeFormatter RESPONSE_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+   protected static final DateTimeFormatter RESPONSE_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern(
+           "yyyy-MM-dd'T'HH:mm:ss");
 
    @Autowired
    protected TestDataFactory dataFactory;
@@ -57,12 +58,14 @@ public abstract class IntegrationTestSupport extends IntegrationTestBase {
       Patient patient = dataFactory.createPatient(clinicData.clinic());
       Doctor doctor = dataFactory.createDoctor(clinicData.clinic());
       ClinicService clinicService = dataFactory.createClinicService(clinicData.clinic());
-      return new AppointmentContext(clinicData.clinic(), clinicData.user(), patient, doctor, clinicService, clinicData.apiKey());
+      return new AppointmentContext(clinicData.clinic(), clinicData.user(), patient, doctor, clinicService,
+                                    clinicData.apiKey());
    }
 
    protected AppointmentContext createPatientAppointmentContext() {
       Clinic clinic = dataFactory.createClinic();
-      User patientUser = dataFactory.createUserWithRoles(clinic, "patient-" + UUID.randomUUID() + "@test.com", RoleName.PATIENT);
+      User patientUser = dataFactory.createUserWithRoles(clinic, "patient-" + UUID.randomUUID() + "@test.com",
+                                                         RoleName.PATIENT);
       Patient patient = dataFactory.createPatientForUser(clinic, patientUser);
       Doctor doctor = dataFactory.createDoctor(clinic);
       ClinicService clinicService = dataFactory.createClinicService(clinic);
@@ -81,29 +84,36 @@ public abstract class IntegrationTestSupport extends IntegrationTestBase {
 
    protected ResultActions createStaffAppointment(AppointmentContext context, LocalDateTime scheduledAt) throws
            Exception {
-      return createStaffAppointment(context, scheduledAt, List.of(new AppointmentServiceRequestDto(context.clinicService()
-                                                                                                          .getId(), 1)));
+      return createStaffAppointment(context, scheduledAt,
+                                    List.of(new AppointmentServiceRequestDto(context.clinicService()
+                                                                                    .getId(), 1)));
    }
 
    protected ResultActions createStaffAppointment(AppointmentContext context, LocalDateTime scheduledAt, List<AppointmentServiceRequestDto> services) throws
            Exception {
       CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(context.doctor()
-                                                                                   .getId(), scheduledAt, services, "Integration test appointment");
+                                                                                   .getId(), scheduledAt, services,
+                                                                            "Integration test appointment");
 
       return mockMvc.perform(post(STAFF_APPOINTMENTS_URL, context.patient()
-                                                                 .getId()).header("Authorization", jwtHelper.token(context.user()
-                                                                                                                          .getId()))
+                                                                 .getId()).header("Authorization",
+                                                                                  jwtHelper.token(context.user()
+                                                                                                         .getId()))
                                                                           .header("X-API-KEY", context.apiKey()
                                                                                                       .rawKey())
                                                                           .contentType(MediaType.APPLICATION_JSON)
-                                                                          .content(objectMapper.writeValueAsString(request)));
+                                                                          .content(objectMapper.writeValueAsString(
+                                                                                  request)));
    }
 
    protected ResultActions createPatientAppointment(AppointmentContext context, LocalDateTime scheduledAt) throws
            Exception {
       CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(context.doctor()
-                                                                                   .getId(), scheduledAt, List.of(new AppointmentServiceRequestDto(context.clinicService()
-                                                                                                                                                          .getId(), 1)), "Patient appointment");
+                                                                                   .getId(), scheduledAt,
+                                                                            List.of(new AppointmentServiceRequestDto(
+                                                                                    context.clinicService()
+                                                                                           .getId(), 1)),
+                                                                            "Patient appointment");
 
       return mockMvc.perform(post(PATIENT_APPOINTMENTS_URL).header("Authorization", jwtHelper.token(context.user()
                                                                                                            .getId()))

@@ -27,7 +27,8 @@ class DentalServiceAdminBehaviorIntegrationTest extends IntegrationTestSupport {
    void shouldNotCreateDuplicateDentalServiceTitle() throws Exception {
       User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
       String title = "Unique Service " + UUID.randomUUID();
-      CreateDentalServiceRequestDto request = new CreateDentalServiceRequestDto(title, "desc", ServiceCategory.THERAPY, 30);
+      CreateDentalServiceRequestDto request = new CreateDentalServiceRequestDto(title, "desc", ServiceCategory.THERAPY,
+                                                                                30);
 
       mockMvc.perform(post(ADMIN_DENTAL_SERVICES_URL)
                               .header("Authorization", jwtHelper.token(admin.getId()))
@@ -47,7 +48,9 @@ class DentalServiceAdminBehaviorIntegrationTest extends IntegrationTestSupport {
    void shouldUpdateDentalService() throws Exception {
       User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
       DentalService service = dataFactory.createDentalService();
-      UpdateDentalServiceRequestDto request = new UpdateDentalServiceRequestDto("Updated service", "Updated description", ServiceCategory.SURGERY, 45);
+      UpdateDentalServiceRequestDto request = new UpdateDentalServiceRequestDto("Updated service",
+                                                                                "Updated description",
+                                                                                ServiceCategory.SURGERY, 45);
 
       mockMvc.perform(patch(ADMIN_DENTAL_SERVICES_URL + "/{dentalServiceId}", service.getId())
                               .header("Authorization", jwtHelper.token(admin.getId()))

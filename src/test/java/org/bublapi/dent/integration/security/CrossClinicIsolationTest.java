@@ -41,7 +41,8 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
       Clinic clinicA = dataFactory.createClinic();
       Clinic clinicB = dataFactory.createClinic();
 
-      User receptionistFromClinicA = dataFactory.createUserWithRoles(clinicA, "receptionist-a@test.com", RoleName.RECEPTIONIST);
+      User receptionistFromClinicA = dataFactory.createUserWithRoles(clinicA, "receptionist-a@test.com",
+                                                                     RoleName.RECEPTIONIST);
 
       dataFactory.createPatient(clinicB);
 
@@ -66,10 +67,15 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
 
       UpdateDoctorRequestDto request = new UpdateDoctorRequestDto("Hacked", null, null, null, null, null);
 
-      mockMvc.perform(patch("/api/doctors/{doctorId}", doctorFromClinicB.getId()).header("Authorization", jwtHelper.token(ownerFromClinicA.getId()))
+      mockMvc.perform(patch("/api/doctors/{doctorId}", doctorFromClinicB.getId()).header("Authorization",
+                                                                                         jwtHelper.token(
+                                                                                                 ownerFromClinicA.getId()))
                                                                                  .header("X-API-KEY", apiKeyClinicA)
-                                                                                 .contentType(MediaType.APPLICATION_JSON)
-                                                                                 .content(objectMapper.writeValueAsString(request)))
+                                                                                 .contentType(
+                                                                                         MediaType.APPLICATION_JSON)
+                                                                                 .content(
+                                                                                         objectMapper.writeValueAsString(
+                                                                                                 request)))
              .andExpect(status().isNotFound())
              .andExpect(jsonPath("$.message").value("Doctor in clinic not found"));
    }
@@ -80,7 +86,8 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
       Clinic clinicA = dataFactory.createClinic();
       Clinic clinicB = dataFactory.createClinic();
 
-      User receptionistFromClinicA = dataFactory.createUserWithRoles(clinicA, "receptionist-a@test.com", RoleName.RECEPTIONIST);
+      User receptionistFromClinicA = dataFactory.createUserWithRoles(clinicA, "receptionist-a@test.com",
+                                                                     RoleName.RECEPTIONIST);
 
       Patient patientFromClinicB = dataFactory.createPatient(clinicB);
       Doctor doctorFromClinicB = dataFactory.createDoctor(clinicB);
@@ -88,15 +95,26 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
 
       CreateApiKeyResponseDto apiKeyClinicB = dataFactory.createApiKey(clinicB);
 
-      CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(doctorFromClinicB.getId(), LocalDateTime.now()
-                                                                                                                    .plusDays(1)
-                                                                                                                    .withSecond(0)
-                                                                                                                    .withNano(0), List.of(new AppointmentServiceRequestDto(clinicServiceFromClinicB.getId(), 1)), "Cross-clinic appointment attempt");
+      CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(doctorFromClinicB.getId(),
+                                                                            LocalDateTime.now()
+                                                                                         .plusDays(1)
+                                                                                         .withSecond(0)
+                                                                                         .withNano(0),
+                                                                            List.of(new AppointmentServiceRequestDto(
+                                                                                    clinicServiceFromClinicB.getId(),
+                                                                                    1)),
+                                                                            "Cross-clinic appointment attempt");
 
-      mockMvc.perform(post("/api/patients/{patientId}/appointments", patientFromClinicB.getId()).header("Authorization", jwtHelper.token(receptionistFromClinicA.getId()))
-                                                                                                .header("X-API-KEY", apiKeyClinicB.rawKey())
-                                                                                                .contentType(MediaType.APPLICATION_JSON)
-                                                                                                .content(objectMapper.writeValueAsString(request)))
+      mockMvc.perform(post("/api/patients/{patientId}/appointments", patientFromClinicB.getId()).header("Authorization",
+                                                                                                        jwtHelper.token(
+                                                                                                                receptionistFromClinicA.getId()))
+                                                                                                .header("X-API-KEY",
+                                                                                                        apiKeyClinicB.rawKey())
+                                                                                                .contentType(
+                                                                                                        MediaType.APPLICATION_JSON)
+                                                                                                .content(
+                                                                                                        objectMapper.writeValueAsString(
+                                                                                                                request)))
              .andExpect(status().isForbidden());
    }
 

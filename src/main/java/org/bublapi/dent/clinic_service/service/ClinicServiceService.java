@@ -38,7 +38,8 @@ public class ClinicServiceService {
       }
 
       DentalService dentalService = dentalServiceRepository.findByIdAndActiveTrue(dentalServiceId)
-                                                           .orElseThrow(() -> new ResourceNotFoundException("Dental Service not found or unavailable"));
+                                                           .orElseThrow(() -> new ResourceNotFoundException(
+                                                                   "Dental Service not found or unavailable"));
 
       ClinicService clinicService = clinicServiceMapper.toEntity(request);
 
@@ -53,7 +54,8 @@ public class ClinicServiceService {
    @Transactional
    public ClinicServiceResponseDto update(UUID clinicServiceId, UpdateClinicServiceRequestDto request) {
       ClinicService clinicService = clinicServiceRepository.findById(clinicServiceId)
-                                                           .orElseThrow(() -> new ResourceNotFoundException("Clinic Service is not found"));
+                                                           .orElseThrow(() -> new ResourceNotFoundException(
+                                                                   "Clinic Service is not found"));
 
       clinicServiceMapper.updateEntity(request, clinicService);
 
@@ -64,7 +66,8 @@ public class ClinicServiceService {
    public ClinicServiceResponseDto deactivate(UUID clinicServiceId) {
       //TODO: after adding notifications - notify user that service that them chosen - currently unavailable
       ClinicService clinicService = clinicServiceRepository.findById(clinicServiceId)
-                                                           .orElseThrow(() -> new ResourceNotFoundException("Clinic Service not found or unavailable"));
+                                                           .orElseThrow(() -> new ResourceNotFoundException(
+                                                                   "Clinic Service not found or unavailable"));
 
       clinicService.setActive(false);
 
@@ -74,7 +77,8 @@ public class ClinicServiceService {
    @Transactional
    public ClinicServiceResponseDto activate(UUID clinicServiceId) {
       ClinicService clinicService = clinicServiceRepository.findById(clinicServiceId)
-                                                           .orElseThrow(() -> new ResourceNotFoundException("Clinic Service not found"));
+                                                           .orElseThrow(() -> new ResourceNotFoundException(
+                                                                   "Clinic Service not found"));
 
       clinicService.setActive(true);
 
@@ -87,7 +91,8 @@ public class ClinicServiceService {
 
    public ClinicServiceResponseDto findById(UUID clinicServiceId) {
       ClinicService clinicService = clinicServiceRepository.findByIdAndActiveTrue(clinicServiceId)
-                                                           .orElseThrow(() -> new ResourceNotFoundException("Clinic service not found"));
+                                                           .orElseThrow(() -> new ResourceNotFoundException(
+                                                                   "Clinic service not found"));
 
       return clinicServiceMapper.toResponse(clinicService);
    }

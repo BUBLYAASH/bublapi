@@ -161,9 +161,16 @@ class UserIntegrationTest extends IntegrationTestBase {
    void shouldSaveUniquePhonePerUser() throws Exception {
       Clinic clinic = dataFactory.createClinic();
 
-      RegisterRequestDto firstRequest = new RegisterRequestDto("User1FirstName", "User1LastName", "User1MiddleName", "user1@mail.ru", "79314056195", TestDataFactory.DEFAULT_PASSWORD);
-      RegisterRequestDto duplicatePhoneRequest = new RegisterRequestDto("User2FirstName", "User2LastName", "User2MiddleName", "user2@mail.ru", "79314056195", TestDataFactory.DEFAULT_PASSWORD);
-      RegisterRequestDto uniquePhoneRequest = new RegisterRequestDto("User2FirstName", "User2LastName", "User2MiddleName", "user2@mail.ru", "79314056196", TestDataFactory.DEFAULT_PASSWORD);
+      RegisterRequestDto firstRequest = new RegisterRequestDto("User1FirstName", "User1LastName", "User1MiddleName",
+                                                               "user1@mail.ru", "79314056195",
+                                                               TestDataFactory.DEFAULT_PASSWORD);
+      RegisterRequestDto duplicatePhoneRequest = new RegisterRequestDto("User2FirstName", "User2LastName",
+                                                                        "User2MiddleName", "user2@mail.ru",
+                                                                        "79314056195",
+                                                                        TestDataFactory.DEFAULT_PASSWORD);
+      RegisterRequestDto uniquePhoneRequest = new RegisterRequestDto("User2FirstName", "User2LastName",
+                                                                     "User2MiddleName", "user2@mail.ru", "79314056196",
+                                                                     TestDataFactory.DEFAULT_PASSWORD);
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 

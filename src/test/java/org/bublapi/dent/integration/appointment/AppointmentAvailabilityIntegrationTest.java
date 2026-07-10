@@ -40,7 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
 
    private static final String STAFF_APPOINTMENTS_URL = "/api/patients/{patientId}/appointments";
-   private final static DateTimeFormatter RESPONSE_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+   private final static DateTimeFormatter RESPONSE_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern(
+           "yyyy-MM-dd'T'HH:mm:ss");
 
    @Autowired
    private TestDataFactory dataFactory;
@@ -69,8 +70,10 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
                                              .andExpect(jsonPath("$.patientId").value(context.patient()
                                                                                              .getId()
                                                                                              .toString()))
-                                             .andExpect(jsonPath("$.scheduledAt").value(formatResponseDateTime(scheduledAt)))
-                                             .andExpect(jsonPath("$.endAt").value(formatResponseDateTime(scheduledAt.plusMinutes(30))))
+                                             .andExpect(jsonPath("$.scheduledAt").value(
+                                                     formatResponseDateTime(scheduledAt)))
+                                             .andExpect(jsonPath("$.endAt").value(
+                                                     formatResponseDateTime(scheduledAt.plusMinutes(30))))
                                              .andExpect(jsonPath("$.totalPrice").value(1_000))
                                              .andExpect(jsonPath("$.status").value("CREATED"));
    }
@@ -83,7 +86,8 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       addRegularWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
 
       createAppointment(context, scheduledAt).andExpect(status().isBadRequest())
-                                             .andExpect(jsonPath("$.message").value("Selected time is outside the doctor's working hours"));
+                                             .andExpect(jsonPath("$.message").value(
+                                                     "Selected time is outside the doctor's working hours"));
    }
 
    @Test
@@ -94,7 +98,8 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       addRegularWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
 
       createAppointment(context, scheduledAt).andExpect(status().isBadRequest())
-                                             .andExpect(jsonPath("$.message").value("Selected time is outside the doctor's working hours"));
+                                             .andExpect(jsonPath("$.message").value(
+                                                     "Selected time is outside the doctor's working hours"));
    }
 
    @Test
@@ -107,7 +112,8 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       addDayOff(context.doctor(), scheduledAt.toLocalDate());
 
       createAppointment(context, scheduledAt).andExpect(status().isBadRequest())
-                                             .andExpect(jsonPath("$.message").value("Doctor is unavailable on the selected date"));
+                                             .andExpect(jsonPath("$.message").value(
+                                                     "Doctor is unavailable on the selected date"));
    }
 
    @Test
@@ -120,8 +126,10 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       addCustomWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(12, 0), LocalTime.of(16, 0));
 
       createAppointment(context, scheduledAt).andExpect(status().isOk())
-                                             .andExpect(jsonPath("$.scheduledAt").value(formatResponseDateTime(scheduledAt)))
-                                             .andExpect(jsonPath("$.endAt").value(formatResponseDateTime(scheduledAt.plusMinutes(30))));
+                                             .andExpect(jsonPath("$.scheduledAt").value(
+                                                     formatResponseDateTime(scheduledAt)))
+                                             .andExpect(jsonPath("$.endAt").value(
+                                                     formatResponseDateTime(scheduledAt.plusMinutes(30))));
    }
 
    @Test
@@ -134,7 +142,8 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       addCustomWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(12, 0), LocalTime.of(16, 0));
 
       createAppointment(context, scheduledAt).andExpect(status().isBadRequest())
-                                             .andExpect(jsonPath("$.message").value("Selected time is outside the doctor's custom working hours"));
+                                             .andExpect(jsonPath("$.message").value(
+                                                     "Selected time is outside the doctor's custom working hours"));
    }
 
    @Test
@@ -143,12 +152,14 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       LocalDateTime firstAppointmentTime = futureDateAt(10, 0);
       LocalDateTime overlappingAppointmentTime = futureDateAt(10, 15);
 
-      addRegularWorkingHours(context.doctor(), firstAppointmentTime.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
+      addRegularWorkingHours(context.doctor(), firstAppointmentTime.toLocalDate(), LocalTime.of(9, 0),
+                             LocalTime.of(18, 0));
 
       createAppointment(context, firstAppointmentTime).andExpect(status().isOk());
 
       createAppointment(context, overlappingAppointmentTime).andExpect(status().isBadRequest())
-                                                            .andExpect(jsonPath("$.message").value("Doctor already has an appointment during the selected time"));
+                                                            .andExpect(jsonPath("$.message").value(
+                                                                    "Doctor already has an appointment during the selected time"));
    }
 
    @Test
@@ -157,13 +168,16 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       LocalDateTime firstAppointmentTime = futureDateAt(10, 0);
       LocalDateTime secondAppointmentTime = futureDateAt(10, 30);
 
-      addRegularWorkingHours(context.doctor(), firstAppointmentTime.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
+      addRegularWorkingHours(context.doctor(), firstAppointmentTime.toLocalDate(), LocalTime.of(9, 0),
+                             LocalTime.of(18, 0));
 
       createAppointment(context, firstAppointmentTime).andExpect(status().isOk());
 
       createAppointment(context, secondAppointmentTime).andExpect(status().isOk())
-                                                       .andExpect(jsonPath("$.scheduledAt").value(formatResponseDateTime(secondAppointmentTime)))
-                                                       .andExpect(jsonPath("$.endAt").value(formatResponseDateTime(secondAppointmentTime.plusMinutes(30))));
+                                                       .andExpect(jsonPath("$.scheduledAt").value(
+                                                               formatResponseDateTime(secondAppointmentTime)))
+                                                       .andExpect(jsonPath("$.endAt").value(formatResponseDateTime(
+                                                               secondAppointmentTime.plusMinutes(30))));
    }
 
    @Test
@@ -178,15 +192,18 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       UUID appointmentId = extractId(createResult);
 
       mockMvc.perform(patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/cancel", context.patient()
-                                                                                       .getId(), appointmentId).header("Authorization", jwtHelper.token(context.staff()
+                                                                                       .getId(), appointmentId).header(
+                                                                                                                       "Authorization", jwtHelper.token(context.staff()
                                                                                                                                                                .getId()))
-                                                                                                               .header("X-API-KEY", context.apiKey()
-                                                                                                                                           .rawKey()))
+                                                                                                               .header("X-API-KEY",
+                                                                                                                       context.apiKey()
+                                                                                                                              .rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.status").value("CANCELLED"));
 
       createAppointment(context, scheduledAt).andExpect(status().isOk())
-                                             .andExpect(jsonPath("$.scheduledAt").value(formatResponseDateTime(scheduledAt)));
+                                             .andExpect(jsonPath("$.scheduledAt").value(
+                                                     formatResponseDateTime(scheduledAt)));
    }
 
    @Test
@@ -195,13 +212,15 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       LocalDateTime scheduledAt = futureDateAt(23, 45);
 
       createAppointment(context, scheduledAt).andExpect(status().isBadRequest())
-                                             .andExpect(jsonPath("$.message").value("Appointment cannot continue into the next day"));
+                                             .andExpect(jsonPath("$.message").value(
+                                                     "Appointment cannot continue into the next day"));
    }
 
    private TestContext createContext() {
       Clinic clinic = dataFactory.createClinic();
 
-      User owner = dataFactory.createUserWithRoles(clinic, "appointment-owner-" + UUID.randomUUID() + "@test.com", RoleName.OWNER);
+      User owner = dataFactory.createUserWithRoles(clinic, "appointment-owner-" + UUID.randomUUID() + "@test.com",
+                                                   RoleName.OWNER);
 
       Patient patient = dataFactory.createPatient(clinic);
       Doctor doctor = dataFactory.createDoctor(clinic);
@@ -249,16 +268,21 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
    private org.springframework.test.web.servlet.ResultActions createAppointment(TestContext context, LocalDateTime scheduledAt) throws
            Exception {
       CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(context.doctor()
-                                                                                   .getId(), scheduledAt, List.of(new AppointmentServiceRequestDto(context.clinicService()
-                                                                                                                                                          .getId(), 1)), "Integration test appointment");
+                                                                                   .getId(), scheduledAt,
+                                                                            List.of(new AppointmentServiceRequestDto(
+                                                                                    context.clinicService()
+                                                                                           .getId(), 1)),
+                                                                            "Integration test appointment");
 
       return mockMvc.perform(post(STAFF_APPOINTMENTS_URL, context.patient()
-                                                                 .getId()).header("Authorization", jwtHelper.token(context.staff()
-                                                                                                                          .getId()))
+                                                                 .getId()).header("Authorization",
+                                                                                  jwtHelper.token(context.staff()
+                                                                                                         .getId()))
                                                                           .header("X-API-KEY", context.apiKey()
                                                                                                       .rawKey())
                                                                           .contentType(MediaType.APPLICATION_JSON)
-                                                                          .content(objectMapper.writeValueAsString(request)));
+                                                                          .content(objectMapper.writeValueAsString(
+                                                                                  request)));
    }
 
    private UUID extractId(MvcResult mvcResult) throws Exception {

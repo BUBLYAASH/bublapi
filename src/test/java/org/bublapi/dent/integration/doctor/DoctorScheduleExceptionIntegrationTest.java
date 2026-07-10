@@ -28,7 +28,9 @@ class DoctorScheduleExceptionIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
       LocalDate date = LocalDate.now().plusDays(10);
 
-      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date, ScheduleExceptionType.DAY_OFF, null, null, "Vacation");
+      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date,
+                                                                                              ScheduleExceptionType.DAY_OFF,
+                                                                                              null, null, "Vacation");
 
       mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/schedule-exceptions", context.doctor().getId())
                               .header("Authorization", jwtHelper.token(context.user().getId()))
@@ -47,7 +49,11 @@ class DoctorScheduleExceptionIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
       LocalDate date = LocalDate.now().plusDays(10);
 
-      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date, ScheduleExceptionType.CUSTOM_WORKING_HOURS, LocalTime.of(12, 0), LocalTime.of(16, 0), "Short day");
+      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date,
+                                                                                              ScheduleExceptionType.CUSTOM_WORKING_HOURS,
+                                                                                              LocalTime.of(12, 0),
+                                                                                              LocalTime.of(16, 0),
+                                                                                              "Short day");
 
       mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/schedule-exceptions", context.doctor().getId())
                               .header("Authorization", jwtHelper.token(context.user().getId()))
@@ -65,7 +71,9 @@ class DoctorScheduleExceptionIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
       LocalDate date = LocalDate.now().plusDays(10);
 
-      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date, ScheduleExceptionType.CUSTOM_WORKING_HOURS, null, null, "Invalid");
+      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date,
+                                                                                              ScheduleExceptionType.CUSTOM_WORKING_HOURS,
+                                                                                              null, null, "Invalid");
 
       mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/schedule-exceptions", context.doctor().getId())
                               .header("Authorization", jwtHelper.token(context.user().getId()))
@@ -81,7 +89,11 @@ class DoctorScheduleExceptionIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
       LocalDate date = LocalDate.now().plusDays(10);
 
-      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date, ScheduleExceptionType.CUSTOM_WORKING_HOURS, LocalTime.of(18, 0), LocalTime.of(9, 0), "Invalid");
+      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date,
+                                                                                              ScheduleExceptionType.CUSTOM_WORKING_HOURS,
+                                                                                              LocalTime.of(18, 0),
+                                                                                              LocalTime.of(9, 0),
+                                                                                              "Invalid");
 
       mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/schedule-exceptions", context.doctor().getId())
                               .header("Authorization", jwtHelper.token(context.user().getId()))
@@ -98,7 +110,8 @@ class DoctorScheduleExceptionIntegrationTest extends IntegrationTestSupport {
       UUID exceptionId = createDayOff(context, context.doctor(), LocalDate.now().plusDays(10));
 
       mockMvc.perform(delete(DOCTOR_URL + "/{doctorId}/schedule-exceptions/{scheduleExceptionId}", context.doctor()
-                                                                                                          .getId(), exceptionId)
+                                                                                                          .getId(),
+                             exceptionId)
                               .header("Authorization", jwtHelper.token(context.user().getId()))
                               .header("X-API-KEY", context.apiKey().rawKey()))
              .andExpect(status().isNoContent());
@@ -111,14 +124,17 @@ class DoctorScheduleExceptionIntegrationTest extends IntegrationTestSupport {
       UUID exceptionId = createDayOff(clinicB, clinicB.doctor(), LocalDate.now().plusDays(10));
 
       mockMvc.perform(delete(DOCTOR_URL + "/{doctorId}/schedule-exceptions/{scheduleExceptionId}", clinicB.doctor()
-                                                                                                          .getId(), exceptionId)
+                                                                                                          .getId(),
+                             exceptionId)
                               .header("Authorization", jwtHelper.token(clinicA.user().getId()))
                               .header("X-API-KEY", clinicA.apiKey().rawKey()))
              .andExpect(status().isNotFound());
    }
 
    private UUID createDayOff(AppointmentContext context, Doctor doctor, LocalDate date) throws Exception {
-      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date, ScheduleExceptionType.DAY_OFF, null, null, "Day off");
+      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date,
+                                                                                              ScheduleExceptionType.DAY_OFF,
+                                                                                              null, null, "Day off");
       MvcResult result = mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/schedule-exceptions", doctor.getId())
                                                  .header("Authorization", jwtHelper.token(context.user().getId()))
                                                  .header("X-API-KEY", context.apiKey().rawKey())

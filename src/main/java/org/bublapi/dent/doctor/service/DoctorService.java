@@ -59,7 +59,8 @@ public class DoctorService {
    @Transactional
    public DoctorResponseDto deactivate(UUID doctorId) {
       Doctor doctor = doctorRepository.findById(doctorId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found in this clinic"));
+                                      .orElseThrow(
+                                              () -> new ResourceNotFoundException("Doctor not found in this clinic"));
 
       doctor.setActive(false);
 
@@ -69,7 +70,8 @@ public class DoctorService {
    @Transactional
    public DoctorResponseDto activate(UUID doctorId) {
       Doctor doctor = doctorRepository.findById(doctorId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found in this clinic"));
+                                      .orElseThrow(
+                                              () -> new ResourceNotFoundException("Doctor not found in this clinic"));
 
       doctor.setActive(true);
 
@@ -97,7 +99,8 @@ public class DoctorService {
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                                      .orElseThrow(
+                                              () -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       Role doctorRole = roleRepository.findByName(RoleName.DOCTOR)
                                       .orElseThrow(() -> new ResourceNotFoundException("Role DOCTOR not found"));

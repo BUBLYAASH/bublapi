@@ -35,7 +35,8 @@ public class DoctorWorkingHoursService {
       }
 
       Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                                      .orElseThrow(
+                                              () -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       DoctorWorkingHours workingHours = doctorWorkingHoursMapper.toEntity(request);
 
@@ -52,7 +53,8 @@ public class DoctorWorkingHoursService {
                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_Id(scheduleId, doctorId)
-                                                                    .orElseThrow(() -> new ResourceNotFoundException("This schedule for doctor not found or unavailable"));
+                                                                    .orElseThrow(() -> new ResourceNotFoundException(
+                                                                            "This schedule for doctor not found or unavailable"));
 
       doctorWorkingHoursMapper.updateEntity(request, workingHours);
 
@@ -71,7 +73,8 @@ public class DoctorWorkingHoursService {
 
    public void deleteSchedule(UUID doctorId, UUID scheduleId) {
       DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_Id(scheduleId, doctorId)
-                                                                    .orElseThrow(() -> new ResourceNotFoundException("This schedule for doctor not found or unavailable"));
+                                                                    .orElseThrow(() -> new ResourceNotFoundException(
+                                                                            "This schedule for doctor not found or unavailable"));
 
       doctorWorkingHoursRepository.delete(workingHours);
    }

@@ -18,7 +18,9 @@ class UserRoleRemovalIntegrationTest extends IntegrationTestSupport {
    @Test
    void ownerShouldRemoveReceptionistRole() throws Exception {
       TestClinicData data = createClinicData(RoleName.OWNER);
-      User receptionist = dataFactory.createUserWithRoles(data.clinic(), "receptionist-" + UUID.randomUUID() + "@test.com", RoleName.PATIENT, RoleName.RECEPTIONIST);
+      User receptionist = dataFactory.createUserWithRoles(data.clinic(),
+                                                          "receptionist-" + UUID.randomUUID() + "@test.com",
+                                                          RoleName.PATIENT, RoleName.RECEPTIONIST);
       Role receptionistRole = dataFactory.getRole(RoleName.RECEPTIONIST);
 
       mockMvc.perform(delete("/api/users/{userId}/roles/{roleId}", receptionist.getId(), receptionistRole.getId())
@@ -32,7 +34,8 @@ class UserRoleRemovalIntegrationTest extends IntegrationTestSupport {
    @Test
    void receptionistShouldNotRemoveReceptionistRole() throws Exception {
       TestClinicData data = createClinicData(RoleName.RECEPTIONIST);
-      User target = dataFactory.createUserWithRoles(data.clinic(), "target-" + UUID.randomUUID() + "@test.com", RoleName.PATIENT, RoleName.RECEPTIONIST);
+      User target = dataFactory.createUserWithRoles(data.clinic(), "target-" + UUID.randomUUID() + "@test.com",
+                                                    RoleName.PATIENT, RoleName.RECEPTIONIST);
       Role receptionistRole = dataFactory.getRole(RoleName.RECEPTIONIST);
 
       mockMvc.perform(delete("/api/users/{userId}/roles/{roleId}", target.getId(), receptionistRole.getId())
@@ -44,7 +47,8 @@ class UserRoleRemovalIntegrationTest extends IntegrationTestSupport {
    @Test
    void shouldNotRemovePatientRole() throws Exception {
       TestClinicData data = createClinicData(RoleName.OWNER);
-      User target = dataFactory.createUserWithRoles(data.clinic(), "target-" + UUID.randomUUID() + "@test.com", RoleName.PATIENT);
+      User target = dataFactory.createUserWithRoles(data.clinic(), "target-" + UUID.randomUUID() + "@test.com",
+                                                    RoleName.PATIENT);
       Role patientRole = dataFactory.getRole(RoleName.PATIENT);
 
       mockMvc.perform(delete("/api/users/{userId}/roles/{roleId}", target.getId(), patientRole.getId())
@@ -56,7 +60,8 @@ class UserRoleRemovalIntegrationTest extends IntegrationTestSupport {
    @Test
    void shouldNotAssignDuplicateRole() throws Exception {
       TestClinicData data = createClinicData(RoleName.OWNER);
-      User target = dataFactory.createUserWithRoles(data.clinic(), "target-" + UUID.randomUUID() + "@test.com", RoleName.PATIENT, RoleName.RECEPTIONIST);
+      User target = dataFactory.createUserWithRoles(data.clinic(), "target-" + UUID.randomUUID() + "@test.com",
+                                                    RoleName.PATIENT, RoleName.RECEPTIONIST);
       Role receptionistRole = dataFactory.getRole(RoleName.RECEPTIONIST);
 
       mockMvc.perform(post("/api/users/{userId}/roles/{roleId}", target.getId(), receptionistRole.getId())

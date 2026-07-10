@@ -32,7 +32,8 @@ public class ApiKeyService {
       }
 
       Clinic clinic = clinicRepository.findByIdAndActiveTrue(clinicId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found or unavailable"));
+                                      .orElseThrow(
+                                              () -> new ResourceNotFoundException("Clinic not found or unavailable"));
 
       String rawKey = generateRawKey();
       ParsedKey parsed = parse(rawKey);
@@ -155,4 +156,6 @@ public class ApiKeyService {
 
       return new ParsedKey(prefix, secret);
    }
+
+//TODO: auto-deactivation after grace period and auto-activation when renewed
 }

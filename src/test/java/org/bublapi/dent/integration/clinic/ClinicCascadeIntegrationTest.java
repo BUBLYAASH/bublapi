@@ -22,9 +22,12 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
    void shouldDisableClinicUsersWhenClinicDeactivated() throws Exception {
       Clinic clinic = dataFactory.createClinic();
       User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
-      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + java.util.UUID.randomUUID() + "@test.com", RoleName.OWNER);
+      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + java.util.UUID.randomUUID() + "@test.com",
+                                                   RoleName.OWNER);
 
-      mockMvc.perform(patch("/api/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization", jwtHelper.token(admin.getId())))
+      mockMvc.perform(patch("/api/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization",
+                                                                                                 jwtHelper.token(
+                                                                                                         admin.getId())))
              .andExpect(status().isOk());
 
       User updated = userRepository.findById(owner.getId()).orElseThrow();
@@ -36,7 +39,8 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
    void shouldEnableClinicUsersWhenClinicActivated() throws Exception {
       Clinic clinic = dataFactory.createClinic();
       User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
-      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + java.util.UUID.randomUUID() + "@test.com", RoleName.OWNER);
+      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + java.util.UUID.randomUUID() + "@test.com",
+                                                   RoleName.OWNER);
 
       assertThat(admin.getRoles())
               .extracting(role -> role.getName())
@@ -44,7 +48,9 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
 
       User savedAdmin = userRepository.findById(admin.getId()).orElseThrow();
 
-      mockMvc.perform(patch("/api/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization", jwtHelper.token(savedAdmin.getId())))
+      mockMvc.perform(patch("/api/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization",
+                                                                                                 jwtHelper.token(
+                                                                                                         savedAdmin.getId())))
              .andExpect(status().isOk());
 
       User adminAfterDeactivation = userRepository.findById(savedAdmin.getId()).orElseThrow();
@@ -53,14 +59,17 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
 
       System.out.println("admin enabled = " + adminAfterDeactivation.getEnabled());
 
-      System.out.println("admin clinic = " + (adminAfterDeactivation.getClinic() == null ? null : adminAfterDeactivation.getClinic()
-                                                                                                                        .getId()));
+      System.out.println(
+              "admin clinic = " + (adminAfterDeactivation.getClinic() == null ? null : adminAfterDeactivation.getClinic()
+                                                                                                             .getId()));
 
       System.out.println("owner enabled = " + ownerAfterDeactivation.getEnabled());
 
       System.out.println("owner clinic = " + ownerAfterDeactivation.getClinic().getId());
 
-      mockMvc.perform(patch("/api/admin/clinics/{clinicId}/activation", clinic.getId()).header("Authorization", jwtHelper.token(savedAdmin.getId())))
+      mockMvc.perform(patch("/api/admin/clinics/{clinicId}/activation", clinic.getId()).header("Authorization",
+                                                                                               jwtHelper.token(
+                                                                                                       savedAdmin.getId())))
              .andExpect(status().isOk());
 
       User updated = userRepository.findById(owner.getId()).orElseThrow();
@@ -72,10 +81,13 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
    void deactivatedClinicApiKeyShouldNotAllowAccess() throws Exception {
       Clinic clinic = dataFactory.createClinic();
       User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
-      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + java.util.UUID.randomUUID() + "@test.com", RoleName.OWNER);
+      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + java.util.UUID.randomUUID() + "@test.com",
+                                                   RoleName.OWNER);
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(patch("/api/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization", jwtHelper.token(admin.getId())))
+      mockMvc.perform(patch("/api/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization",
+                                                                                                 jwtHelper.token(
+                                                                                                         admin.getId())))
              .andExpect(status().isOk());
 
       mockMvc.perform(get("/api/patients").header("Authorization", jwtHelper.token(owner.getId()))

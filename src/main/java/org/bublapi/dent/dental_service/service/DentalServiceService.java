@@ -39,7 +39,8 @@ public class DentalServiceService {
    @Transactional
    public DentalServiceResponseDto update(UUID dentalServiceId, UpdateDentalServiceRequestDto request) {
       DentalService dentalService = dentalServiceRepository.findByIdAndActiveTrue(dentalServiceId)
-                                                           .orElseThrow(() -> new ResourceNotFoundException("Dental Service not found or unavailable"));
+                                                           .orElseThrow(() -> new ResourceNotFoundException(
+                                                                   "Dental Service not found or unavailable"));
 
       if (request.title() != null && dentalServiceRepository.existsByTitle(request.title()) && !request.title()
                                                                                                        .equals(dentalService.getTitle())) {
@@ -57,7 +58,8 @@ public class DentalServiceService {
 
    public DentalServiceResponseDto findById(UUID dentalServiceId) {
       DentalService dentalService = dentalServiceRepository.findByIdAndActiveTrue(dentalServiceId)
-                                                           .orElseThrow(() -> new ResourceNotFoundException("Dental Service not found or unavailable"));
+                                                           .orElseThrow(() -> new ResourceNotFoundException(
+                                                                   "Dental Service not found or unavailable"));
 
       return dentalServiceMapper.toResponse(dentalService);
    }
@@ -69,7 +71,8 @@ public class DentalServiceService {
    @Transactional
    public DentalServiceResponseDto deactivate(UUID dentalServiceId) {
       DentalService dentalService = dentalServiceRepository.findByIdAndActiveTrue(dentalServiceId)
-                                                           .orElseThrow(() -> new ResourceNotFoundException("Dental Service not found or unavailable"));
+                                                           .orElseThrow(() -> new ResourceNotFoundException(
+                                                                   "Dental Service not found or unavailable"));
       dentalService.setActive(false);
 
       return dentalServiceMapper.toResponse(dentalService);
@@ -78,7 +81,8 @@ public class DentalServiceService {
    @Transactional
    public DentalServiceResponseDto activate(UUID dentalServiceId) {
       DentalService dentalService = dentalServiceRepository.findById(dentalServiceId)
-                                                           .orElseThrow(() -> new ResourceNotFoundException("Dental Service not found"));
+                                                           .orElseThrow(() -> new ResourceNotFoundException(
+                                                                   "Dental Service not found"));
       dentalService.setActive(true);
 
       return dentalServiceMapper.toResponse(dentalService);

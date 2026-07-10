@@ -35,7 +35,8 @@ class DoctorIntegrationTest extends IntegrationTestBase {
       String response = mockMvc.perform(post("/api/doctors").header("Authorization", token)
                                                             .header("X-API-KEY", apiKey)
                                                             .contentType(MediaType.APPLICATION_JSON)
-                                                            .content(objectMapper.writeValueAsString(createDoctorRequest())))
+                                                            .content(objectMapper.writeValueAsString(
+                                                                    createDoctorRequest())))
                                .andExpect(status().isOk())
                                .andExpect(jsonPath("$.id", notNullValue()))
                                .andReturn()
@@ -154,7 +155,8 @@ class DoctorIntegrationTest extends IntegrationTestBase {
 
       String doctorId = createDoctor(token, apiKey);
 
-      UpdateDoctorRequestDto request = new UpdateDoctorRequestDto("James", "Wilson", null, "Orthodontist", null, "Updated description");
+      UpdateDoctorRequestDto request = new UpdateDoctorRequestDto("James", "Wilson", null, "Orthodontist", null,
+                                                                  "Updated description");
 
       mockMvc.perform(patch("/api/doctors/" + doctorId).header("Authorization", token)
                                                        .header("X-API-KEY", apiKey)

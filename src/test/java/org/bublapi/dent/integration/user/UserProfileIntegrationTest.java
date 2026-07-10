@@ -72,7 +72,8 @@ class UserProfileIntegrationTest extends IntegrationTestSupport {
    @Test
    void userShouldNotUpdateProfileWithDuplicateEmailInClinic() throws Exception {
       TestClinicData data = createClinicData(RoleName.PATIENT);
-      User other = dataFactory.createUserWithRoles(data.clinic(), "other-" + UUID.randomUUID() + "@test.com", RoleName.PATIENT);
+      User other = dataFactory.createUserWithRoles(data.clinic(), "other-" + UUID.randomUUID() + "@test.com",
+                                                   RoleName.PATIENT);
       UpdateUserRequestDto request = new UpdateUserRequestDto(other.getEmail(), null, null, null, null, null);
 
       mockMvc.perform(patch("/api/profile")
@@ -86,7 +87,8 @@ class UserProfileIntegrationTest extends IntegrationTestSupport {
    @Test
    void userShouldNotUpdateProfileWithDuplicatePhoneInClinic() throws Exception {
       TestClinicData data = createClinicData(RoleName.PATIENT);
-      User other = dataFactory.createUserWithRoles(data.clinic(), "other-" + UUID.randomUUID() + "@test.com", RoleName.PATIENT);
+      User other = dataFactory.createUserWithRoles(data.clinic(), "other-" + UUID.randomUUID() + "@test.com",
+                                                   RoleName.PATIENT);
       UpdateUserRequestDto request = new UpdateUserRequestDto(null, other.getPhone(), null, null, null, null);
 
       mockMvc.perform(patch("/api/profile")

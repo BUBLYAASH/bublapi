@@ -68,10 +68,16 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
 
       CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
 
-      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization", jwtHelper.token(owner.getId()))
-                                                                                            .header("X-API-KEY", apiKey.rawKey())
-                                                                                            .contentType(MediaType.APPLICATION_JSON)
-                                                                                            .content(objectMapper.writeValueAsString(createRequest())))
+      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization",
+                                                                                                    jwtHelper.token(
+                                                                                                            owner.getId()))
+                                                                                            .header("X-API-KEY",
+                                                                                                    apiKey.rawKey())
+                                                                                            .contentType(
+                                                                                                    MediaType.APPLICATION_JSON)
+                                                                                            .content(
+                                                                                                    objectMapper.writeValueAsString(
+                                                                                                            createRequest())))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.id", notNullValue()))
              .andExpect(jsonPath("$.clinicId").value(clinic.getId().toString()))
@@ -106,10 +112,16 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
 
       CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
 
-      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization", jwtHelper.token(receptionist.getId()))
-                                                                                            .header("X-API-KEY", apiKey.rawKey())
-                                                                                            .contentType(MediaType.APPLICATION_JSON)
-                                                                                            .content(objectMapper.writeValueAsString(createRequest())))
+      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization",
+                                                                                                    jwtHelper.token(
+                                                                                                            receptionist.getId()))
+                                                                                            .header("X-API-KEY",
+                                                                                                    apiKey.rawKey())
+                                                                                            .contentType(
+                                                                                                    MediaType.APPLICATION_JSON)
+                                                                                            .content(
+                                                                                                    objectMapper.writeValueAsString(
+                                                                                                            createRequest())))
              .andExpect(status().isOk());
 
       ClinicService savedClinicService = inClinicContext(clinic, () -> clinicServiceRepository.findAll().getFirst());
@@ -130,10 +142,16 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
 
       AddClinicServiceRequestDto request = new AddClinicServiceRequestDto(2_750, 75);
 
-      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization", jwtHelper.token(owner.getId()))
-                                                                                            .header("X-API-KEY", apiKey.rawKey())
-                                                                                            .contentType(MediaType.APPLICATION_JSON)
-                                                                                            .content(objectMapper.writeValueAsString(request)))
+      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization",
+                                                                                                    jwtHelper.token(
+                                                                                                            owner.getId()))
+                                                                                            .header("X-API-KEY",
+                                                                                                    apiKey.rawKey())
+                                                                                            .contentType(
+                                                                                                    MediaType.APPLICATION_JSON)
+                                                                                            .content(
+                                                                                                    objectMapper.writeValueAsString(
+                                                                                                            request)))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.price").value(2_750))
              .andExpect(jsonPath("$.durationMinutes").value(75));
@@ -150,16 +168,28 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
 
       CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
 
-      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization", jwtHelper.token(owner.getId()))
-                                                                                            .header("X-API-KEY", apiKey.rawKey())
-                                                                                            .contentType(MediaType.APPLICATION_JSON)
-                                                                                            .content(objectMapper.writeValueAsString(createRequest())))
+      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization",
+                                                                                                    jwtHelper.token(
+                                                                                                            owner.getId()))
+                                                                                            .header("X-API-KEY",
+                                                                                                    apiKey.rawKey())
+                                                                                            .contentType(
+                                                                                                    MediaType.APPLICATION_JSON)
+                                                                                            .content(
+                                                                                                    objectMapper.writeValueAsString(
+                                                                                                            createRequest())))
              .andExpect(status().isOk());
 
-      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization", jwtHelper.token(owner.getId()))
-                                                                                            .header("X-API-KEY", apiKey.rawKey())
-                                                                                            .contentType(MediaType.APPLICATION_JSON)
-                                                                                            .content(objectMapper.writeValueAsString(createRequest())))
+      mockMvc.perform(post(STAFF_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization",
+                                                                                                    jwtHelper.token(
+                                                                                                            owner.getId()))
+                                                                                            .header("X-API-KEY",
+                                                                                                    apiKey.rawKey())
+                                                                                            .contentType(
+                                                                                                    MediaType.APPLICATION_JSON)
+                                                                                            .content(
+                                                                                                    objectMapper.writeValueAsString(
+                                                                                                            createRequest())))
              .andExpect(status().isBadRequest())
              .andExpect(jsonPath("$.message").value("Dental Service is already in this clinic"));
    }
@@ -175,13 +205,16 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
 
       CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
 
-      mockMvc.perform(patch(STAFF_SERVICES_URL + "/{clinicServiceId}/deactivation", clinicService.getId()).header("Authorization", jwtHelper.token(owner.getId()))
-                                                                                                          .header("X-API-KEY", apiKey.rawKey()))
+      mockMvc.perform(patch(STAFF_SERVICES_URL + "/{clinicServiceId}/deactivation", clinicService.getId()).header(
+                                                                                                                  "Authorization", jwtHelper.token(owner.getId()))
+                                                                                                          .header("X-API-KEY",
+                                                                                                                  apiKey.rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.id").value(clinicService.getId().toString()));
 
-      ClinicService updatedService = inClinicContext(clinic, () -> clinicServiceRepository.findById(clinicService.getId())
-                                                                                          .orElseThrow());
+      ClinicService updatedService = inClinicContext(clinic,
+                                                     () -> clinicServiceRepository.findById(clinicService.getId())
+                                                                                  .orElseThrow());
       assertThat(updatedService.getActive()).isFalse();
    }
 
@@ -201,7 +234,8 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
              .andExpect(jsonPath("$", hasSize(1)))
              .andExpect(jsonPath("$[0].id").value(activeService.getId().toString()));
 
-      mockMvc.perform(get(PUBLIC_SERVICES_URL + "/{clinicServiceId}", inactiveService.getId()).header("X-API-KEY", apiKey.rawKey()))
+      mockMvc.perform(get(PUBLIC_SERVICES_URL + "/{clinicServiceId}", inactiveService.getId()).header("X-API-KEY",
+                                                                                                      apiKey.rawKey()))
              .andExpect(status().isNotFound());
    }
 }

@@ -77,7 +77,9 @@ class PatientAppointmentIntegrationTest extends IntegrationTestSupport {
       UUID appointmentId = extractId(createStaffAppointment(staffContext, scheduledAt).andExpect(status().isOk())
                                                                                       .andReturn());
 
-      User otherPatientUser = dataFactory.createUserWithRoles(staffContext.clinic(), "other-patient-" + UUID.randomUUID() + "@test.com", RoleName.PATIENT);
+      User otherPatientUser = dataFactory.createUserWithRoles(staffContext.clinic(),
+                                                              "other-patient-" + UUID.randomUUID() + "@test.com",
+                                                              RoleName.PATIENT);
       dataFactory.createPatientForUser(staffContext.clinic(), otherPatientUser);
 
       mockMvc.perform(patch(PATIENT_APPOINTMENTS_URL + "/{appointmentId}/cancel", appointmentId)

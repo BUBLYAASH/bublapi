@@ -43,10 +43,16 @@ class RoleSecurityIntegrationTest extends IntegrationTestBase {
 
       AddClinicServiceRequestDto request = new AddClinicServiceRequestDto(2_000, 60);
 
-      mockMvc.perform(post(CLINIC_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization", jwtHelper.token(owner.getId()))
-                                                                                             .header("X-API-KEY", apiKey.rawKey())
-                                                                                             .contentType(MediaType.APPLICATION_JSON)
-                                                                                             .content(objectMapper.writeValueAsString(request)))
+      mockMvc.perform(post(CLINIC_SERVICES_URL + "/{dentalServiceId}", dentalService.getId()).header("Authorization",
+                                                                                                     jwtHelper.token(
+                                                                                                             owner.getId()))
+                                                                                             .header("X-API-KEY",
+                                                                                                     apiKey.rawKey())
+                                                                                             .contentType(
+                                                                                                     MediaType.APPLICATION_JSON)
+                                                                                             .content(
+                                                                                                     objectMapper.writeValueAsString(
+                                                                                                             request)))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.id", notNullValue()))
              .andExpect(jsonPath("$.clinicId").value(clinic.getId().toString()))
@@ -58,11 +64,14 @@ class RoleSecurityIntegrationTest extends IntegrationTestBase {
    @Test
    void shouldAllowReceptionistToManagePatients() throws Exception {
       Clinic clinic = dataFactory.createClinic();
-      User receptionist = dataFactory.createUserWithRoles(clinic, "receptionist-role-security@test.com", RoleName.RECEPTIONIST);
+      User receptionist = dataFactory.createUserWithRoles(clinic, "receptionist-role-security@test.com",
+                                                          RoleName.RECEPTIONIST);
 
       CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
 
-      CreatePatientRequestDto request = new CreatePatientRequestDto("Анна", "Иванова", null, "79991234567", "anna.ivanova@test.com", null, "Первичный приём", null, null);
+      CreatePatientRequestDto request = new CreatePatientRequestDto("Анна", "Иванова", null, "79991234567",
+                                                                    "anna.ivanova@test.com", null, "Первичный приём",
+                                                                    null, null);
 
       mockMvc.perform(post(PATIENTS_URL).header("Authorization", jwtHelper.token(receptionist.getId()))
                                         .header("X-API-KEY", apiKey.rawKey())
@@ -80,15 +89,18 @@ class RoleSecurityIntegrationTest extends IntegrationTestBase {
    void shouldDenyReceptionistRoleAssignment() throws Exception {
       Clinic clinic = dataFactory.createClinic();
 
-      User receptionist = dataFactory.createUserWithRoles(clinic, "receptionist-deny-role@test.com", RoleName.RECEPTIONIST);
+      User receptionist = dataFactory.createUserWithRoles(clinic, "receptionist-deny-role@test.com",
+                                                          RoleName.RECEPTIONIST);
 
       User targetUser = dataFactory.createUser(clinic, "target-user-role@test.com");
 
       Role ownerRole = dataFactory.getRole(RoleName.OWNER);
       CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
 
-      mockMvc.perform(post(USERS_URL + "/{userId}/roles/{roleId}", targetUser.getId(), ownerRole.getId()).header("Authorization", jwtHelper.token(receptionist.getId()))
-                                                                                                         .header("X-API-KEY", apiKey.rawKey()))
+      mockMvc.perform(post(USERS_URL + "/{userId}/roles/{roleId}", targetUser.getId(), ownerRole.getId()).header(
+                                                                                                                 "Authorization", jwtHelper.token(receptionist.getId()))
+                                                                                                         .header("X-API-KEY",
+                                                                                                                 apiKey.rawKey()))
              .andExpect(status().isForbidden());
    }
 

@@ -1,13 +1,14 @@
 package org.bublapi.dent.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.bublapi.dent.auth.dto.LoginRequestDto;
 import org.bublapi.dent.auth.dto.LoginResponseDto;
 import org.bublapi.dent.auth.dto.RegisterRequestDto;
 import org.bublapi.dent.auth.service.AuthService;
-import org.bublapi.dent.user.dto.UserResponseDto;
+import org.bublapi.dent.user.dto.CreateUserResponseDto;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Auth")
 @RestController
 @RequestMapping("/api/auth")
+@SecurityRequirement(name = "apiKey")
 public class AuthController {
    private final AuthService authService;
 
@@ -31,7 +33,7 @@ public class AuthController {
 
    @Operation(summary = "Register a user", description = "Register a user")
    @PostMapping("/register")
-   public UserResponseDto register(@Valid @RequestBody RegisterRequestDto request) {
+   public CreateUserResponseDto register(@Valid @RequestBody RegisterRequestDto request) {
       return authService.register(request);
    }
 }

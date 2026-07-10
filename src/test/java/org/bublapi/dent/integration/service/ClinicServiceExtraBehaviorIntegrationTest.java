@@ -69,7 +69,8 @@ class ClinicServiceExtraBehaviorIntegrationTest extends IntegrationTestSupport {
 
       addRegularWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
 
-      createStaffAppointment(context, scheduledAt, services(new org.bublapi.dent.appointment.dto.AppointmentServiceRequestDto(inactiveService.getId(), 1)))
+      createStaffAppointment(context, scheduledAt, services(
+              new org.bublapi.dent.appointment.dto.AppointmentServiceRequestDto(inactiveService.getId(), 1)))
               .andExpect(status().isNotFound())
               .andExpect(jsonPath("$.message").value("Clinic service not found"));
    }

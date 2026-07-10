@@ -30,15 +30,23 @@ class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
    void shouldCreateDoctorWorkingHours() throws Exception {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
 
-      SetDoctorWorkingHoursRequestDto request = new SetDoctorWorkingHoursRequestDto(DayOfWeek.MONDAY, LocalTime.of(9, 0), LocalTime.of(18, 0));
+      SetDoctorWorkingHoursRequestDto request = new SetDoctorWorkingHoursRequestDto(DayOfWeek.MONDAY,
+                                                                                    LocalTime.of(9, 0),
+                                                                                    LocalTime.of(18, 0));
 
       mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/working-hours", context.doctor()
-                                                                            .getId()).header("Authorization", jwtHelper.token(context.user()
-                                                                                                                                     .getId()))
-                                                                                     .header("X-API-KEY", context.apiKey()
-                                                                                                                 .rawKey())
-                                                                                     .contentType(MediaType.APPLICATION_JSON)
-                                                                                     .content(objectMapper.writeValueAsString(request)))
+                                                                            .getId()).header("Authorization",
+                                                                                             jwtHelper.token(
+                                                                                                     context.user()
+                                                                                                            .getId()))
+                                                                                     .header("X-API-KEY",
+                                                                                             context.apiKey()
+                                                                                                    .rawKey())
+                                                                                     .contentType(
+                                                                                             MediaType.APPLICATION_JSON)
+                                                                                     .content(
+                                                                                             objectMapper.writeValueAsString(
+                                                                                                     request)))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.id", notNullValue()))
              .andExpect(jsonPath("$.doctorId").value(context.doctor().getId().toString()))
@@ -48,17 +56,24 @@ class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
    @Test
    void shouldUpdateDoctorWorkingHours() throws Exception {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
-      UUID scheduleId = createSchedule(context.doctor(), context, DayOfWeek.MONDAY, LocalTime.of(9, 0), LocalTime.of(18, 0));
+      UUID scheduleId = createSchedule(context.doctor(), context, DayOfWeek.MONDAY, LocalTime.of(9, 0),
+                                       LocalTime.of(18, 0));
 
-      UpdateDoctorWorkingHoursRequestDto request = new UpdateDoctorWorkingHoursRequestDto(LocalTime.of(10, 0), LocalTime.of(16, 0));
+      UpdateDoctorWorkingHoursRequestDto request = new UpdateDoctorWorkingHoursRequestDto(LocalTime.of(10, 0),
+                                                                                          LocalTime.of(16, 0));
 
       mockMvc.perform(patch(DOCTOR_URL + "/{doctorId}/working-hours/{scheduleId}", context.doctor()
-                                                                                          .getId(), scheduleId).header("Authorization", jwtHelper.token(context.user()
+                                                                                          .getId(), scheduleId).header(
+                                                                                                                       "Authorization", jwtHelper.token(context.user()
                                                                                                                                                                .getId()))
-                                                                                                               .header("X-API-KEY", context.apiKey()
-                                                                                                                                           .rawKey())
-                                                                                                               .contentType(MediaType.APPLICATION_JSON)
-                                                                                                               .content(objectMapper.writeValueAsString(request)))
+                                                                                                               .header("X-API-KEY",
+                                                                                                                       context.apiKey()
+                                                                                                                              .rawKey())
+                                                                                                               .contentType(
+                                                                                                                       MediaType.APPLICATION_JSON)
+                                                                                                               .content(
+                                                                                                                       objectMapper.writeValueAsString(
+                                                                                                                               request)))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.startTime").value("10:00:00"))
              .andExpect(jsonPath("$.endTime").value("16:00:00"));
@@ -67,18 +82,22 @@ class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
    @Test
    void shouldDeleteDoctorWorkingHours() throws Exception {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
-      UUID scheduleId = createSchedule(context.doctor(), context, DayOfWeek.MONDAY, LocalTime.of(9, 0), LocalTime.of(18, 0));
+      UUID scheduleId = createSchedule(context.doctor(), context, DayOfWeek.MONDAY, LocalTime.of(9, 0),
+                                       LocalTime.of(18, 0));
 
       mockMvc.perform(delete(DOCTOR_URL + "/{doctorId}/working-hours/{scheduleId}", context.doctor()
-                                                                                           .getId(), scheduleId).header("Authorization", jwtHelper.token(context.user()
+                                                                                           .getId(), scheduleId).header(
+                                                                                                                        "Authorization", jwtHelper.token(context.user()
                                                                                                                                                                 .getId()))
-                                                                                                                .header("X-API-KEY", context.apiKey()
-                                                                                                                                            .rawKey()))
+                                                                                                                .header("X-API-KEY",
+                                                                                                                        context.apiKey()
+                                                                                                                               .rawKey()))
              .andExpect(status().isNoContent());
 
       mockMvc.perform(get("/api/public/doctors/{doctorId}/working-hours", context.doctor()
-                                                                                 .getId()).header("X-API-KEY", context.apiKey()
-                                                                                                                      .rawKey()))
+                                                                                 .getId()).header("X-API-KEY",
+                                                                                                  context.apiKey()
+                                                                                                         .rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(0)));
    }
@@ -87,29 +106,45 @@ class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
    void shouldNotCreateWorkingHoursForInactiveDoctor() throws Exception {
       TestClinicData clinicData = createClinicData(RoleName.OWNER);
       Doctor inactiveDoctor = dataFactory.createInactiveDoctor(clinicData.clinic());
-      SetDoctorWorkingHoursRequestDto request = new SetDoctorWorkingHoursRequestDto(DayOfWeek.MONDAY, LocalTime.of(9, 0), LocalTime.of(18, 0));
+      SetDoctorWorkingHoursRequestDto request = new SetDoctorWorkingHoursRequestDto(DayOfWeek.MONDAY,
+                                                                                    LocalTime.of(9, 0),
+                                                                                    LocalTime.of(18, 0));
 
-      mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/working-hours", inactiveDoctor.getId()).header("Authorization", jwtHelper.token(clinicData.user()
-                                                                                                                                               .getId()))
-                                                                                            .header("X-API-KEY", clinicData.apiKey()
-                                                                                                                           .rawKey())
-                                                                                            .contentType(MediaType.APPLICATION_JSON)
-                                                                                            .content(objectMapper.writeValueAsString(request)))
+      mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/working-hours", inactiveDoctor.getId()).header("Authorization",
+                                                                                                    jwtHelper.token(
+                                                                                                            clinicData.user()
+                                                                                                                      .getId()))
+                                                                                            .header("X-API-KEY",
+                                                                                                    clinicData.apiKey()
+                                                                                                              .rawKey())
+                                                                                            .contentType(
+                                                                                                    MediaType.APPLICATION_JSON)
+                                                                                            .content(
+                                                                                                    objectMapper.writeValueAsString(
+                                                                                                            request)))
              .andExpect(status().isNotFound());
    }
 
    @Test
    void shouldNotCreateWorkingHoursWhenStartTimeAfterEndTime() throws Exception {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
-      SetDoctorWorkingHoursRequestDto request = new SetDoctorWorkingHoursRequestDto(DayOfWeek.MONDAY, LocalTime.of(18, 0), LocalTime.of(9, 0));
+      SetDoctorWorkingHoursRequestDto request = new SetDoctorWorkingHoursRequestDto(DayOfWeek.MONDAY,
+                                                                                    LocalTime.of(18, 0),
+                                                                                    LocalTime.of(9, 0));
 
       mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/working-hours", context.doctor()
-                                                                            .getId()).header("Authorization", jwtHelper.token(context.user()
-                                                                                                                                     .getId()))
-                                                                                     .header("X-API-KEY", context.apiKey()
-                                                                                                                 .rawKey())
-                                                                                     .contentType(MediaType.APPLICATION_JSON)
-                                                                                     .content(objectMapper.writeValueAsString(request)))
+                                                                            .getId()).header("Authorization",
+                                                                                             jwtHelper.token(
+                                                                                                     context.user()
+                                                                                                            .getId()))
+                                                                                     .header("X-API-KEY",
+                                                                                             context.apiKey()
+                                                                                                    .rawKey())
+                                                                                     .contentType(
+                                                                                             MediaType.APPLICATION_JSON)
+                                                                                     .content(
+                                                                                             objectMapper.writeValueAsString(
+                                                                                                     request)))
              .andExpect(status().isBadRequest());
    }
 
@@ -117,29 +152,39 @@ class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
    void shouldNotUpdateWorkingHoursFromAnotherClinic() throws Exception {
       AppointmentContext clinicA = createAppointmentContext(RoleName.OWNER);
       AppointmentContext clinicB = createAppointmentContext(RoleName.OWNER);
-      UUID scheduleId = createSchedule(clinicB.doctor(), clinicB, DayOfWeek.MONDAY, LocalTime.of(9, 0), LocalTime.of(18, 0));
+      UUID scheduleId = createSchedule(clinicB.doctor(), clinicB, DayOfWeek.MONDAY, LocalTime.of(9, 0),
+                                       LocalTime.of(18, 0));
 
-      UpdateDoctorWorkingHoursRequestDto request = new UpdateDoctorWorkingHoursRequestDto(LocalTime.of(10, 0), LocalTime.of(16, 0));
+      UpdateDoctorWorkingHoursRequestDto request = new UpdateDoctorWorkingHoursRequestDto(LocalTime.of(10, 0),
+                                                                                          LocalTime.of(16, 0));
 
       mockMvc.perform(patch(DOCTOR_URL + "/{doctorId}/working-hours/{scheduleId}", clinicB.doctor()
-                                                                                          .getId(), scheduleId).header("Authorization", jwtHelper.token(clinicA.user()
+                                                                                          .getId(), scheduleId).header(
+                                                                                                                       "Authorization", jwtHelper.token(clinicA.user()
                                                                                                                                                                .getId()))
-                                                                                                               .header("X-API-KEY", clinicA.apiKey()
-                                                                                                                                           .rawKey())
-                                                                                                               .contentType(MediaType.APPLICATION_JSON)
-                                                                                                               .content(objectMapper.writeValueAsString(request)))
+                                                                                                               .header("X-API-KEY",
+                                                                                                                       clinicA.apiKey()
+                                                                                                                              .rawKey())
+                                                                                                               .contentType(
+                                                                                                                       MediaType.APPLICATION_JSON)
+                                                                                                               .content(
+                                                                                                                       objectMapper.writeValueAsString(
+                                                                                                                               request)))
              .andExpect(status().isNotFound());
    }
 
    private UUID createSchedule(Doctor doctor, AppointmentContext context, DayOfWeek dayOfWeek, LocalTime start, LocalTime end) throws
            Exception {
       SetDoctorWorkingHoursRequestDto request = new SetDoctorWorkingHoursRequestDto(dayOfWeek, start, end);
-      MvcResult result = mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/working-hours", doctor.getId()).header("Authorization", jwtHelper.token(context.user()
-                                                                                                                                                       .getId()))
-                                                                                                       .header("X-API-KEY", context.apiKey()
-                                                                                                                                   .rawKey())
-                                                                                                       .contentType(MediaType.APPLICATION_JSON)
-                                                                                                       .content(objectMapper.writeValueAsString(request)))
+      MvcResult result = mockMvc.perform(
+                                        post(DOCTOR_URL + "/{doctorId}/working-hours", doctor.getId()).header("Authorization",
+                                                                                                              jwtHelper.token(context.user()
+                                                                                                                                     .getId()))
+                                                                                                      .header("X-API-KEY", context.apiKey()
+                                                                                                                                  .rawKey())
+                                                                                                      .contentType(MediaType.APPLICATION_JSON)
+                                                                                                      .content(objectMapper.writeValueAsString(
+                                                                                                              request)))
                                 .andExpect(status().isOk())
                                 .andReturn();
       return extractId(result);

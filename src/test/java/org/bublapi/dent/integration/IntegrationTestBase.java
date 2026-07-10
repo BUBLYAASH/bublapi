@@ -19,7 +19,8 @@ import org.testcontainers.junit.jupiter.Container;
 public abstract class IntegrationTestBase {
 
    @Container
-   static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine").withDatabaseName("dent_test")
+   static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine").withDatabaseName(
+                                                                                                   "dent_test")
                                                                                            .withUsername("test")
                                                                                            .withPassword("test")
                                                                                            .withReuse(true);

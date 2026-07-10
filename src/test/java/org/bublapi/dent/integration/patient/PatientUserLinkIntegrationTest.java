@@ -39,7 +39,10 @@ class PatientUserLinkIntegrationTest extends IntegrationTestBase {
       User user = dataFactory.createUser(clinic, "patient-link@test.com");
       CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
 
-      CreatePatientFromProfileRequestDto request = new CreatePatientFromProfileRequestDto(LocalDate.of(2004, 5, 12), "Первичное обращение", "Аллергия на лидокаин", "Нет");
+      CreatePatientFromProfileRequestDto request = new CreatePatientFromProfileRequestDto(LocalDate.of(2004, 5, 12),
+                                                                                          "Первичное обращение",
+                                                                                          "Аллергия на лидокаин",
+                                                                                          "Нет");
 
       mockMvc.perform(post(PATIENT_CARD_URL).header("Authorization", jwtHelper.token(user.getId()))
                                             .header("X-API-KEY", apiKey.rawKey())
@@ -91,7 +94,8 @@ class PatientUserLinkIntegrationTest extends IntegrationTestBase {
       User user = dataFactory.createUser(clinic, "one-patient-profile@test.com");
       CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
 
-      CreatePatientFromProfileRequestDto request = new CreatePatientFromProfileRequestDto(LocalDate.of(2000, 1, 1), "Заметка", null, null);
+      CreatePatientFromProfileRequestDto request = new CreatePatientFromProfileRequestDto(LocalDate.of(2000, 1, 1),
+                                                                                          "Заметка", null, null);
 
       mockMvc.perform(post(PATIENT_CARD_URL).header("Authorization", jwtHelper.token(user.getId()))
                                             .header("X-API-KEY", apiKey.rawKey())
@@ -111,9 +115,11 @@ class PatientUserLinkIntegrationTest extends IntegrationTestBase {
       User user = dataFactory.createUser(clinic, "duplicate-patient-card@test.com");
       CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
 
-      CreatePatientFromProfileRequestDto firstRequest = new CreatePatientFromProfileRequestDto(LocalDate.of(2001, 10, 10), "Первая карточка", null, null);
+      CreatePatientFromProfileRequestDto firstRequest = new CreatePatientFromProfileRequestDto(
+              LocalDate.of(2001, 10, 10), "Первая карточка", null, null);
 
-      CreatePatientFromProfileRequestDto secondRequest = new CreatePatientFromProfileRequestDto(LocalDate.of(2002, 11, 11), "Попытка создать вторую карточку", "Нет", "Нет");
+      CreatePatientFromProfileRequestDto secondRequest = new CreatePatientFromProfileRequestDto(
+              LocalDate.of(2002, 11, 11), "Попытка создать вторую карточку", "Нет", "Нет");
 
       mockMvc.perform(post(PATIENT_CARD_URL).header("Authorization", jwtHelper.token(user.getId()))
                                             .header("X-API-KEY", apiKey.rawKey())

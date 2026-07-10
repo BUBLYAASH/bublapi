@@ -33,7 +33,8 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
    private DentalServiceRepository dentalServiceRepository;
 
    private CreateDentalServiceRequestDto createRequest() {
-      return new CreateDentalServiceRequestDto("Лечение кариеса", "Терапевтическое лечение зубов", ServiceCategory.THERAPY, 30);
+      return new CreateDentalServiceRequestDto("Лечение кариеса", "Терапевтическое лечение зубов",
+                                               ServiceCategory.THERAPY, 30);
    }
 
    @Test
@@ -44,7 +45,8 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       mockMvc.perform(post("/api/admin/catalog/dental-services").header("Authorization", token)
                                                                 .contentType(MediaType.APPLICATION_JSON)
-                                                                .content(objectMapper.writeValueAsString(createRequest())))
+                                                                .content(objectMapper.writeValueAsString(
+                                                                        createRequest())))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.id", notNullValue()))
              .andExpect(jsonPath("$.title").value("Лечение кариеса"));
@@ -58,7 +60,8 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       mockMvc.perform(post("/api/admin/catalog/dental-services").header("Authorization", token)
                                                                 .contentType(MediaType.APPLICATION_JSON)
-                                                                .content(objectMapper.writeValueAsString(createRequest())))
+                                                                .content(objectMapper.writeValueAsString(
+                                                                        createRequest())))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.category").value("THERAPY"));
    }
@@ -71,7 +74,8 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       mockMvc.perform(post("/api/admin/catalog/dental-services").header("Authorization", token)
                                                                 .contentType(MediaType.APPLICATION_JSON)
-                                                                .content(objectMapper.writeValueAsString(createRequest())))
+                                                                .content(objectMapper.writeValueAsString(
+                                                                        createRequest())))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.defaultDurationMinutes").value(30));
    }
@@ -84,7 +88,8 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       mockMvc.perform(post("/api/admin/catalog/dental-services").header("Authorization", token)
                                                                 .contentType(MediaType.APPLICATION_JSON)
-                                                                .content(objectMapper.writeValueAsString(createRequest())))
+                                                                .content(objectMapper.writeValueAsString(
+                                                                        createRequest())))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.id", notNullValue()));
 
@@ -111,14 +116,16 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       User receptionist = dataFactory.createUserWithRoles(clinic, "receptionist@mail.com", RoleName.RECEPTIONIST);
 
-      CreateDentalServiceRequestDto request = new CreateDentalServiceRequestDto("Удаление зуба", null, ServiceCategory.SURGERY, 90);
+      CreateDentalServiceRequestDto request = new CreateDentalServiceRequestDto("Удаление зуба", null,
+                                                                                ServiceCategory.SURGERY, 90);
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(post("/api/admin/catalog/dental-services").header("Authorization", jwtHelper.token(receptionist.getId()))
-                                                                .header("X-API-KEY", apiKey)
-                                                                .contentType(MediaType.APPLICATION_JSON)
-                                                                .content(objectMapper.writeValueAsString(request)))
+      mockMvc.perform(
+                     post("/api/admin/catalog/dental-services").header("Authorization", jwtHelper.token(receptionist.getId()))
+                                                               .header("X-API-KEY", apiKey)
+                                                               .contentType(MediaType.APPLICATION_JSON)
+                                                               .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isForbidden());
 
    }

@@ -35,6 +35,9 @@ public class AppointmentServiceItem {
    private ClinicService clinicService;
 
    @Column(nullable = false)
+   private String title;
+
+   @Column(nullable = false)
    private Integer price;
 
    @Column(name = "duration_minutes", nullable = false)

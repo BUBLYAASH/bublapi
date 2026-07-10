@@ -43,7 +43,8 @@ class PatientIntegrationTest extends IntegrationTestBase {
       mockMvc.perform(post("/api/patients").header("Authorization", token)
                                            .header("X-API-KEY", apiKey)
                                            .contentType(MediaType.APPLICATION_JSON)
-                                           .content(objectMapper.writeValueAsString(createPatientRequest("79991111111"))))
+                                           .content(objectMapper.writeValueAsString(
+                                                   createPatientRequest("79991111111"))))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.id", notNullValue()))
              .andExpect(jsonPath("$.firstName").value("John"))
@@ -63,7 +64,9 @@ class PatientIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      CreatePatientRequestDto request = new CreatePatientRequestDto(user.getFirstName(), user.getLastName(), user.getMiddleName(), user.getPhone(), user.getEmail(), null, null, null, null);
+      CreatePatientRequestDto request = new CreatePatientRequestDto(user.getFirstName(), user.getLastName(),
+                                                                    user.getMiddleName(), user.getPhone(),
+                                                                    user.getEmail(), null, null, null, null);
 
       mockMvc.perform(post("/api/patients").header("Authorization", token)
                                            .header("X-API-KEY", apiKey)
@@ -114,7 +117,8 @@ class PatientIntegrationTest extends IntegrationTestBase {
       mockMvc.perform(post("/api/patients").header("Authorization", token)
                                            .header("X-API-KEY", apiKey)
                                            .contentType(MediaType.APPLICATION_JSON)
-                                           .content(objectMapper.writeValueAsString(createPatientRequest("79993333333"))))
+                                           .content(objectMapper.writeValueAsString(
+                                                   createPatientRequest("79993333333"))))
              .andExpect(status().isOk());
 
       mockMvc.perform(get("/api/patients").header("Authorization", token).header("X-API-KEY", apiKey))

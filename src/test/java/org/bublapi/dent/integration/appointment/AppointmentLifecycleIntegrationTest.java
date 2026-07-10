@@ -44,14 +44,33 @@ class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
       addRegularWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
 
       createStaffAppointment(context, scheduledAt, services(new AppointmentServiceRequestDto(context.clinicService()
-                                                                                                    .getId(), 2), new AppointmentServiceRequestDto(secondService.getId(), 1))).andExpect(status().isOk())
-                                                                                                                                                                              .andExpect(jsonPath("$.totalPrice").value(3_000))
-                                                                                                                                                                              .andExpect(jsonPath("$.endAt").value(formatResponseDateTime(scheduledAt.plusMinutes(90))))
-                                                                                                                                                                              .andExpect(jsonPath("$.services", hasSize(2)))
-                                                                                                                                                                              .andExpect(jsonPath("$.services[0].quantity").value(2))
-                                                                                                                                                                              .andExpect(jsonPath("$.services[0].position").value(1))
-                                                                                                                                                                              .andExpect(jsonPath("$.services[1].quantity").value(1))
-                                                                                                                                                                              .andExpect(jsonPath("$.services[1].position").value(2));
+                                                                                                    .getId(), 2),
+                                                            new AppointmentServiceRequestDto(secondService.getId(),
+                                                                                             1))).andExpect(
+                                                                                                         status().isOk())
+                                                                                                 .andExpect(jsonPath(
+                                                                                                         "$.totalPrice").value(
+                                                                                                         3_000))
+                                                                                                 .andExpect(jsonPath(
+                                                                                                         "$.endAt").value(
+                                                                                                         formatResponseDateTime(
+                                                                                                                 scheduledAt.plusMinutes(
+                                                                                                                         90))))
+                                                                                                 .andExpect(jsonPath(
+                                                                                                         "$.services",
+                                                                                                         hasSize(2)))
+                                                                                                 .andExpect(jsonPath(
+                                                                                                         "$.services[0].quantity").value(
+                                                                                                         2))
+                                                                                                 .andExpect(jsonPath(
+                                                                                                         "$.services[0].position").value(
+                                                                                                         1))
+                                                                                                 .andExpect(jsonPath(
+                                                                                                         "$.services[1].quantity").value(
+                                                                                                         1))
+                                                                                                 .andExpect(jsonPath(
+                                                                                                         "$.services[1].position").value(
+                                                                                                         2));
    }
 
    @Test
@@ -79,7 +98,9 @@ class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
          ClinicContext.clear();
       }
 
-      List<AppointmentServiceItem> items = inClinicContext(context.clinic(), () -> appointmentServiceRepository.findAllByAppointment_Id(appointmentId));
+      List<AppointmentServiceItem> items = inClinicContext(context.clinic(),
+                                                           () -> appointmentServiceRepository.findAllByAppointment_Id(
+                                                                   appointmentId));
       assertThat(items).hasSize(1);
       assertThat(items.getFirst().getPrice()).isEqualTo(1_000);
       assertThat(items.getFirst().getDurationMinutes()).isEqualTo(30);
@@ -111,8 +132,9 @@ class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
               """.formatted(context.doctor().getId(), formatResponseDateTime(scheduledAt));
 
       mockMvc.perform(post(STAFF_APPOINTMENTS_URL, context.patient()
-                                                          .getId()).header("Authorization", jwtHelper.token(context.user()
-                                                                                                                   .getId()))
+                                                          .getId()).header("Authorization",
+                                                                           jwtHelper.token(context.user()
+                                                                                                  .getId()))
                                                                    .header("X-API-KEY", context.apiKey().rawKey())
                                                                    .contentType(MediaType.APPLICATION_JSON)
                                                                    .content(body)).andExpect(status().isBadRequest());
@@ -126,7 +148,9 @@ class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
       addRegularWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
 
       createStaffAppointment(context, scheduledAt, services(new AppointmentServiceRequestDto(context.clinicService()
-                                                                                                    .getId(), 0))).andExpect(status().isBadRequest());
+                                                                                                    .getId(),
+                                                                                             0))).andExpect(
+              status().isBadRequest());
    }
 
    @Test
@@ -137,7 +161,9 @@ class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
       addRegularWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
 
       createStaffAppointment(context, scheduledAt, services(new AppointmentServiceRequestDto(context.clinicService()
-                                                                                                    .getId(), -1))).andExpect(status().isBadRequest());
+                                                                                                    .getId(),
+                                                                                             -1))).andExpect(
+              status().isBadRequest());
    }
 
    @Test
@@ -160,8 +186,9 @@ class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
                                                                                                   .getId());
 
       mockMvc.perform(post(STAFF_APPOINTMENTS_URL, context.patient()
-                                                          .getId()).header("Authorization", jwtHelper.token(context.user()
-                                                                                                                   .getId()))
+                                                          .getId()).header("Authorization",
+                                                                           jwtHelper.token(context.user()
+                                                                                                  .getId()))
                                                                    .header("X-API-KEY", context.apiKey().rawKey())
                                                                    .contentType(MediaType.APPLICATION_JSON)
                                                                    .content(body)).andExpect(status().isBadRequest());
