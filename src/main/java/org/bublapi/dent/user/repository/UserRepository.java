@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,4 +33,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
    Optional<User> findByIdWithRoles(@Param("id") UUID id);
 
    Optional<User> findByIdAndClinicId(UUID id, UUID clinicId);
+
+   @Query("""
+           SELECT DISTINCT u FROM User u
+           LEFT JOIN FETCH u.roles r
+           WHERE u.email = :email
+           AND u.clinic IS NULL
+           AND r.name = org.bublapi.dent.role.entity.RoleName.ADMIN
+           """)
+   Optional<User> findAdminByEmailWithRoles(@Param("email") String email);
 }
