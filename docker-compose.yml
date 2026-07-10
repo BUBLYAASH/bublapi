@@ -15,6 +15,13 @@ services:
     container_name: bublapi-rabbitmq
     ports:
       - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: bublapi
+      RABBITMQ_DEFAULT_PASS: bublapi
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
 volumes:
   postgres_data:
+  rabbitmq_data:
