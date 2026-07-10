@@ -1,6 +1,7 @@
 package org.bublapi.dent.clinic_service.controller.publicapi;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bublapi.dent.clinic_service.dto.ClinicServiceResponseDto;
 import org.bublapi.dent.clinic_service.service.ClinicServiceService;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Tag(name = "Public Clinic Services")
 @RestController
 @RequestMapping("/api/public/services")
+@SecurityRequirement(name = "apiKey")
 public class PublicClinicServiceController {
    private final ClinicServiceService clinicServiceService;
 

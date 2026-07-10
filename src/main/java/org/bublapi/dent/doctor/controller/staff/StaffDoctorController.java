@@ -35,6 +35,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/doctors")
 @SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "apiKey")
 @PreAuthorize("""
         hasAnyRole('ADMIN', 'OWNER', 'RECEPTIONIST')
         and @clinicSecurity.hasAccess(authentication)

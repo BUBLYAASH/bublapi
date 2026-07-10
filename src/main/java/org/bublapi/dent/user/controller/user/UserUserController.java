@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/profile")
 @SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "apiKey")
 public class UserUserController {
 
    private final UserService userService;
