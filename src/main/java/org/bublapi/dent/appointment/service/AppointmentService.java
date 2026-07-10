@@ -24,6 +24,10 @@ import org.bublapi.dent.doctor_schedule_exception.repository.DoctorScheduleExcep
 import org.bublapi.dent.doctor_working_hours.entity.DayOfWeek;
 import org.bublapi.dent.doctor_working_hours.entity.DoctorWorkingHours;
 import org.bublapi.dent.doctor_working_hours.repository.DoctorWorkingHoursRepository;
+import org.bublapi.dent.notification.command.CreateNotificationCommand;
+import org.bublapi.dent.notification.entity.NotificationChannel;
+import org.bublapi.dent.notification.entity.NotificationType;
+import org.bublapi.dent.notification.publisher.NotificationPublisher;
 import org.bublapi.dent.patient.entity.Patient;
 import org.bublapi.dent.patient.repository.PatientRepository;
 import org.springframework.stereotype.Service;
@@ -32,12 +36,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class AppointmentService {
+   private static final DateTimeFormatter APPOINTMENT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
+           "dd-MM-yyyy HH:mm");
+
    private final AppointmentRepository appointmentRepository;
    private final AppointmentServiceRepository appointmentServiceRepository;
    private final ClinicServiceRepository clinicServiceRepository;
@@ -46,8 +54,9 @@ public class AppointmentService {
    private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
    private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
    private final AppointmentMapper appointmentMapper;
+   private final NotificationPublisher notificationPublisher;
 
-   public AppointmentService(AppointmentRepository appointmentRepository, AppointmentServiceRepository appointmentServiceRepository, ClinicServiceRepository clinicServiceRepository, PatientRepository patientRepository, DoctorRepository doctorRepository, DoctorWorkingHoursRepository doctorWorkingHoursRepository, DoctorScheduleExceptionRepository doctorScheduleExceptionRepository, AppointmentMapper appointmentMapper) {
+   public AppointmentService(AppointmentRepository appointmentRepository, AppointmentServiceRepository appointmentServiceRepository, ClinicServiceRepository clinicServiceRepository, PatientRepository patientRepository, DoctorRepository doctorRepository, DoctorWorkingHoursRepository doctorWorkingHoursRepository, DoctorScheduleExceptionRepository doctorScheduleExceptionRepository, AppointmentMapper appointmentMapper, NotificationPublisher notificationPublisher) {
       this.appointmentRepository = appointmentRepository;
       this.appointmentServiceRepository = appointmentServiceRepository;
       this.clinicServiceRepository = clinicServiceRepository;
@@ -56,6 +65,7 @@ public class AppointmentService {
       this.doctorWorkingHoursRepository = doctorWorkingHoursRepository;
       this.doctorScheduleExceptionRepository = doctorScheduleExceptionRepository;
       this.appointmentMapper = appointmentMapper;
+      this.notificationPublisher = notificationPublisher;
    }
 
    private record ResolvedAppointmentService(
@@ -68,10 +78,13 @@ public class AppointmentService {
       LocalTime appointmentStart = scheduledAt.toLocalTime();
       LocalTime appointmentEnd = endAt.toLocalTime();
 
-      List<DoctorWorkingHours> workingHours = doctorWorkingHoursRepository.findAllByDoctor_IdAndDayOfWeek(doctor.getId(), dayOfWeek);
+      List<DoctorWorkingHours> workingHours = doctorWorkingHoursRepository.findAllByDoctor_IdAndDayOfWeek(
+              doctor.getId(), dayOfWeek);
 
       boolean fitsWorkingHours = workingHours.stream()
-                                             .anyMatch(hours -> !appointmentStart.isBefore(hours.getStartTime()) && !appointmentEnd.isAfter(hours.getEndTime()));
+                                             .anyMatch(hours -> !appointmentStart.isBefore(
+                                                     hours.getStartTime()) && !appointmentEnd.isAfter(
+                                                     hours.getEndTime()));
 
       if (!fitsWorkingHours) {
          throw new BadRequestException("Selected time is outside the doctor's working hours");
@@ -84,7 +97,9 @@ public class AppointmentService {
 
       boolean fitsCustomWorkingHours = exceptions.stream()
                                                  .filter(type -> type.getType() == ScheduleExceptionType.CUSTOM_WORKING_HOURS)
-                                                 .anyMatch(exception -> !appointmentStart.isBefore(exception.getStartTime()) && !appointmentEnd.isAfter(exception.getEndTime()));
+                                                 .anyMatch(exception -> !appointmentStart.isBefore(
+                                                         exception.getStartTime()) && !appointmentEnd.isAfter(
+                                                         exception.getEndTime()));
 
       if (!fitsCustomWorkingHours) {
          throw new BadRequestException("Selected time is outside the doctor's custom working hours");
@@ -93,7 +108,8 @@ public class AppointmentService {
 
    private void validateNoAppointmentOverlap(Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
 
-      boolean hasOverlap = appointmentRepository.existsOverlappingAppointment(doctor.getId(), scheduledAt, endAt, AppointmentStatus.CANCELLED);
+      boolean hasOverlap = appointmentRepository.existsOverlappingAppointment(doctor.getId(), scheduledAt, endAt,
+                                                                              AppointmentStatus.CANCELLED);
 
       if (hasOverlap) {
          throw new BadRequestException("Doctor already has an appointment during the selected time");
@@ -111,7 +127,8 @@ public class AppointmentService {
 
       LocalDate appointmentDate = scheduledAt.toLocalDate();
 
-      List<DoctorScheduleException> scheduleExceptions = doctorScheduleExceptionRepository.findAllByDoctor_IdAndDate(doctor.getId(), appointmentDate);
+      List<DoctorScheduleException> scheduleExceptions = doctorScheduleExceptionRepository.findAllByDoctor_IdAndDate(
+              doctor.getId(), appointmentDate);
 
       boolean hasDayOff = scheduleExceptions.stream().anyMatch(type -> type.getType() == ScheduleExceptionType.DAY_OFF);
 
@@ -120,7 +137,8 @@ public class AppointmentService {
       }
 
       boolean hasCustomWorkingHours = scheduleExceptions.stream()
-                                                        .anyMatch(type -> type.getType() == ScheduleExceptionType.CUSTOM_WORKING_HOURS);
+                                                        .anyMatch(
+                                                                type -> type.getType() == ScheduleExceptionType.CUSTOM_WORKING_HOURS);
 
       if (hasCustomWorkingHours) {
          validateInsideCustomWorkingHours(scheduleExceptions, scheduledAt, endAt);
@@ -129,16 +147,34 @@ public class AppointmentService {
       validateInsideRegularWorkingHours(doctor, scheduledAt, endAt);
    }
 
+   private void publishAppointmentNotifications(Appointment appointment, NotificationType type, String title, String message) {
+      UUID patientUserId = appointment.getPatient().getUser() != null ? appointment.getPatient()
+                                                                                   .getUser()
+                                                                                   .getId() : null;
+
+      String patientEmail = appointment.getPatient().getEmail();
+
+      notificationPublisher.publishAfterCommit(
+              new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(), type,
+                                            NotificationChannel.IN_APP, patientEmail, title, message, null));
+
+      if (patientEmail != null && !patientEmail.isBlank()) {
+         notificationPublisher.publishAfterCommit(
+                 new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(),
+                                               type, NotificationChannel.EMAIL, patientEmail, title, message, null));
+      }
+   }
+
    @Transactional
    public AppointmentResponseDto create(UUID patientId, CreateAppointmentRequestDto request) {
-      //TODO: notification after successful creation
       Clinic clinic = ClinicContext.get();
 
       Patient patient = patientRepository.findById(patientId)
                                          .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
       Doctor doctor = doctorRepository.findByIdAndActiveTrue(request.doctorId())
-                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                                      .orElseThrow(
+                                              () -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
       List<ResolvedAppointmentService> resolvedServices = new ArrayList<>();
 
@@ -147,7 +183,8 @@ public class AppointmentService {
 
       for (AppointmentServiceRequestDto serviceRequest : request.services()) {
          ClinicService clinicService = clinicServiceRepository.findByIdAndActiveTrue(serviceRequest.clinicServiceId())
-                                                              .orElseThrow(() -> new ResourceNotFoundException("Clinic service not found"));
+                                                              .orElseThrow(() -> new ResourceNotFoundException(
+                                                                      "Clinic service not found"));
 
          resolvedServices.add(new ResolvedAppointmentService(clinicService, serviceRequest.quantity()));
          totalPrice += clinicService.getPrice() * serviceRequest.quantity();
@@ -181,6 +218,7 @@ public class AppointmentService {
          item.setAppointment(saved);
          saved.getServices().add(item);
          item.setClinicService(clinicService);
+         item.setTitle(clinicService.getDentalService().getTitle());
          item.setPrice(clinicService.getPrice());
          item.setDurationMinutes(clinicService.getDurationMinutes());
          item.setQuantity(resolvedService.quantity());
@@ -189,13 +227,19 @@ public class AppointmentService {
          appointmentServiceRepository.save(item);
       }
 
+      publishAppointmentNotifications(saved, NotificationType.APPOINTMENT_CREATED, "Вы успешно записались",
+                                      "Ваша запись к врачу " + saved.getDoctor().getLastName() + " " + saved.getDoctor()
+                                                                                                            .getFirstName() + " успешно создана на " + saved.getScheduledAt()
+                                                                                                                                                            .format(APPOINTMENT_DATE_TIME_FORMATTER));
+
       return appointmentMapper.toResponse(saved);
    }
 
    @Transactional
    public AppointmentResponseDto cancel(UUID patientId, UUID appointmentId) {
       Appointment appointment = appointmentRepository.findByIdAndPatient_Id(appointmentId, patientId)
-                                                     .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+                                                     .orElseThrow(() -> new ResourceNotFoundException(
+                                                             "Appointment not found"));
 
       if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
          throw new BadRequestException("Appointment is already cancelled");
@@ -206,6 +250,10 @@ public class AppointmentService {
       }
 
       appointment.setStatus(AppointmentStatus.CANCELLED);
+
+      publishAppointmentNotifications(appointment, NotificationType.APPOINTMENT_CANCELLED, "Ваша запись отменена",
+                                      "Ваша запись на " + appointment.getScheduledAt()
+                                                                     .format(APPOINTMENT_DATE_TIME_FORMATTER) + " отменена");
 
       return appointmentMapper.toResponse(appointment);
    }
@@ -226,7 +274,6 @@ public class AppointmentService {
       return cancel(patient.getId(), appointmentId);
    }
 
-   //TODO: for staff methods add user notifications if found by patient id
    @Transactional
    public AppointmentResponseDto createForStaff(UUID patientId, CreateAppointmentRequestDto request) {
       patientRepository.findById(patientId).orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
@@ -244,11 +291,19 @@ public class AppointmentService {
    @Transactional
    public AppointmentResponseDto changeStatusByStaff(UUID patientId, UUID appointmentId, ChangeAppointmentStatusRequestDto request) {
       Appointment appointment = appointmentRepository.findByIdAndPatient_Id(appointmentId, patientId)
-                                                     .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+                                                     .orElseThrow(() -> new ResourceNotFoundException(
+                                                             "Appointment not found"));
 
-      validateTransition(appointment.getStatus(), request.status());
+      AppointmentStatus oldStatus = appointment.getStatus();
+      AppointmentStatus newStatus = request.status();
+
+      validateTransition(oldStatus, newStatus);
 
       appointment.setStatus(request.status());
+
+      publishAppointmentNotifications(appointment, NotificationType.APPOINTMENT_STATUS_CHANGED,
+                                      "Статус Вашей записи изменен",
+                                      "Статус вашей записи изменен: " + oldStatus + " -> " + newStatus);
 
       return appointmentMapper.toResponse(appointment);
    }
