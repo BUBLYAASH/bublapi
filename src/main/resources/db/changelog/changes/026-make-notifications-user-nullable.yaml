@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 026-make-notifications-user-nullable
+      author: Gleb Kovalev
+      changes:
+        - dropNotNullConstraint:
+            tableName: notifications
+            columnName: user_id
+            columnDataType: uuid

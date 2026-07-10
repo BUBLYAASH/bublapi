@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 025-add-title-to-appointment-services
+      author: Gleb Kovalev
+      changes:
+        - addColumn:
+            tableName: appointment_services
+            columns:
+              - column:
+                  name: title
+                  type: varchar(255)

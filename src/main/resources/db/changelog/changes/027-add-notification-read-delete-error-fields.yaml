@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 027-add-notification-read-delete-error-fields
+      author: Gleb Kovalev
+      changes:
+        - addColumn:
+            tableName: notifications
+            columns:
+              - column:
+                  name: read
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: read_at
+                  type: timestamp
+              - column:
+                  name: deleted
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deleted_at
+                  type: timestamp
+              - column:
+                  name: error_message
+                  type: varchar(1000)
