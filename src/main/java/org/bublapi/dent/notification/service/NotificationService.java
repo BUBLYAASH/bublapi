@@ -87,25 +87,6 @@ public class NotificationService {
       return saved;
    }
 
-   @Transactional
-   public void markAsSent(UUID notificationId) {
-      Notification notification = notificationRepository.findById(notificationId)
-                                                        .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Notification not found"));
-
-      notification.setStatus(NotificationStatus.SENT);
-      notification.setSentAt(LocalDateTime.now());
-   }
-
-   @Transactional
-   public void markAsFailed(UUID notificationId) {
-      Notification notification = notificationRepository.findById(notificationId)
-                                                        .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Notification not found"));
-
-      notification.setStatus(NotificationStatus.FAILED);
-   }
-
    public List<UserNotificationResponseDto> findAllSent(UUID userId) {
       return notificationRepository.findAllByUser_IdAndChannelAndStatusAndDeletedFalseOrderBySentAtDesc(userId,
                                                                                                         NotificationChannel.IN_APP,
