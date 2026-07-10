@@ -4,11 +4,17 @@ import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.bublapi.dent.notification.command.CreateNotificationCommand;
+import org.bublapi.dent.notification.entity.NotificationChannel;
+import org.bublapi.dent.notification.entity.NotificationType;
+import org.bublapi.dent.notification.publisher.NotificationPublisher;
 import org.bublapi.dent.patient.repository.PatientRepository;
 import org.bublapi.dent.role.entity.Role;
 import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.role.repository.RoleRepository;
 import org.bublapi.dent.user.dto.CreateUserRequestDto;
+import org.bublapi.dent.user.dto.CreateUserResponseDto;
+import org.bublapi.dent.user.dto.PatientCardLinkStatus;
 import org.bublapi.dent.user.dto.UpdateUserRequestDto;
 import org.bublapi.dent.user.dto.UserResponseDto;
 import org.bublapi.dent.user.dto.UserRoleResponseDto;
@@ -32,17 +38,33 @@ public class UserService {
    private final PatientRepository patientRepository;
    private final UserMapper userMapper;
    private final PasswordEncoder passwordEncoder;
+   private final NotificationPublisher notificationPublisher;
 
-   public UserService(UserRepository userRepository, RoleRepository roleRepository, PatientRepository patientRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+   public UserService(UserRepository userRepository, RoleRepository roleRepository, PatientRepository patientRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, NotificationPublisher notificationPublisher) {
       this.userRepository = userRepository;
       this.roleRepository = roleRepository;
       this.patientRepository = patientRepository;
       this.userMapper = userMapper;
       this.passwordEncoder = passwordEncoder;
+      this.notificationPublisher = notificationPublisher;
+   }
+
+   private void publishUserNotifications(User user, NotificationType type, String title, String message) {
+      String userEmail = user.getEmail();
+
+      notificationPublisher.publishAfterCommit(
+              new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
+                                            NotificationChannel.IN_APP, userEmail, title, message, null));
+
+      if (userEmail != null && !userEmail.isBlank()) {
+         notificationPublisher.publishAfterCommit(
+                 new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
+                                               NotificationChannel.EMAIL, userEmail, title, message, null));
+      }
    }
 
    @Transactional
-   public UserResponseDto create(CreateUserRequestDto request) {
+   public CreateUserResponseDto create(CreateUserRequestDto request) {
       Clinic clinic = ClinicContext.get();
 
       Role patientRole = roleRepository.findByName(RoleName.PATIENT)
@@ -55,15 +77,35 @@ public class UserService {
 
       User saved = userRepository.save(user);
 
-      patientRepository.findByEmailOrPhone(request.email(), request.phone()).ifPresent(patient -> {
+      publishUserNotifications(saved, NotificationType.USER_REGISTERED, "Вы успешно зарегистрировались",
+                               "Ваш аккаунт успешно создан!");
+
+      PatientCardLinkStatus cardStatus = PatientCardLinkStatus.NOT_FOUND;
+      String cardMessage = "Карточка пациента не найдена.";
+
+      var patientOptional = patientRepository.findByEmailOrPhone(request.email(), request.phone());
+
+      if (patientOptional.isPresent()) {
+         var patient = patientOptional.get();
+
          if (patient.getUser() == null) {
             patient.setUser(saved);
-         } else {
-            throw new BadRequestException("Patient Card was found by provided email or phone, but it assigned to another account. Please, contact receptionist or email us to solve this problem.");
-         }
-      });
 
-      return userMapper.toResponse(saved);
+            cardStatus = PatientCardLinkStatus.LINKED;
+            cardMessage = "Мы обнаружили карточку пациента по некоторым Вашим данным и успешно привязали ее к аккаунту!";
+
+            publishUserNotifications(saved, NotificationType.PATIENT_CARD_LINKED, "Мы обнаружили карточку пациента",
+                                     "Мы обнаружили карточку пациента по некоторым Вашим данным и уже привязали ее к Вашему аккаунту!");
+         } else {
+            cardStatus = PatientCardLinkStatus.ALREADY_LINKED_TO_ANOTHER_USER;
+            cardMessage = "Мы обнаружили карточку пациента по некоторым Вашим данным, но по каким-то причинам она уже привязана к другому аккаунту. Для решения этой проблемы обратитесь к администратору клиники.";
+
+            publishUserNotifications(saved, NotificationType.PATIENT_CARD_IS_BUSY, "Карточка пациента занята...",
+                                     "Мы обнаружили карточку пациента по некоторым Вашим данным, но по каким-то причинам она уже привязана к другому аккаунту. Для решения этой проблемы обратитесь к администратору клиники.");
+         }
+      }
+
+      return new CreateUserResponseDto(userMapper.toResponse(saved), cardStatus, cardMessage);
    }
 
    @Transactional
@@ -146,6 +188,9 @@ public class UserService {
       user.setEnabled(false);
       user.setDisabledByClinic(false);
 
+      publishUserNotifications(user, NotificationType.USER_DEACTIVATED, "Ваш аккаунт отключен",
+                               "Ваш аккаунт успешно отключен");
+
       return userMapper.toResponse(user);
    }
 
@@ -155,6 +200,10 @@ public class UserService {
 
       user.setEnabled(true);
       user.setDisabledByClinic(false);
+
+      publishUserNotifications(user, NotificationType.USER_ACTIVATED, "Ваш аккаунт активирован",
+                               "Ваш аккаунт снова активирован");
+
       return userMapper.toResponse(user);
    }
 
