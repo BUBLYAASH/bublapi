@@ -67,6 +67,9 @@ public class Notification {
    @Column(name = "deleted_at")
    private LocalDateTime deletedAt;
 
+   @Column(name = "request_id", nullable = false, unique = true)
+   private UUID requestId;
+
    @Column(name = "error_message", length = 1000)
    private String errorMessage;
 

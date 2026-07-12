@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
    Optional<Notification> findByIdAndUser_IdAndChannelAndStatusAndDeletedFalse(UUID notificationId, UUID userId, NotificationChannel channel, NotificationStatus status);
 
+   Optional<Notification> findByRequestId(UUID requestId);
+
    List<Notification> findAllByUser_IdAndChannelAndStatusAndReadFalseAndDeletedFalse(UUID userId, NotificationChannel channel, NotificationStatus status);
 
    long countByUser_IdAndChannelAndStatusAndReadFalseAndDeletedFalse(UUID userId, NotificationChannel channel, NotificationStatus status);

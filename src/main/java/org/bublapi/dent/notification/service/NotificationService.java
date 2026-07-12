@@ -1,9 +1,5 @@
 package org.bublapi.dent.notification.service;
 
-import org.bublapi.dent.appointment.entity.Appointment;
-import org.bublapi.dent.appointment.repository.AppointmentRepository;
-import org.bublapi.dent.clinic.entity.Clinic;
-import org.bublapi.dent.clinic.repository.ClinicRepository;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.dispatcher.NotificationDispatcher;
@@ -15,8 +11,6 @@ import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationStatus;
 import org.bublapi.dent.notification.mapper.NotificationMapper;
 import org.bublapi.dent.notification.repository.NotificationRepository;
-import org.bublapi.dent.user.entity.User;
-import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,63 +22,32 @@ import java.util.UUID;
 public class NotificationService {
    private final NotificationRepository notificationRepository;
    private final NotificationMapper notificationMapper;
-   private final AppointmentRepository appointmentRepository;
-   private final ClinicRepository clinicRepository;
-   private final UserRepository userRepository;
+   private final NotificationTransactionService transactionService;
    private final NotificationDispatcher notificationDispatcher;
 
-   public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper, AppointmentRepository appointmentRepository, ClinicRepository clinicRepository, UserRepository userRepository, NotificationDispatcher notificationDispatcher) {
+   public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper, NotificationTransactionService transactionService, NotificationDispatcher notificationDispatcher) {
       this.notificationRepository = notificationRepository;
       this.notificationMapper = notificationMapper;
-      this.appointmentRepository = appointmentRepository;
-      this.clinicRepository = clinicRepository;
-      this.userRepository = userRepository;
+      this.transactionService = transactionService;
       this.notificationDispatcher = notificationDispatcher;
    }
 
-   @Transactional
-   public Notification create(CreateNotificationCommand command) {
-      Clinic clinic = clinicRepository.findById(command.clinicId())
-                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+   public void create(CreateNotificationCommand command) {
+      Notification notification = transactionService.prepare(command);
 
-      Notification notification = new Notification();
-
-      if (command.appointmentId() != null) {
-         Appointment appointment = appointmentRepository.findById(command.appointmentId())
-                                                        .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Appointment not found"));
-
-         notification.setAppointment(appointment);
+      if (notification.getStatus() == NotificationStatus.SENT) {
+         return;
       }
-
-      if (command.userId() != null) {
-         User user = userRepository.findById(command.userId())
-                                   .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-         notification.setUser(user);
-      }
-
-      notification.setClinic(clinic);
-      notification.setType(command.type());
-      notification.setChannel(command.channel());
-      notification.setTitle(command.title());
-      notification.setScheduledAt(command.scheduledAt());
-      notification.setMessage(command.message());
-      notification.setStatus(NotificationStatus.PENDING);
-
-      Notification saved = notificationRepository.save(notification);
 
       try {
-         notificationDispatcher.dispatch(saved, command);
+         notificationDispatcher.dispatch(notification, command);
 
-         saved.setStatus(NotificationStatus.SENT);
-         saved.setSentAt(LocalDateTime.now());
+         transactionService.markAsSent(notification.getId());
       } catch (Exception e) {
-         saved.setStatus(NotificationStatus.FAILED);
+         transactionService.markAsFailed(notification.getId(), e.getMessage());
+
          throw e;
       }
-
-      return saved;
    }
 
    public List<UserNotificationResponseDto> findAllSent(UUID userId) {
@@ -103,7 +66,15 @@ public class NotificationService {
                                    .toList();
    }
 
-   public UserNotificationResponseDto findById(UUID userId, UUID notificationId) {
+   public NotificationResponseDto findByIdForAdmin(UUID notificationId) {
+      Notification notification = notificationRepository.findById(notificationId)
+                                                        .orElseThrow(() -> new ResourceNotFoundException(
+                                                                "Notification not found"));
+
+      return notificationMapper.toResponse(notification);
+   }
+
+   public UserNotificationResponseDto findByIdForPatient(UUID userId, UUID notificationId) {
       Notification notification = notificationRepository.findByIdAndUser_IdAndChannelAndStatusAndDeletedFalse(
                                                                 notificationId, userId, NotificationChannel.IN_APP, NotificationStatus.SENT)
                                                         .orElseThrow(() -> new ResourceNotFoundException(
@@ -133,7 +104,7 @@ public class NotificationService {
    }
 
    @Transactional
-   public void readAll(UUID userId) {
+   public void readAllForPatient(UUID userId) {
       List<Notification> notifications = notificationRepository.findAllByUser_IdAndChannelAndStatusAndReadFalseAndDeletedFalse(
               userId, NotificationChannel.IN_APP, NotificationStatus.SENT);
 
@@ -159,7 +130,5 @@ public class NotificationService {
    }
 
    // TODO:
-   //  - GET /api/admin/notifications/{notificationId}
    //  - POST /api/admin/notifications/{notificationId}/retry
-   //  - implement proper FAILED status persistence before retry
 }
