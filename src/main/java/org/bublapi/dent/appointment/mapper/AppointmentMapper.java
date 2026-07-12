@@ -23,5 +23,8 @@ public interface AppointmentMapper {
    @Mapping(target = "clinicId", source = "clinic.id")
    @Mapping(target = "patientId", source = "patient.id")
    @Mapping(target = "doctorId", source = "doctor.id")
+   @Mapping(target = "doctorFirstName", source = "doctor.firstName")
+   @Mapping(target = "doctorLastName", source = "doctor.lastName")
+   @Mapping(target = "doctorMiddleName", source = "doctor.middleName")
    AppointmentResponseDto toResponse(Appointment entity);
 }

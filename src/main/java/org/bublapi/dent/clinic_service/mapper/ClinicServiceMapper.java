@@ -18,6 +18,7 @@ public interface ClinicServiceMapper {
 
    @Mapping(target = "clinicId", source = "clinic.id")
    @Mapping(target = "dentalServiceId", source = "dentalService.id")
+   @Mapping(target = "title", source = "dentalService.title")
    ClinicServiceResponseDto toResponse(ClinicService entity);
 
    @Mapping(target = "clinic", ignore = true)
