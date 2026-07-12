@@ -7,6 +7,7 @@ import org.bublapi.dent.auth.security.CustomUserDetails;
 import org.bublapi.dent.notification.dto.UnreadNotificationsCountResponseDto;
 import org.bublapi.dent.notification.dto.UserNotificationResponseDto;
 import org.bublapi.dent.notification.service.NotificationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -41,7 +43,7 @@ public class PatientNotificationController {
    @Operation(summary = "Show detailed information about one notification", description = "Shows detailed information about one notification")
    @GetMapping("/{notificationId}")
    public UserNotificationResponseDto findById(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID notificationId) {
-      return notificationService.findById(userDetails.getId(), notificationId);
+      return notificationService.findByIdForPatient(userDetails.getId(), notificationId);
    }
 
    @Operation(summary = "Unread notifications", description = "Count unread notifications")
@@ -51,18 +53,21 @@ public class PatientNotificationController {
    }
 
    @Operation(summary = "Read a notification", description = "Read a notification")
+   @ResponseStatus(HttpStatus.NO_CONTENT)
    @PatchMapping("/{notificationId}/read")
    public void read(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID notificationId) {
       notificationService.readNotification(userDetails.getId(), notificationId);
    }
 
    @Operation(summary = "Read all notifications", description = "Read all notifications")
+   @ResponseStatus(HttpStatus.NO_CONTENT)
    @PatchMapping("/read-all")
    public void readAll(@AuthenticationPrincipal CustomUserDetails userDetails) {
-      notificationService.readAll(userDetails.getId());
+      notificationService.readAllForPatient(userDetails.getId());
    }
 
    @Operation(summary = "Delete a notification", description = "Soft deletes a notification")
+   @ResponseStatus(HttpStatus.NO_CONTENT)
    @DeleteMapping("/{notificationId}")
    public void delete(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID notificationId) {
       notificationService.deleteNotification(userDetails.getId(), notificationId);
