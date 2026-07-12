@@ -10,6 +10,7 @@ import org.bublapi.dent.appointment.service.AppointmentService;
 import org.bublapi.dent.auth.security.CustomUserDetails;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Appointments for patients")
@@ -45,5 +47,17 @@ public class PatientAppointmentController {
    @PatchMapping("/{appointmentId}/cancel")
    public AppointmentResponseDto cancel(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID appointmentId) {
       return appointmentService.cancelByPatient(userDetails.getId(), appointmentId);
+   }
+
+   @Operation(summary = "Get all appointments", description = "Shows all appointments for patient")
+   @GetMapping
+   public List<AppointmentResponseDto> findAll(@AuthenticationPrincipal CustomUserDetails userDetails) {
+      return appointmentService.findAllForPatient(userDetails.getId());
+   }
+
+   @Operation(summary = "Get information about one appointment", description = "Shows information about one appointment by ID")
+   @GetMapping("/{appointmentId}")
+   public AppointmentResponseDto findById(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID appointmentId) {
+      return appointmentService.findByIdForPatient(userDetails.getId(), appointmentId);
    }
 }
