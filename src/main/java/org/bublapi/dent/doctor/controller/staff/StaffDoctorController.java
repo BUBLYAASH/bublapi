@@ -82,6 +82,12 @@ public class StaffDoctorController {
       return doctorService.findAllForStaff();
    }
 
+   @Operation(summary = "Get information about one doctor", description = "Shows information about one doctor in clinic")
+   @GetMapping("/{doctorId}")
+   public DoctorResponseDto findById(@PathVariable UUID doctorId) {
+      return doctorService.findById(doctorId);
+   }
+
    @Operation(summary = "Set doctor's working hours", description = "Set working hours for a doctor on a specific day of week")
    @PostMapping("/{doctorId}/working-hours")
    public DoctorWorkingHoursResponseDto setSchedule(@PathVariable UUID doctorId, @Valid @RequestBody SetDoctorWorkingHoursRequestDto request) {
@@ -115,8 +121,14 @@ public class StaffDoctorController {
    }
 
    @Operation(summary = "Link user to doctor", description = "Connect user profile with doctor profile")
-   @PatchMapping("/{doctorId}/user-link")
+   @PatchMapping("/{doctorId}/link-user")
    public DoctorResponseDto linkUserToDoctor(@PathVariable UUID doctorId, @Valid @RequestBody LinkUserToDoctorRequestDto request) {
       return doctorService.linkUser(doctorId, request);
+   }
+
+   @Operation(summary = "Unlink user from doctor", description = "Disconnect user profile from doctor profile")
+   @PatchMapping("/{doctorId}/unlink-user")
+   public DoctorResponseDto unlinkUserFromDoctor(@PathVariable UUID doctorId) {
+      return doctorService.unlinkUser(doctorId);
    }
 }
