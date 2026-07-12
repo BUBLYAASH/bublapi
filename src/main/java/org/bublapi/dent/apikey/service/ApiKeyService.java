@@ -157,5 +157,7 @@ public class ApiKeyService {
       return new ParsedKey(prefix, secret);
    }
 
-//TODO: auto-deactivation after grace period and auto-activation when renewed
+// TODO:
+//  - auto-deactivate after grace period and auto-activate when renewed
+//  - add renew() method
 }

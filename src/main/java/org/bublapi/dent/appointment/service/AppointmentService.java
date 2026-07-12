@@ -147,6 +147,16 @@ public class AppointmentService {
       validateInsideRegularWorkingHours(doctor, scheduledAt, endAt);
    }
 
+   private void validateTransition(AppointmentStatus from, AppointmentStatus to) {
+      if (from == to) {
+         throw new BadRequestException("Appointment already has this status");
+      }
+
+      if (!from.canTransitionTo(to)) {
+         throw new BadRequestException("Cannot change appointment status from " + from + " to " + to);
+      }
+   }
+
    private void publishAppointmentNotifications(Appointment appointment, NotificationType type, String title, String message) {
       UUID patientUserId = appointment.getPatient().getUser() != null ? appointment.getPatient()
                                                                                    .getUser()
@@ -282,15 +292,17 @@ public class AppointmentService {
    }
 
    @Transactional
-   public AppointmentResponseDto cancelByStaff(UUID patientId, UUID appointmentId) {
-      patientRepository.findById(patientId).orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+   public AppointmentResponseDto cancelByStaff(UUID appointmentId) {
+      Appointment appointment = appointmentRepository.findById(appointmentId)
+                                                     .orElseThrow(() -> new ResourceNotFoundException(
+                                                             "Appointment not found"));
 
-      return cancel(patientId, appointmentId);
+      return cancel(appointment.getPatient().getId(), appointmentId);
    }
 
    @Transactional
-   public AppointmentResponseDto changeStatusByStaff(UUID patientId, UUID appointmentId, ChangeAppointmentStatusRequestDto request) {
-      Appointment appointment = appointmentRepository.findByIdAndPatient_Id(appointmentId, patientId)
+   public AppointmentResponseDto changeStatusByStaff(UUID appointmentId, ChangeAppointmentStatusRequestDto request) {
+      Appointment appointment = appointmentRepository.findById(appointmentId)
                                                      .orElseThrow(() -> new ResourceNotFoundException(
                                                              "Appointment not found"));
 
@@ -308,15 +320,64 @@ public class AppointmentService {
       return appointmentMapper.toResponse(appointment);
    }
 
-   private void validateTransition(AppointmentStatus from, AppointmentStatus to) {
-      if (from == to) {
-         throw new BadRequestException("Appointment already has this status");
-      }
+   public AppointmentResponseDto findByIdForPatient(UUID userId, UUID appointmentId) {
+      Patient patient = patientRepository.findByUser_Id(userId)
+                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-      if (!from.canTransitionTo(to)) {
-         throw new BadRequestException("Cannot change appointment status from " + from + " to " + to);
-      }
+      Appointment appointment = appointmentRepository.findByIdAndPatient_Id(appointmentId, patient.getId())
+                                                     .orElseThrow(() -> new ResourceNotFoundException(
+                                                             "Appointment not found"));
+
+      return appointmentMapper.toResponse(appointment);
    }
 
-   //TODO: Complete CRUD
+   public AppointmentResponseDto findByIdForStaff(UUID appointmentId) {
+      Appointment appointment = appointmentRepository.findById(appointmentId)
+                                                     .orElseThrow(() -> new ResourceNotFoundException(
+                                                             "Appointment not found"));
+
+      return appointmentMapper.toResponse(appointment);
+   }
+
+   public List<AppointmentResponseDto> findAllForPatient(UUID userId) {
+      Patient patient = patientRepository.findByUser_Id(userId)
+                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+      return appointmentRepository.findAllByPatient_IdOrderByScheduledAtDesc(patient.getId())
+                                  .stream()
+                                  .map(appointmentMapper::toResponse)
+                                  .toList();
+   }
+
+   public List<AppointmentResponseDto> findAllByPatientForStaff(UUID patientId) {
+      if (!patientRepository.existsById(patientId)) {
+         throw new ResourceNotFoundException("Patient not found");
+      }
+
+      return appointmentRepository.findAllByPatient_IdOrderByScheduledAtDesc(patientId)
+                                  .stream()
+                                  .map(appointmentMapper::toResponse)
+                                  .toList();
+   }
+
+   public List<AppointmentResponseDto> findAllForStaff() {
+      return appointmentRepository.findAllByOrderByScheduledAtDesc()
+                                  .stream()
+                                  .map(appointmentMapper::toResponse)
+                                  .toList();
+   }
+
+   public List<AppointmentResponseDto> findAllForDoctor(UUID doctorId) {
+      Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
+                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor profile not found"));
+
+      return appointmentRepository.findAllByDoctor_IdOrderByScheduledAtAsc(doctor.getId())
+                                  .stream()
+                                  .map(appointmentMapper::toResponse)
+                                  .toList();
+   }
+
+   // TODO:
+   //  - reschedule appointment
+   //  - update appointment services
 }

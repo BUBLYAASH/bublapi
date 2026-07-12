@@ -1,5 +1,8 @@
 package org.bublapi.dent.clinic_service.service;
 
+import org.bublapi.dent.appointment.entity.Appointment;
+import org.bublapi.dent.appointment.entity.AppointmentStatus;
+import org.bublapi.dent.appointment_service.repository.AppointmentServiceRepository;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic_service.dto.AddClinicServiceRequestDto;
 import org.bublapi.dent.clinic_service.dto.ClinicServiceResponseDto;
@@ -12,9 +15,14 @@ import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.dental_service.entity.DentalService;
 import org.bublapi.dent.dental_service.repository.DentalServiceRepository;
+import org.bublapi.dent.notification.command.CreateNotificationCommand;
+import org.bublapi.dent.notification.entity.NotificationChannel;
+import org.bublapi.dent.notification.entity.NotificationType;
+import org.bublapi.dent.notification.publisher.NotificationPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,11 +31,33 @@ public class ClinicServiceService {
    private final ClinicServiceRepository clinicServiceRepository;
    private final DentalServiceRepository dentalServiceRepository;
    private final ClinicServiceMapper clinicServiceMapper;
+   private final AppointmentServiceRepository appointmentServiceRepository;
+   private final NotificationPublisher notificationPublisher;
 
-   public ClinicServiceService(ClinicServiceRepository clinicServiceRepository, DentalServiceRepository dentalServiceRepository, ClinicServiceMapper clinicServiceMapper) {
+   public ClinicServiceService(ClinicServiceRepository clinicServiceRepository, DentalServiceRepository dentalServiceRepository, ClinicServiceMapper clinicServiceMapper, AppointmentServiceRepository appointmentServiceRepository, NotificationPublisher notificationPublisher) {
       this.clinicServiceRepository = clinicServiceRepository;
       this.dentalServiceRepository = dentalServiceRepository;
       this.clinicServiceMapper = clinicServiceMapper;
+      this.appointmentServiceRepository = appointmentServiceRepository;
+      this.notificationPublisher = notificationPublisher;
+   }
+
+   private void publishClinicServiceNotifications(Appointment appointment, NotificationType type, String title, String message) {
+      UUID patientUserId = appointment.getPatient().getUser() != null ? appointment.getPatient()
+                                                                                   .getUser()
+                                                                                   .getId() : null;
+
+      String patientEmail = appointment.getPatient().getEmail();
+
+      notificationPublisher.publishAfterCommit(
+              new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(), type,
+                                            NotificationChannel.IN_APP, patientEmail, title, message, null));
+
+      if (patientEmail != null && !patientEmail.isBlank()) {
+         notificationPublisher.publishAfterCommit(
+                 new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(),
+                                               type, NotificationChannel.EMAIL, patientEmail, title, message, null));
+      }
    }
 
    public ClinicServiceResponseDto add(UUID dentalServiceId, AddClinicServiceRequestDto request) {
@@ -64,12 +94,25 @@ public class ClinicServiceService {
 
    @Transactional
    public ClinicServiceResponseDto deactivate(UUID clinicServiceId) {
-      //TODO: after adding notifications - notify user that service that them chosen - currently unavailable
       ClinicService clinicService = clinicServiceRepository.findById(clinicServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
                                                                    "Clinic Service not found or unavailable"));
 
+      if (!clinicService.getActive()) {
+         throw new BadRequestException("Clinic service is already deactivated");
+      }
+
       clinicService.setActive(false);
+
+      appointmentServiceRepository.findAllAffectedByServiceDeactivation(clinicServiceId, LocalDateTime.now(),
+                                                                        List.of(AppointmentStatus.CANCELLED,
+                                                                                AppointmentStatus.COMPLETED))
+                                  .forEach(p -> publishClinicServiceNotifications(p.getAppointment(),
+                                                                                  NotificationType.CLINIC_SERVICE_DEACTIVATED,
+                                                                                  "Услуга приостановлена",
+                                                                                  "Услуга «" + clinicService.getDentalService()
+                                                                                                            .getTitle() + "» больше не предоставляется в клинике «" + clinicService.getClinic()
+                                                                                                                                                                                   .getTitle() + "». Пожалуйста, свяжитесь с клиникой для изменения записи."));
 
       return clinicServiceMapper.toResponse(clinicService);
    }
