@@ -380,4 +380,5 @@ public class AppointmentService {
    // TODO:
    //  - reschedule appointment
    //  - update appointment services
+   //  - add rate limiting for appointment creation per user
 }
