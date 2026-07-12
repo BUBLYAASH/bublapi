@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 028-add-notification-request-id-field
+      author: Gleb Kovalev
+      changes:
+        - addColumn:
+            tableName: notifications
+            columns:
+              - column:
+                  name: request_id
+                  type: uuid
+
+        - addUniqueConstraint:
+            tableName: notifications
+            columnNames: request_id
+            constraintName: uq_notifications_request_id
