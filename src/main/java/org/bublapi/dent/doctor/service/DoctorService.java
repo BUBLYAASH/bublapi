@@ -37,6 +37,7 @@ public class DoctorService {
       this.doctorMapper = doctorMapper;
    }
 
+   @Transactional
    public DoctorResponseDto create(CreateDoctorRequestDto request) {
       Clinic clinic = ClinicContext.get();
 
@@ -86,6 +87,22 @@ public class DoctorService {
       return doctorRepository.findAllByActiveTrue().stream().map(doctorMapper::toResponse).toList();
    }
 
+   public DoctorResponseDto findById(UUID doctorId) {
+      Doctor doctor = doctorRepository.findById(doctorId)
+                                      .orElseThrow(
+                                              () -> new ResourceNotFoundException("Doctor not found in this clinic"));
+
+      return doctorMapper.toResponse(doctor);
+   }
+
+   public DoctorResponseDto findActiveById(UUID doctorId) {
+      Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
+                                      .orElseThrow(
+                                              () -> new ResourceNotFoundException("Doctor not found or unavailable"));
+
+      return doctorMapper.toResponse(doctor);
+   }
+
    @Transactional
    public DoctorResponseDto linkUser(UUID doctorId, LinkUserToDoctorRequestDto request) {
       UUID clinicId = ClinicContext.getClinicId();
@@ -119,5 +136,21 @@ public class DoctorService {
       return doctorMapper.toResponse(doctor);
    }
 
-   //TODO: complete CRUD
+   @Transactional
+   public DoctorResponseDto unlinkUser(UUID doctorId) {
+      Doctor doctor = doctorRepository.findById(doctorId)
+                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+
+      User user = doctor.getUser();
+
+      if (user == null) {
+         throw new BadRequestException("Doctor profile is not linked to a user");
+      }
+
+      doctor.setUser(null);
+
+      user.getRoles().removeIf(role -> role.getName() == RoleName.DOCTOR);
+
+      return doctorMapper.toResponse(doctor);
+   }
 }
