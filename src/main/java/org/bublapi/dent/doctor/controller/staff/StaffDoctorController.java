@@ -9,6 +9,8 @@ import org.bublapi.dent.doctor.dto.DoctorResponseDto;
 import org.bublapi.dent.doctor.dto.LinkUserToDoctorRequestDto;
 import org.bublapi.dent.doctor.dto.UpdateDoctorRequestDto;
 import org.bublapi.dent.doctor.service.DoctorService;
+import org.bublapi.dent.doctor_clinic_service.dto.DoctorClinicServiceResponseDto;
+import org.bublapi.dent.doctor_clinic_service.service.DoctorClinicServiceService;
 import org.bublapi.dent.doctor_schedule_exception.dto.DoctorScheduleExceptionResponseDto;
 import org.bublapi.dent.doctor_schedule_exception.dto.SetDoctorScheduleExceptionRequestDto;
 import org.bublapi.dent.doctor_schedule_exception.service.DoctorScheduleExceptionService;
@@ -45,11 +47,13 @@ public class StaffDoctorController {
    private final DoctorService doctorService;
    private final DoctorWorkingHoursService doctorWorkingHoursService;
    private final DoctorScheduleExceptionService doctorScheduleExceptionService;
+   private final DoctorClinicServiceService doctorClinicServiceService;
 
-   public StaffDoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService, DoctorScheduleExceptionService doctorScheduleExceptionService) {
+   public StaffDoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService, DoctorScheduleExceptionService doctorScheduleExceptionService, DoctorClinicServiceService doctorClinicServiceService) {
       this.doctorService = doctorService;
       this.doctorWorkingHoursService = doctorWorkingHoursService;
       this.doctorScheduleExceptionService = doctorScheduleExceptionService;
+      this.doctorClinicServiceService = doctorClinicServiceService;
    }
 
    @Operation(summary = "Add a new doctor", description = "Add a new doctor to provided clinic")
@@ -130,5 +134,18 @@ public class StaffDoctorController {
    @PatchMapping("/{doctorId}/unlink-user")
    public DoctorResponseDto unlinkUserFromDoctor(@PathVariable UUID doctorId) {
       return doctorService.unlinkUser(doctorId);
+   }
+
+   @Operation(summary = "Assign service to a doctor", description = "Assign service to a doctor")
+   @PostMapping("/{doctorId}/services/{clinicServiceId}")
+   public DoctorClinicServiceResponseDto assignService(@PathVariable UUID doctorId, @PathVariable UUID clinicServiceId) {
+      return doctorClinicServiceService.assignService(doctorId, clinicServiceId);
+   }
+
+   @Operation(summary = "Remove service from a doctor", description = "Remove service from a doctor")
+   @ResponseStatus(HttpStatus.NO_CONTENT)
+   @DeleteMapping("/{doctorId}/services/{clinicServiceId}")
+   public void removeService(@PathVariable UUID doctorId, @PathVariable UUID clinicServiceId) {
+      doctorClinicServiceService.removeService(doctorId, clinicServiceId);
    }
 }
