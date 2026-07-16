@@ -208,7 +208,9 @@ public class UserService {
    }
 
    public List<UserResponseDto> findAll() {
-      return userRepository.findAll().stream().map(userMapper::toResponse).toList();
+      UUID clinicId = ClinicContext.getClinicId();
+
+      return userRepository.findAllByClinic_IdAndEnabledTrue(clinicId).stream().map(userMapper::toResponse).toList();
    }
 
    public UserResponseDto findById(UUID userId) {
