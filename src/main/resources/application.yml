@@ -1,14 +1,14 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   config:
     import: optional:file:./local.properties
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/bublapi_dent
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/bublapi_dent}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
 
   jpa:
     hibernate:
@@ -18,10 +18,11 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
   
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: bublapi
-    password: bublapi
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:bublapi}
+    password: ${RABBITMQ_PASSWORD:bublapi}
+
     listener:
       simple:
         retry:
@@ -33,10 +34,10 @@ spring:
         default-requeue-rejected: false
 
   mail:
-    host: smtp.yandex.ru
-    port: 465
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    host: ${MAIL_HOST:smtp.yandex.ru}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
