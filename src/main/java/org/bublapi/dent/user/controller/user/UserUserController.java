@@ -9,6 +9,7 @@ import org.bublapi.dent.user.dto.UpdateUserRequestDto;
 import org.bublapi.dent.user.dto.UserResponseDto;
 import org.bublapi.dent.user.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,12 @@ public class UserUserController {
 
    public UserUserController(UserService userService) {
       this.userService = userService;
+   }
+
+   @Operation(summary = "Profile information", description = "Profile information")
+   @GetMapping
+   public UserResponseDto getUserProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+      return userService.findById(customUserDetails.getId());
    }
 
    @Operation(summary = "Update a user from profile", description = "Update only provided fields from profile")

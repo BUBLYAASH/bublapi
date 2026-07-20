@@ -214,7 +214,9 @@ public class UserService {
    }
 
    public UserResponseDto findById(UUID userId) {
-      User user = userRepository.findById(userId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      User user = userRepository.findByIdAndClinicId(userId, clinicId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found or unavailable"));
 
       return userMapper.toResponse(user);
