@@ -30,10 +30,10 @@ public interface DoctorWorkingHoursRepository extends JpaRepository<DoctorWorkin
    @Query("""
            SELECT count(wh) > 0 FROM DoctorWorkingHours wh
            WHERE wh.doctor.id = :doctorId
-           AND wh.id <> :workingHoursId
+           AND wh.id <> :scheduleId
            AND wh.dayOfWeek = :dayOfWeek
            AND wh.startTime < :endTime
            AND wh.endTime > :startTime
            """)
-   boolean existsOverlappingIntervalExcept(@Param("doctorId") UUID doctorId, @Param("workingHoursId") UUID workingHoursId, @Param("dayOfWeek") DayOfWeek dayOfWeek, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
+   boolean existsOverlappingIntervalExcept(@Param("doctorId") UUID doctorId, @Param("scheduleId") UUID scheduleId, @Param("dayOfWeek") DayOfWeek dayOfWeek, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
 }
