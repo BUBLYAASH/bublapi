@@ -13,6 +13,7 @@ import org.bublapi.dent.doctor_working_hours.repository.DoctorWorkingHoursReposi
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,15 +29,30 @@ public class DoctorWorkingHoursService {
       this.doctorWorkingHoursMapper = doctorWorkingHoursMapper;
    }
 
-   @Transactional
-   public DoctorWorkingHoursResponseDto setSchedule(UUID doctorId, SetDoctorWorkingHoursRequestDto request) {
-      if (!request.startTime().isBefore(request.endTime())) {
+   private void validateTimeRange(LocalTime start, LocalTime end) {
+      if (start == null || end == null) {
+         throw new BadRequestException("Start time and end time are required");
+      }
+
+      if (!start.isBefore(end)) {
          throw new BadRequestException("Start time must be before end time");
       }
+   }
+
+   @Transactional
+   public DoctorWorkingHoursResponseDto setSchedule(UUID doctorId, SetDoctorWorkingHoursRequestDto request) {
+      validateTimeRange(request.startTime(), request.endTime());
 
       Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
                                       .orElseThrow(
                                               () -> new ResourceNotFoundException("Doctor not found or unavailable"));
+
+      boolean overlaps = doctorWorkingHoursRepository.existsOverlappingInterval(doctorId, request.dayOfWeek(),
+                                                                                request.startTime(), request.endTime());
+
+      if (overlaps) {
+         throw new BadRequestException("Overlaps an existing working interval");
+      }
 
       DoctorWorkingHours workingHours = doctorWorkingHoursMapper.toEntity(request);
 
@@ -55,6 +71,17 @@ public class DoctorWorkingHoursService {
       DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_Id(scheduleId, doctorId)
                                                                     .orElseThrow(() -> new ResourceNotFoundException(
                                                                             "This schedule for doctor not found or unavailable"));
+
+      validateTimeRange(request.startTime(), request.endTime());
+
+      boolean overlaps = doctorWorkingHoursRepository.existsOverlappingIntervalExcept(doctorId, scheduleId,
+                                                                                      workingHours.getDayOfWeek(),
+                                                                                      request.startTime(),
+                                                                                      request.endTime());
+
+      if (overlaps) {
+         throw new BadRequestException("Overlaps an existing working interval");
+      }
 
       doctorWorkingHoursMapper.updateEntity(request, workingHours);
 
