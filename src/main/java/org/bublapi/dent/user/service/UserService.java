@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -66,12 +67,16 @@ public class UserService {
    @Transactional
    public CreateUserResponseDto create(CreateUserRequestDto request) {
       Clinic clinic = ClinicContext.get();
+      String email = request.email().trim().toLowerCase(Locale.ROOT);
+      String phone = request.phone().trim();
 
       Role patientRole = roleRepository.findByName(RoleName.PATIENT)
                                        .orElseThrow(() -> new ResourceNotFoundException("PATIENT role not found"));
 
       User user = userMapper.toEntity(request);
       user.setClinic(clinic);
+      user.setEmail(email);
+      user.setPhone(phone);
       user.setPasswordHash(passwordEncoder.encode(request.password()));
       user.setRoles(Set.of(patientRole));
 
@@ -83,7 +88,7 @@ public class UserService {
       PatientCardLinkStatus cardStatus = PatientCardLinkStatus.NOT_FOUND;
       String cardMessage = "Карточка пациента не найдена.";
 
-      var patientOptional = patientRepository.findByEmailOrPhone(request.email(), request.phone());
+      var patientOptional = patientRepository.findByEmailIgnoreCaseOrPhone(email, phone);
 
       if (patientOptional.isPresent()) {
          var patient = patientOptional.get();
@@ -110,12 +115,23 @@ public class UserService {
 
    @Transactional
    public UserResponseDto update(UUID userId, UpdateUserRequestDto request) {
+      String email = request.email().trim().toLowerCase(Locale.ROOT);
+      String phone = request.phone().trim();
+
       User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       userMapper.updateEntity(request, user);
 
       if (request.password() != null && !request.password().isBlank()) {
          user.setPasswordHash(passwordEncoder.encode(request.password()));
+      }
+
+      if (!email.isBlank()) {
+         user.setEmail(email);
+      }
+
+      if (!phone.isBlank()) {
+         user.setPhone(phone);
       }
 
       return userMapper.toResponse(user);

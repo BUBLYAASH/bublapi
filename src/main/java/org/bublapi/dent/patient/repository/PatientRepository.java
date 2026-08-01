@@ -12,7 +12,7 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
    Optional<Patient> findByUser_Id(UUID userId);
 
-   Optional<Patient> findByEmailOrPhone(String email, String phone);
+   Optional<Patient> findByEmailIgnoreCaseOrPhone(String email, String phone);
 
    boolean existsByUser_Id(UUID userId);
 }

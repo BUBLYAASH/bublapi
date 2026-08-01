@@ -13,6 +13,7 @@ import org.bublapi.dent.user.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -31,8 +32,9 @@ public class AuthService {
 
    public LoginResponseDto login(LoginRequestDto request) {
       UUID clinicId = ClinicContext.getClinicId();
+      String email = request.email().trim().toLowerCase(Locale.ROOT);
 
-      User user = userRepository.findByEmailAndClinic_Id(request.email(), clinicId)
+      User user = userRepository.findByEmailIgnoreCaseAndClinic_Id(email, clinicId)
                                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
 
       boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPasswordHash());
@@ -51,7 +53,9 @@ public class AuthService {
    }
 
    public LoginResponseDto loginAdmin(LoginRequestDto request) {
-      User user = userRepository.findAdminByEmailWithRoles(request.email())
+      String email = request.email().trim().toLowerCase(Locale.ROOT);
+
+      User user = userRepository.findAdminByEmailWithRoles(email)
                                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
 
       boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPasswordHash());

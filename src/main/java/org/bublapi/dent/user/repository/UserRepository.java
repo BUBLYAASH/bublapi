@@ -15,15 +15,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
    List<User> findAllByClinic_IdAndDisabledByClinicTrue(UUID clinicId);
 
-   Optional<User> findByEmailAndClinic_Id(String email, UUID clinicId);
+   Optional<User> findByEmailIgnoreCaseAndClinic_Id(String email, UUID clinicId);
 
    @Query("""
-           SELECT u FROM User u WHERE u.clinic.id = :clinicId AND (u.email = :email OR u.phone = :phone)
+           SELECT u FROM User u WHERE u.clinic.id = :clinicId AND (lower(u.email) = lower(:email) OR u.phone = :phone)
            """)
    Optional<User> findByEmailOrPhoneInClinic(@Param("email") String email, @Param("phone") String phone, @Param("clinicId") UUID clinicId);
 
    @Query("""
-           SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.clinic.id = :clinicId AND u.email = :email
+           SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.clinic.id = :clinicId AND lower(u.email) = lower(:email)
            """)
    Optional<User> findByEmailWithRolesInClinic(@Param("email") String email, @Param("clinicId") UUID clinicId);
 
@@ -37,7 +37,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
    @Query("""
            SELECT DISTINCT u FROM User u
            LEFT JOIN FETCH u.roles r
-           WHERE u.email = :email
+           WHERE lower(u.email) = lower(:email)
            AND u.clinic IS NULL
            AND r.name = org.bublapi.dent.role.entity.RoleName.ADMIN
            """)

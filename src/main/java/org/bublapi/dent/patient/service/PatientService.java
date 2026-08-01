@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -35,12 +36,13 @@ public class PatientService {
 
    public PatientResponseDto create(CreatePatientRequestDto request) {
       Clinic clinic = ClinicContext.get();
+      String email = request.email().trim().toLowerCase(Locale.ROOT);
+      String phone = request.phone().trim();
 
       Patient patient = patientMapper.toEntity(request);
 
-      if ((request.email() != null && !request.email().isBlank()) || (request.phone() != null && !request.phone()
-                                                                                                         .isBlank())) {
-         userRepository.findByEmailOrPhoneInClinic(request.email(), request.phone(), clinic.getId()).ifPresent(u -> {
+      if ((email != null && !email.isBlank()) || (phone != null && !phone.isBlank())) {
+         userRepository.findByEmailOrPhoneInClinic(email, phone, clinic.getId()).ifPresent(u -> {
             if (patientRepository.findByUser_Id(u.getId()).isEmpty()) {
                patient.setUser(u);
             }
@@ -85,7 +87,18 @@ public class PatientService {
       Patient patient = patientRepository.findById(patientId)
                                          .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
+      String email = request.email().trim().toLowerCase(Locale.ROOT);
+      String phone = request.phone().trim();
+
       patientMapper.updateEntity(request, patient);
+
+      if (!email.isBlank()) {
+         patient.setEmail(email);
+      }
+
+      if (!phone.isBlank()) {
+         patient.setPhone(phone);
+      }
 
       return patientMapper.toResponse(patient);
    }
@@ -108,7 +121,9 @@ public class PatientService {
    }
 
    public PatientResponseDto getByPhone(PatientByPhoneRequestDto request) {
-      Patient patient = patientRepository.findByPhone(request.phone())
+      String phone = request.phone().trim();
+
+      Patient patient = patientRepository.findByPhone(phone)
                                          .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
       return patientMapper.toResponse(patient);

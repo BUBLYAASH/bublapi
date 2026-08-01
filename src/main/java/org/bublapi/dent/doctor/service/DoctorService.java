@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -106,13 +107,14 @@ public class DoctorService {
    @Transactional
    public DoctorResponseDto linkUser(UUID doctorId, LinkUserToDoctorRequestDto request) {
       UUID clinicId = ClinicContext.getClinicId();
+      String email = request.email().trim().toLowerCase(Locale.ROOT);
+      String phone = request.phone().trim();
 
-      if ((request.email() == null || request.email().isBlank()) && (request.phone() == null || request.phone()
-                                                                                                       .isBlank())) {
+      if ((email == null || email.isBlank()) && (phone == null || phone.isBlank())) {
          throw new BadRequestException("Email and phone are empty");
       }
 
-      User user = userRepository.findByEmailOrPhoneInClinic(request.email(), request.phone(), clinicId)
+      User user = userRepository.findByEmailOrPhoneInClinic(email, phone, clinicId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
