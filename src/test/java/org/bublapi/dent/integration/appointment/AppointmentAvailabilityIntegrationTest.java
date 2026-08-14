@@ -296,12 +296,12 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       return LocalDate.now().plusDays(14).atTime(hour, minute);
    }
 
+   private String formatResponseDateTime(LocalDateTime value) {
+      return value.format(RESPONSE_DATE_TIME_FORMAT);
+   }
+
    private record TestContext(
            Clinic clinic, User staff, Patient patient, Doctor doctor, ClinicService clinicService,
            CreateApiKeyResponseDto apiKey) {
-   }
-
-   private String formatResponseDateTime(LocalDateTime value) {
-      return value.format(RESPONSE_DATE_TIME_FORMAT);
    }
 }

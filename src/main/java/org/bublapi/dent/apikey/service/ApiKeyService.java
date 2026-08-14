@@ -148,9 +148,6 @@ public class ApiKeyService {
       }
    }
 
-   private record ParsedKey(String prefix, String secret) {
-   }
-
    private ParsedKey parse(String rawKey) {
       if (!rawKey.startsWith("pk_live_")) {
          throw new IllegalArgumentException("Invalid API Key format");
@@ -167,6 +164,9 @@ public class ApiKeyService {
       String secret = withoutPrefix.substring(idx + 1);
 
       return new ParsedKey(prefix, secret);
+   }
+
+   private record ParsedKey(String prefix, String secret) {
    }
 
 // TODO:

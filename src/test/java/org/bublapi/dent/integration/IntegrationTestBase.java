@@ -20,9 +20,6 @@ import org.testcontainers.junit.jupiter.Container;
 @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public abstract class IntegrationTestBase {
 
-   @MockitoBean
-   protected NotificationPublisher notificationPublisher;
-
    @Container
    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine").withDatabaseName(
            "dent_test").withUsername("test").withPassword("test").withReuse(true);
@@ -30,6 +27,13 @@ public abstract class IntegrationTestBase {
    static {
       postgres.start();
    }
+
+   @MockitoBean
+   protected NotificationPublisher notificationPublisher;
+   @Autowired
+   protected MockMvc mockMvc;
+   @Autowired
+   protected ObjectMapper objectMapper;
 
    @DynamicPropertySource
    static void configure(DynamicPropertyRegistry registry) {
@@ -42,10 +46,4 @@ public abstract class IntegrationTestBase {
 
       registry.add("spring.liquibase.enabled", () -> true);
    }
-
-   @Autowired
-   protected MockMvc mockMvc;
-
-   @Autowired
-   protected ObjectMapper objectMapper;
 }

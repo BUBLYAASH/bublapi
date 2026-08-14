@@ -68,10 +68,6 @@ public class AppointmentService {
       this.notificationPublisher = notificationPublisher;
    }
 
-   private record ResolvedAppointmentService(
-           ClinicService clinicService, int quantity) {
-   }
-
    private void validateInsideRegularWorkingHours(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
       DayOfWeek dayOfWeek = DayOfWeek.valueOf(scheduledAt.getDayOfWeek().name());
 
@@ -403,6 +399,10 @@ public class AppointmentService {
                                   .stream()
                                   .map(appointmentMapper::toResponse)
                                   .toList();
+   }
+
+   private record ResolvedAppointmentService(
+           ClinicService clinicService, int quantity) {
    }
 
    // TODO:
