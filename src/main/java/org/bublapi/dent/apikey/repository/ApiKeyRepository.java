@@ -10,8 +10,6 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, UUID> {
 
    Optional<ApiKey> findByClinic_IdAndActiveTrue(UUID clinicId);
 
-   Optional<ApiKey> findByClinic_IdAndId(UUID clinicId, UUID apiKeyId);
-
    Optional<ApiKey> findByPrefix(String prefix);
 
    boolean existsByClinic_IdAndActiveTrue(UUID clinicId);
