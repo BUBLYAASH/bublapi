@@ -67,6 +67,7 @@ public class UserService {
    @Transactional
    public CreateUserResponseDto create(CreateUserRequestDto request) {
       Clinic clinic = ClinicContext.get();
+
       String email = request.email().trim().toLowerCase(Locale.ROOT);
       String phone = request.phone().trim();
 
@@ -118,7 +119,10 @@ public class UserService {
       String email = request.email() == null ? null : request.email().trim().toLowerCase(Locale.ROOT);
       String phone = request.phone() == null ? null : request.phone().trim();
 
-      User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+      UUID clinicId = ClinicContext.getClinicId();
+
+      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       userMapper.updateEntity(request, user);
 
@@ -139,10 +143,12 @@ public class UserService {
 
    @Transactional
    public UserRoleResponseDto assignRole(UUID actorUserId, UUID targetUserId, UUID roleId) {
-      User actorUser = userRepository.findById(actorUserId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      User actorUser = userRepository.findByIdAndClinic_Id(actorUserId, clinicId)
                                      .orElseThrow(() -> new ResourceNotFoundException("Actor user not found"));
 
-      User targetUser = userRepository.findById(targetUserId)
+      User targetUser = userRepository.findByIdAndClinic_Id(targetUserId, clinicId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Target user not found"));
 
       Role role = roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
@@ -166,10 +172,12 @@ public class UserService {
 
    @Transactional
    public UserRoleResponseDto removeRole(UUID actorUserId, UUID targetUserId, UUID roleId) {
-      User actorUser = userRepository.findById(actorUserId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      User actorUser = userRepository.findByIdAndClinic_Id(actorUserId, clinicId)
                                      .orElseThrow(() -> new ResourceNotFoundException("Actor user not found"));
 
-      User targetUser = userRepository.findById(targetUserId)
+      User targetUser = userRepository.findByIdAndClinic_Id(targetUserId, clinicId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Target user not found"));
 
       Role role = roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
@@ -199,7 +207,10 @@ public class UserService {
 
    @Transactional
    public UserResponseDto deactivate(UUID userId) {
-      User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+      UUID clinicId = ClinicContext.getClinicId();
+
+      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       user.setEnabled(false);
       user.setDisabledByClinic(false);
@@ -212,7 +223,10 @@ public class UserService {
 
    @Transactional
    public UserResponseDto activate(UUID userId) {
-      User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+      UUID clinicId = ClinicContext.getClinicId();
+
+      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       user.setEnabled(true);
       user.setDisabledByClinic(false);

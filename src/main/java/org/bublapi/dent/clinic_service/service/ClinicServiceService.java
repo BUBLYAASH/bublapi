@@ -83,7 +83,9 @@ public class ClinicServiceService {
 
    @Transactional
    public ClinicServiceResponseDto update(UUID clinicServiceId, UpdateClinicServiceRequestDto request) {
-      ClinicService clinicService = clinicServiceRepository.findById(clinicServiceId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      ClinicService clinicService = clinicServiceRepository.findByClinic_IdAndId(clinicId, clinicServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
                                                                    "Clinic Service is not found"));
 
@@ -94,7 +96,9 @@ public class ClinicServiceService {
 
    @Transactional
    public ClinicServiceResponseDto deactivate(UUID clinicServiceId) {
-      ClinicService clinicService = clinicServiceRepository.findById(clinicServiceId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      ClinicService clinicService = clinicServiceRepository.findByClinic_IdAndId(clinicId, clinicServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
                                                                    "Clinic Service not found or unavailable"));
 
@@ -119,7 +123,9 @@ public class ClinicServiceService {
 
    @Transactional
    public ClinicServiceResponseDto activate(UUID clinicServiceId) {
-      ClinicService clinicService = clinicServiceRepository.findById(clinicServiceId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      ClinicService clinicService = clinicServiceRepository.findByClinic_IdAndId(clinicId, clinicServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
                                                                    "Clinic Service not found"));
 
@@ -148,6 +154,11 @@ public class ClinicServiceService {
    }
 
    public List<ClinicServiceResponseDto> findAllForStaff() {
-      return clinicServiceRepository.findAll().stream().map(clinicServiceMapper::toResponse).toList();
+      UUID clinicId = ClinicContext.getClinicId();
+
+      return clinicServiceRepository.findAllByClinic_Id(clinicId)
+                                    .stream()
+                                    .map(clinicServiceMapper::toResponse)
+                                    .toList();
    }
 }
