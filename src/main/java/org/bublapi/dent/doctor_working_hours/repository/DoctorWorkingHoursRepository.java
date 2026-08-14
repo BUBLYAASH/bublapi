@@ -12,28 +12,30 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DoctorWorkingHoursRepository extends JpaRepository<DoctorWorkingHours, UUID> {
-   Optional<DoctorWorkingHours> findByIdAndDoctor_Id(UUID id, UUID doctorId);
+   Optional<DoctorWorkingHours> findByDoctor_Clinic_IdAndIdAndDoctor_Id(UUID clinicId, UUID id, UUID doctorId);
 
-   List<DoctorWorkingHours> findAllByDoctor_Id(UUID doctorId);
+   List<DoctorWorkingHours> findAllByDoctor_Clinic_IdAndDoctor_Id(UUID clinicId, UUID doctorId);
 
-   List<DoctorWorkingHours> findAllByDoctor_IdAndDayOfWeek(UUID doctorId, DayOfWeek dayOfWeek);
+   List<DoctorWorkingHours> findAllByDoctor_Clinic_IdAndDoctor_IdAndDayOfWeek(UUID clinicId, UUID doctorId, DayOfWeek dayOfWeek);
 
    @Query("""
            SELECT count(wh) > 0 FROM DoctorWorkingHours wh
-           WHERE wh.doctor.id = :doctorId
+           WHERE wh.doctor.clinic.id = :clinicId
+           AND wh.doctor.id = :doctorId
            AND wh.dayOfWeek = :dayOfWeek
            AND wh.startTime < :endTime
            AND wh.endTime > :startTime
            """)
-   boolean existsOverlappingInterval(@Param("doctorId") UUID doctorId, @Param("dayOfWeek") DayOfWeek dayOfWeek, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
+   boolean existsOverlappingInterval(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId, @Param("dayOfWeek") DayOfWeek dayOfWeek, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
 
    @Query("""
            SELECT count(wh) > 0 FROM DoctorWorkingHours wh
-           WHERE wh.doctor.id = :doctorId
+           WHERE wh.doctor.clinic.id = :clinicId
+           AND wh.doctor.id = :doctorId
            AND wh.id <> :scheduleId
            AND wh.dayOfWeek = :dayOfWeek
            AND wh.startTime < :endTime
            AND wh.endTime > :startTime
            """)
-   boolean existsOverlappingIntervalExcept(@Param("doctorId") UUID doctorId, @Param("scheduleId") UUID scheduleId, @Param("dayOfWeek") DayOfWeek dayOfWeek, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
+   boolean existsOverlappingIntervalExcept(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId, @Param("scheduleId") UUID scheduleId, @Param("dayOfWeek") DayOfWeek dayOfWeek, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
 }

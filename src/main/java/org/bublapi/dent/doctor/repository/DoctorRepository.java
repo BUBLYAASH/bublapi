@@ -9,9 +9,13 @@ import java.util.UUID;
 
 public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
 
-   List<Doctor> findAllByActiveTrue();
+   List<Doctor> findAllByClinic_IdAndActiveTrue(UUID clinicId);
 
-   Optional<Doctor> findByIdAndActiveTrue(UUID doctorId);
+   List<Doctor> findAllByClinic_Id(UUID clinicId);
 
-   Optional<Doctor> findByUser_Id(UUID userId);
+   Optional<Doctor> findByClinic_IdAndIdAndActiveTrue(UUID clinicId, UUID doctorId);
+
+   Optional<Doctor> findByClinic_IdAndUser_Id(UUID clinicId, UUID userId);
+
+   Optional<Doctor> findByClinic_IdAndId(UUID clinicId, UUID doctorId);
 }

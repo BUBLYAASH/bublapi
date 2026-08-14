@@ -63,7 +63,7 @@ public class ClinicServiceService {
    public ClinicServiceResponseDto add(UUID dentalServiceId, AddClinicServiceRequestDto request) {
       Clinic clinic = ClinicContext.get();
 
-      if (clinicServiceRepository.existsByDentalService_Id(dentalServiceId)) {
+      if (clinicServiceRepository.existsByClinic_IdAndDentalService_Id(clinic.getId(), dentalServiceId)) {
          throw new BadRequestException("Dental Service is already in this clinic");
       }
 
@@ -129,11 +129,18 @@ public class ClinicServiceService {
    }
 
    public List<ClinicServiceResponseDto> findAllActiveForPublic() {
-      return clinicServiceRepository.findAllByActiveTrue().stream().map(clinicServiceMapper::toResponse).toList();
+      UUID clinicId = ClinicContext.getClinicId();
+
+      return clinicServiceRepository.findAllByClinic_IdAndActiveTrue(clinicId)
+                                    .stream()
+                                    .map(clinicServiceMapper::toResponse)
+                                    .toList();
    }
 
    public ClinicServiceResponseDto findById(UUID clinicServiceId) {
-      ClinicService clinicService = clinicServiceRepository.findByIdAndActiveTrue(clinicServiceId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      ClinicService clinicService = clinicServiceRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, clinicServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
                                                                    "Clinic service not found"));
 

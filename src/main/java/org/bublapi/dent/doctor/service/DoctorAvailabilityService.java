@@ -3,6 +3,7 @@ package org.bublapi.dent.doctor.service;
 import org.bublapi.dent.appointment.entity.Appointment;
 import org.bublapi.dent.appointment.entity.AppointmentStatus;
 import org.bublapi.dent.appointment.repository.AppointmentRepository;
+import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.doctor.dto.DoctorAvailabilityResponseDto;
 import org.bublapi.dent.doctor_schedule_exception.entity.DoctorScheduleException;
@@ -45,11 +46,15 @@ public class DoctorAvailabilityService {
    public List<DoctorAvailabilityResponseDto> getAvailability(UUID doctorId, int durationMinutes, int days) {
       validateRequest(durationMinutes, days);
 
+      UUID clinicId = ClinicContext.getClinicId();
+
       doctorService.findActiveById(doctorId);
 
-      List<DoctorWorkingHours> allWorkingHours = workingHoursRepository.findAllByDoctor_Id(doctorId);
+      List<DoctorWorkingHours> allWorkingHours = workingHoursRepository.findAllByDoctor_Clinic_IdAndDoctor_Id(clinicId,
+                                                                                                              doctorId);
 
-      List<Appointment> doctorAppointments = appointmentRepository.findAllByDoctor_IdOrderByScheduledAtAsc(doctorId);
+      List<Appointment> doctorAppointments = appointmentRepository.findAllByClinic_IdAndDoctor_IdOrderByScheduledAtAsc(
+              clinicId, doctorId);
 
       LocalDate today = LocalDate.now();
       LocalDateTime now = LocalDateTime.now();
@@ -59,7 +64,7 @@ public class DoctorAvailabilityService {
       for (int dayOffset = 0; dayOffset < days; dayOffset++) {
          LocalDate date = today.plusDays(dayOffset);
 
-         List<TimeInterval> workingIntervals = resolveWorkingIntervals(doctorId, date, allWorkingHours);
+         List<TimeInterval> workingIntervals = resolveWorkingIntervals(clinicId, doctorId, date, allWorkingHours);
 
          if (workingIntervals.isEmpty()) {
             continue;
@@ -75,8 +80,9 @@ public class DoctorAvailabilityService {
       return result;
    }
 
-   private List<TimeInterval> resolveWorkingIntervals(UUID doctorId, LocalDate date, List<DoctorWorkingHours> allWorkingHours) {
-      List<DoctorScheduleException> exceptions = scheduleExceptionRepository.findAllByDoctor_IdAndDate(doctorId, date);
+   private List<TimeInterval> resolveWorkingIntervals(UUID clinicId, UUID doctorId, LocalDate date, List<DoctorWorkingHours> allWorkingHours) {
+      List<DoctorScheduleException> exceptions = scheduleExceptionRepository.findAllByDoctor_Clinic_IdAndDoctor_IdAndDate(
+              clinicId, doctorId, date);
 
       boolean hasDayOff = exceptions.stream()
                                     .anyMatch(exception -> exception.getType() == ScheduleExceptionType.DAY_OFF);

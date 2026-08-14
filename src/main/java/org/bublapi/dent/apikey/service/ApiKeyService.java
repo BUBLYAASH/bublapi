@@ -159,5 +159,4 @@ public class ApiKeyService {
 
 // TODO:
 //  - auto-deactivate after grace period and auto-activate when renewed
-//  - add renew() method
 }

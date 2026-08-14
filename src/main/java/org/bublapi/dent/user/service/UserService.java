@@ -88,7 +88,7 @@ public class UserService {
       PatientCardLinkStatus cardStatus = PatientCardLinkStatus.NOT_FOUND;
       String cardMessage = "Карточка пациента не найдена.";
 
-      var patientOptional = patientRepository.findByEmailIgnoreCaseOrPhone(email, phone);
+      var patientOptional = patientRepository.findByClinic_IdAndEmailIgnoreCaseOrPhone(clinic.getId(), email, phone);
 
       if (patientOptional.isPresent()) {
          var patient = patientOptional.get();
@@ -232,7 +232,7 @@ public class UserService {
    public UserResponseDto findById(UUID userId) {
       UUID clinicId = ClinicContext.getClinicId();
 
-      User user = userRepository.findByIdAndClinicId(userId, clinicId)
+      User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found or unavailable"));
 
       return userMapper.toResponse(user);

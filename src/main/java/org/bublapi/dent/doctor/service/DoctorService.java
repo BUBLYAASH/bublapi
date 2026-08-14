@@ -50,7 +50,9 @@ public class DoctorService {
 
    @Transactional
    public DoctorResponseDto update(UUID doctorId, UpdateDoctorRequestDto request) {
-      Doctor doctor = doctorRepository.findById(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor in clinic not found"));
 
       doctorMapper.updateEntity(request, doctor);
@@ -60,7 +62,9 @@ public class DoctorService {
 
    @Transactional
    public DoctorResponseDto deactivate(UUID doctorId) {
-      Doctor doctor = doctorRepository.findById(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
                                       .orElseThrow(
                                               () -> new ResourceNotFoundException("Doctor not found in this clinic"));
 
@@ -71,7 +75,9 @@ public class DoctorService {
 
    @Transactional
    public DoctorResponseDto activate(UUID doctorId) {
-      Doctor doctor = doctorRepository.findById(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
                                       .orElseThrow(
                                               () -> new ResourceNotFoundException("Doctor not found in this clinic"));
 
@@ -81,15 +87,21 @@ public class DoctorService {
    }
 
    public List<DoctorResponseDto> findAllForStaff() {
-      return doctorRepository.findAll().stream().map(doctorMapper::toResponse).toList();
+      UUID clinicId = ClinicContext.getClinicId();
+
+      return doctorRepository.findAllByClinic_Id(clinicId).stream().map(doctorMapper::toResponse).toList();
    }
 
    public List<DoctorResponseDto> findAllActiveForPublic() {
-      return doctorRepository.findAllByActiveTrue().stream().map(doctorMapper::toResponse).toList();
+      UUID clinicId = ClinicContext.getClinicId();
+
+      return doctorRepository.findAllByClinic_IdAndActiveTrue(clinicId).stream().map(doctorMapper::toResponse).toList();
    }
 
    public DoctorResponseDto findById(UUID doctorId) {
-      Doctor doctor = doctorRepository.findById(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
                                       .orElseThrow(
                                               () -> new ResourceNotFoundException("Doctor not found in this clinic"));
 
@@ -97,7 +109,9 @@ public class DoctorService {
    }
 
    public DoctorResponseDto findActiveById(UUID doctorId) {
-      Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
                                       .orElseThrow(
                                               () -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
@@ -110,14 +124,14 @@ public class DoctorService {
       String email = request.email().trim().toLowerCase(Locale.ROOT);
       String phone = request.phone().trim();
 
-      if ((email == null || email.isBlank()) && (phone == null || phone.isBlank())) {
+      if (email.isBlank() && phone.isBlank()) {
          throw new BadRequestException("Email and phone are empty");
       }
 
       User user = userRepository.findByEmailOrPhoneInClinic(email, phone, clinicId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-      Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
+      Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
                                       .orElseThrow(
                                               () -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
@@ -128,7 +142,7 @@ public class DoctorService {
          throw new BadRequestException("Doctor profile is already linked to a user");
       }
 
-      doctorRepository.findByUser_Id(user.getId()).ifPresent(e -> {
+      doctorRepository.findByClinic_IdAndUser_Id(clinicId, user.getId()).ifPresent(e -> {
          throw new BadRequestException("User is already linked to another doctor profile");
       });
 
@@ -140,7 +154,9 @@ public class DoctorService {
 
    @Transactional
    public DoctorResponseDto unlinkUser(UUID doctorId) {
-      Doctor doctor = doctorRepository.findById(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
 
       User user = doctor.getUser();

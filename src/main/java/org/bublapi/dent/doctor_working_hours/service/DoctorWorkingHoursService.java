@@ -1,5 +1,6 @@
 package org.bublapi.dent.doctor_working_hours.service;
 
+import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.doctor.entity.Doctor;
@@ -43,11 +44,13 @@ public class DoctorWorkingHoursService {
    public DoctorWorkingHoursResponseDto setSchedule(UUID doctorId, SetDoctorWorkingHoursRequestDto request) {
       validateTimeRange(request.startTime(), request.endTime());
 
-      Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
                                       .orElseThrow(
                                               () -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
-      boolean overlaps = doctorWorkingHoursRepository.existsOverlappingInterval(doctorId, request.dayOfWeek(),
+      boolean overlaps = doctorWorkingHoursRepository.existsOverlappingInterval(clinicId, doctorId, request.dayOfWeek(),
                                                                                 request.startTime(), request.endTime());
 
       if (overlaps) {
@@ -65,16 +68,20 @@ public class DoctorWorkingHoursService {
 
    @Transactional
    public DoctorWorkingHoursResponseDto updateSchedule(UUID doctorId, UUID scheduleId, UpdateDoctorWorkingHoursRequestDto request) {
-      doctorRepository.findByIdAndActiveTrue(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
-      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_Id(scheduleId, doctorId)
+      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByDoctor_Clinic_IdAndIdAndDoctor_Id(clinicId,
+                                                                                                             scheduleId,
+                                                                                                             doctorId)
                                                                     .orElseThrow(() -> new ResourceNotFoundException(
                                                                             "This schedule for doctor not found or unavailable"));
 
       validateTimeRange(request.startTime(), request.endTime());
 
-      boolean overlaps = doctorWorkingHoursRepository.existsOverlappingIntervalExcept(doctorId, scheduleId,
+      boolean overlaps = doctorWorkingHoursRepository.existsOverlappingIntervalExcept(clinicId, doctorId, scheduleId,
                                                                                       workingHours.getDayOfWeek(),
                                                                                       request.startTime(),
                                                                                       request.endTime());
@@ -89,17 +96,23 @@ public class DoctorWorkingHoursService {
    }
 
    public List<DoctorWorkingHoursResponseDto> getSchedule(UUID doctorId) {
-      doctorRepository.findByIdAndActiveTrue(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
-      return doctorWorkingHoursRepository.findAllByDoctor_Id(doctorId)
+      return doctorWorkingHoursRepository.findAllByDoctor_Clinic_IdAndDoctor_Id(clinicId, doctorId)
                                          .stream()
                                          .map(doctorWorkingHoursMapper::toResponse)
                                          .toList();
    }
 
    public void deleteSchedule(UUID doctorId, UUID scheduleId) {
-      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByIdAndDoctor_Id(scheduleId, doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByDoctor_Clinic_IdAndIdAndDoctor_Id(clinicId,
+                                                                                                             scheduleId,
+                                                                                                             doctorId)
                                                                     .orElseThrow(() -> new ResourceNotFoundException(
                                                                             "This schedule for doctor not found or unavailable"));
 

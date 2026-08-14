@@ -1,5 +1,6 @@
 package org.bublapi.dent.doctor_schedule_exception.service;
 
+import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.doctor.entity.Doctor;
@@ -30,7 +31,9 @@ public class DoctorScheduleExceptionService {
 
    @Transactional
    public DoctorScheduleExceptionResponseDto setException(UUID doctorId, SetDoctorScheduleExceptionRequestDto request) {
-      Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
                                       .orElseThrow(
                                               () -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
@@ -57,8 +60,10 @@ public class DoctorScheduleExceptionService {
    }
 
    public void deleteException(UUID doctorId, UUID scheduleExceptionId) {
-      DoctorScheduleException scheduleException = doctorScheduleExceptionRepository.findByIdAndDoctor_Id(
-                                                                                           scheduleExceptionId, doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      DoctorScheduleException scheduleException = doctorScheduleExceptionRepository.findByDoctor_Clinic_IdAndIdAndDoctor_Id(
+                                                                                           clinicId, scheduleExceptionId, doctorId)
                                                                                    .orElseThrow(
                                                                                            () -> new ResourceNotFoundException(
                                                                                                    "Schedule Exception not found"));

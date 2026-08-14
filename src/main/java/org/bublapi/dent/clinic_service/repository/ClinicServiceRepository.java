@@ -9,9 +9,11 @@ import java.util.UUID;
 
 public interface ClinicServiceRepository extends JpaRepository<ClinicService, UUID> {
 
-   boolean existsByDentalService_Id(UUID dentalServiceId);
+   boolean existsByClinic_IdAndDentalService_Id(UUID clinicId, UUID dentalServiceId);
 
-   Optional<ClinicService> findByIdAndActiveTrue(UUID clinicServiceId);
+   Optional<ClinicService> findByClinic_IdAndIdAndActiveTrue(UUID clinicId, UUID clinicServiceId);
 
-   List<ClinicService> findAllByActiveTrue();
+   Optional<ClinicService> findByClinic_IdAndId(UUID clinicId, UUID clinicServiceId);
+
+   List<ClinicService> findAllByClinic_IdAndActiveTrue(UUID clinicId);
 }

@@ -13,21 +13,24 @@ import java.util.UUID;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
 
-   Optional<Appointment> findByIdAndPatient_Id(UUID appointmentId, UUID patientId);
+   Optional<Appointment> findByClinic_IdAndIdAndPatient_Id(UUID clinicId, UUID appointmentId, UUID patientId);
+
+   Optional<Appointment> findByClinic_IdAndId(UUID clinicId, UUID appointmentId);
 
    @Query("""
            select (count(a) > 0)
            from Appointment a
-           where a.doctor.id = :doctorId
+           where a.clinic.id = :clinicId
+             and a.doctor.id = :doctorId
              and a.status <> :cancelledStatus
              and a.scheduledAt < :endAt
              and a.endAt > :scheduledAt
            """)
-   boolean existsOverlappingAppointment(@Param("doctorId") UUID doctorId, @Param("scheduledAt") LocalDateTime scheduledAt, @Param("endAt") LocalDateTime endAt, @Param("cancelledStatus") AppointmentStatus cancelledStatus);
+   boolean existsOverlappingAppointment(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId, @Param("scheduledAt") LocalDateTime scheduledAt, @Param("endAt") LocalDateTime endAt, @Param("cancelledStatus") AppointmentStatus cancelledStatus);
 
-   List<Appointment> findAllByPatient_IdOrderByScheduledAtDesc(UUID patientId);
+   List<Appointment> findAllByClinic_IdAndPatient_IdOrderByScheduledAtDesc(UUID clinicId, UUID patientId);
 
-   List<Appointment> findAllByOrderByScheduledAtDesc();
+   List<Appointment> findAllByClinic_IdOrderByScheduledAtDesc(UUID clinicId);
 
-   List<Appointment> findAllByDoctor_IdOrderByScheduledAtAsc(UUID doctorId);
+   List<Appointment> findAllByClinic_IdAndDoctor_IdOrderByScheduledAtAsc(UUID clinicId, UUID doctorId);
 }

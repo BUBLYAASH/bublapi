@@ -72,14 +72,14 @@ public class AppointmentService {
            ClinicService clinicService, int quantity) {
    }
 
-   private void validateInsideRegularWorkingHours(Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
+   private void validateInsideRegularWorkingHours(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
       DayOfWeek dayOfWeek = DayOfWeek.valueOf(scheduledAt.getDayOfWeek().name());
 
       LocalTime appointmentStart = scheduledAt.toLocalTime();
       LocalTime appointmentEnd = endAt.toLocalTime();
 
-      List<DoctorWorkingHours> workingHours = doctorWorkingHoursRepository.findAllByDoctor_IdAndDayOfWeek(
-              doctor.getId(), dayOfWeek);
+      List<DoctorWorkingHours> workingHours = doctorWorkingHoursRepository.findAllByDoctor_Clinic_IdAndDoctor_IdAndDayOfWeek(
+              clinicId, doctor.getId(), dayOfWeek);
 
       boolean fitsWorkingHours = workingHours.stream()
                                              .anyMatch(hours -> !appointmentStart.isBefore(
@@ -106,17 +106,17 @@ public class AppointmentService {
       }
    }
 
-   private void validateNoAppointmentOverlap(Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
+   private void validateNoAppointmentOverlap(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
 
-      boolean hasOverlap = appointmentRepository.existsOverlappingAppointment(doctor.getId(), scheduledAt, endAt,
-                                                                              AppointmentStatus.CANCELLED);
+      boolean hasOverlap = appointmentRepository.existsOverlappingAppointment(clinicId, doctor.getId(), scheduledAt,
+                                                                              endAt, AppointmentStatus.CANCELLED);
 
       if (hasOverlap) {
          throw new BadRequestException("Doctor already has an appointment during the selected time");
       }
    }
 
-   private void validateDoctorAvailability(Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
+   private void validateDoctorAvailability(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
       if (!scheduledAt.isAfter(LocalDateTime.now())) {
          throw new BadRequestException("Appointment time must be in the future");
       }
@@ -127,8 +127,8 @@ public class AppointmentService {
 
       LocalDate appointmentDate = scheduledAt.toLocalDate();
 
-      List<DoctorScheduleException> scheduleExceptions = doctorScheduleExceptionRepository.findAllByDoctor_IdAndDate(
-              doctor.getId(), appointmentDate);
+      List<DoctorScheduleException> scheduleExceptions = doctorScheduleExceptionRepository.findAllByDoctor_Clinic_IdAndDoctor_IdAndDate(
+              clinicId, doctor.getId(), appointmentDate);
 
       boolean hasDayOff = scheduleExceptions.stream().anyMatch(type -> type.getType() == ScheduleExceptionType.DAY_OFF);
 
@@ -144,7 +144,7 @@ public class AppointmentService {
          validateInsideCustomWorkingHours(scheduleExceptions, scheduledAt, endAt);
          return;
       }
-      validateInsideRegularWorkingHours(doctor, scheduledAt, endAt);
+      validateInsideRegularWorkingHours(clinicId, doctor, scheduledAt, endAt);
    }
 
    private void validateTransition(AppointmentStatus from, AppointmentStatus to) {
@@ -179,10 +179,10 @@ public class AppointmentService {
    public AppointmentResponseDto create(UUID patientId, CreateAppointmentRequestDto request) {
       Clinic clinic = ClinicContext.get();
 
-      Patient patient = patientRepository.findById(patientId)
+      Patient patient = patientRepository.findByClinic_IdAndId(clinic.getId(), patientId)
                                          .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-      Doctor doctor = doctorRepository.findByIdAndActiveTrue(request.doctorId())
+      Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinic.getId(), request.doctorId())
                                       .orElseThrow(
                                               () -> new ResourceNotFoundException("Doctor not found or unavailable"));
 
@@ -192,7 +192,8 @@ public class AppointmentService {
       int totalDuration = 0;
 
       for (AppointmentServiceRequestDto serviceRequest : request.services()) {
-         ClinicService clinicService = clinicServiceRepository.findByIdAndActiveTrue(serviceRequest.clinicServiceId())
+         ClinicService clinicService = clinicServiceRepository.findByClinic_IdAndIdAndActiveTrue(clinic.getId(),
+                                                                                                 serviceRequest.clinicServiceId())
                                                               .orElseThrow(() -> new ResourceNotFoundException(
                                                                       "Clinic service not found"));
 
@@ -204,8 +205,8 @@ public class AppointmentService {
       LocalDateTime scheduledAt = request.scheduledAt();
       LocalDateTime endAt = scheduledAt.plusMinutes(totalDuration);
 
-      validateDoctorAvailability(doctor, scheduledAt, endAt);
-      validateNoAppointmentOverlap(doctor, scheduledAt, endAt);
+      validateDoctorAvailability(clinic.getId(), doctor, scheduledAt, endAt);
+      validateNoAppointmentOverlap(clinic.getId(), doctor, scheduledAt, endAt);
 
       Appointment appointment = appointmentMapper.toEntity(request);
 
@@ -247,7 +248,10 @@ public class AppointmentService {
 
    @Transactional
    public AppointmentResponseDto cancel(UUID patientId, UUID appointmentId) {
-      Appointment appointment = appointmentRepository.findByIdAndPatient_Id(appointmentId, patientId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Appointment appointment = appointmentRepository.findByClinic_IdAndIdAndPatient_Id(clinicId, appointmentId,
+                                                                                        patientId)
                                                      .orElseThrow(() -> new ResourceNotFoundException(
                                                              "Appointment not found"));
 
@@ -270,7 +274,9 @@ public class AppointmentService {
 
    @Transactional
    public AppointmentResponseDto createForPatient(UUID userId, CreateAppointmentRequestDto request) {
-      Patient patient = patientRepository.findByUser_Id(userId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Patient patient = patientRepository.findByClinic_IdAndUser_Id(clinicId, userId)
                                          .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
       return create(patient.getId(), request);
@@ -278,7 +284,9 @@ public class AppointmentService {
 
    @Transactional
    public AppointmentResponseDto cancelByPatient(UUID userId, UUID appointmentId) {
-      Patient patient = patientRepository.findByUser_Id(userId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Patient patient = patientRepository.findByClinic_IdAndUser_Id(clinicId, userId)
                                          .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
       return cancel(patient.getId(), appointmentId);
@@ -286,14 +294,19 @@ public class AppointmentService {
 
    @Transactional
    public AppointmentResponseDto createForStaff(UUID patientId, CreateAppointmentRequestDto request) {
-      patientRepository.findById(patientId).orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+      UUID clinicId = ClinicContext.getClinicId();
+
+      patientRepository.findByClinic_IdAndId(clinicId, patientId)
+                       .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
       return create(patientId, request);
    }
 
    @Transactional
    public AppointmentResponseDto cancelByStaff(UUID appointmentId) {
-      Appointment appointment = appointmentRepository.findById(appointmentId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Appointment appointment = appointmentRepository.findByClinic_IdAndId(clinicId, appointmentId)
                                                      .orElseThrow(() -> new ResourceNotFoundException(
                                                              "Appointment not found"));
 
@@ -302,7 +315,9 @@ public class AppointmentService {
 
    @Transactional
    public AppointmentResponseDto changeStatusByStaff(UUID appointmentId, ChangeAppointmentStatusRequestDto request) {
-      Appointment appointment = appointmentRepository.findById(appointmentId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Appointment appointment = appointmentRepository.findByClinic_IdAndId(clinicId, appointmentId)
                                                      .orElseThrow(() -> new ResourceNotFoundException(
                                                              "Appointment not found"));
 
@@ -321,10 +336,13 @@ public class AppointmentService {
    }
 
    public AppointmentResponseDto findByIdForPatient(UUID userId, UUID appointmentId) {
-      Patient patient = patientRepository.findByUser_Id(userId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Patient patient = patientRepository.findByClinic_IdAndUser_Id(clinicId, userId)
                                          .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-      Appointment appointment = appointmentRepository.findByIdAndPatient_Id(appointmentId, patient.getId())
+      Appointment appointment = appointmentRepository.findByClinic_IdAndIdAndPatient_Id(clinicId, appointmentId,
+                                                                                        patient.getId())
                                                      .orElseThrow(() -> new ResourceNotFoundException(
                                                              "Appointment not found"));
 
@@ -332,7 +350,9 @@ public class AppointmentService {
    }
 
    public AppointmentResponseDto findByIdForStaff(UUID appointmentId) {
-      Appointment appointment = appointmentRepository.findById(appointmentId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Appointment appointment = appointmentRepository.findByClinic_IdAndId(clinicId, appointmentId)
                                                      .orElseThrow(() -> new ResourceNotFoundException(
                                                              "Appointment not found"));
 
@@ -340,38 +360,46 @@ public class AppointmentService {
    }
 
    public List<AppointmentResponseDto> findAllForPatient(UUID userId) {
-      Patient patient = patientRepository.findByUser_Id(userId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Patient patient = patientRepository.findByClinic_IdAndUser_Id(clinicId, userId)
                                          .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-      return appointmentRepository.findAllByPatient_IdOrderByScheduledAtDesc(patient.getId())
+      return appointmentRepository.findAllByClinic_IdAndPatient_IdOrderByScheduledAtDesc(clinicId, patient.getId())
                                   .stream()
                                   .map(appointmentMapper::toResponse)
                                   .toList();
    }
 
    public List<AppointmentResponseDto> findAllByPatientForStaff(UUID patientId) {
-      if (!patientRepository.existsById(patientId)) {
+      UUID clinicId = ClinicContext.getClinicId();
+
+      if (!patientRepository.existsByClinic_IdAndId(clinicId, patientId)) {
          throw new ResourceNotFoundException("Patient not found");
       }
 
-      return appointmentRepository.findAllByPatient_IdOrderByScheduledAtDesc(patientId)
+      return appointmentRepository.findAllByClinic_IdAndPatient_IdOrderByScheduledAtDesc(clinicId, patientId)
                                   .stream()
                                   .map(appointmentMapper::toResponse)
                                   .toList();
    }
 
    public List<AppointmentResponseDto> findAllForStaff() {
-      return appointmentRepository.findAllByOrderByScheduledAtDesc()
+      UUID clinicId = ClinicContext.getClinicId();
+
+      return appointmentRepository.findAllByClinic_IdOrderByScheduledAtDesc(clinicId)
                                   .stream()
                                   .map(appointmentMapper::toResponse)
                                   .toList();
    }
 
    public List<AppointmentResponseDto> findAllForDoctor(UUID doctorId) {
-      Doctor doctor = doctorRepository.findByIdAndActiveTrue(doctorId)
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor profile not found"));
 
-      return appointmentRepository.findAllByDoctor_IdOrderByScheduledAtAsc(doctor.getId())
+      return appointmentRepository.findAllByClinic_IdAndDoctor_IdOrderByScheduledAtAsc(clinicId, doctor.getId())
                                   .stream()
                                   .map(appointmentMapper::toResponse)
                                   .toList();

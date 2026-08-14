@@ -32,7 +32,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
            """)
    Optional<User> findByIdWithRoles(@Param("id") UUID id);
 
-   Optional<User> findByIdAndClinicId(UUID id, UUID clinicId);
+   Optional<User> findByIdAndClinic_Id(UUID id, UUID clinicId);
 
    @Query("""
            SELECT DISTINCT u FROM User u
