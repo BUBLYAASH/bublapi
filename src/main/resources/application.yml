@@ -25,6 +25,7 @@ spring:
 
     listener:
       simple:
+        auto-startup: false
         retry:
           enabled: true
           max-attempts: 3

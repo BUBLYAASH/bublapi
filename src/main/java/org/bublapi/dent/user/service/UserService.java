@@ -115,8 +115,8 @@ public class UserService {
 
    @Transactional
    public UserResponseDto update(UUID userId, UpdateUserRequestDto request) {
-      String email = request.email().trim().toLowerCase(Locale.ROOT);
-      String phone = request.phone().trim();
+      String email = request.email() == null ? null : request.email().trim().toLowerCase(Locale.ROOT);
+      String phone = request.phone() == null ? null : request.phone().trim();
 
       User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -126,11 +126,11 @@ public class UserService {
          user.setPasswordHash(passwordEncoder.encode(request.password()));
       }
 
-      if (!email.isBlank()) {
+      if (email != null && !email.isBlank()) {
          user.setEmail(email);
       }
 
-      if (!phone.isBlank()) {
+      if (phone != null && !phone.isBlank()) {
          user.setPhone(phone);
       }
 

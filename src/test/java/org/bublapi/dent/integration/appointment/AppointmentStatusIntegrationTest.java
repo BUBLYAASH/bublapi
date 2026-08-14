@@ -23,9 +23,9 @@ class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createAppointmentWithRegularHours();
       UUID appointmentId = createAppointmentId(context, futureDateAt(10, 0));
 
-      changeStatus(context, appointmentId, AppointmentStatus.CONFIRMED)
-              .andExpect(status().isOk())
-              .andExpect(jsonPath("$.status").value("CONFIRMED"));
+      changeStatus(context, appointmentId, AppointmentStatus.CONFIRMED).andExpect(status().isOk())
+                                                                       .andExpect(
+                                                                               jsonPath("$.status").value("CONFIRMED"));
    }
 
    @Test
@@ -35,9 +35,9 @@ class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
 
       changeStatus(context, appointmentId, AppointmentStatus.CONFIRMED).andExpect(status().isOk());
 
-      changeStatus(context, appointmentId, AppointmentStatus.COMPLETED)
-              .andExpect(status().isOk())
-              .andExpect(jsonPath("$.status").value("COMPLETED"));
+      changeStatus(context, appointmentId, AppointmentStatus.COMPLETED).andExpect(status().isOk())
+                                                                       .andExpect(
+                                                                               jsonPath("$.status").value("COMPLETED"));
    }
 
    @Test
@@ -45,9 +45,9 @@ class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createAppointmentWithRegularHours();
       UUID appointmentId = createAppointmentId(context, futureDateAt(10, 0));
 
-      changeStatus(context, appointmentId, AppointmentStatus.COMPLETED)
-              .andExpect(status().isBadRequest())
-              .andExpect(jsonPath("$.message").value("Cannot change appointment status from CREATED to COMPLETED"));
+      changeStatus(context, appointmentId, AppointmentStatus.COMPLETED).andExpect(status().isBadRequest())
+                                                                       .andExpect(jsonPath("$.message").value(
+                                                                               "Cannot change appointment status from CREATED to COMPLETED"));
    }
 
    @Test
@@ -55,15 +55,18 @@ class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createAppointmentWithRegularHours();
       UUID appointmentId = createAppointmentId(context, futureDateAt(10, 0));
 
-      mockMvc.perform(patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/cancel", context.patient()
-                                                                                       .getId(), appointmentId)
-                              .header("Authorization", jwtHelper.token(context.user().getId()))
-                              .header("X-API-KEY", context.apiKey().rawKey()))
+      mockMvc.perform(patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/cancel", appointmentId).header("Authorization",
+                                                                                                      jwtHelper.token(
+                                                                                                              context.user()
+                                                                                                                     .getId()))
+                                                                                              .header("X-API-KEY",
+                                                                                                      context.apiKey()
+                                                                                                             .rawKey()))
              .andExpect(status().isOk());
 
-      changeStatus(context, appointmentId, AppointmentStatus.CONFIRMED)
-              .andExpect(status().isBadRequest())
-              .andExpect(jsonPath("$.message").value("Cannot change appointment status from CANCELLED to CONFIRMED"));
+      changeStatus(context, appointmentId, AppointmentStatus.CONFIRMED).andExpect(status().isBadRequest())
+                                                                       .andExpect(jsonPath("$.message").value(
+                                                                               "Cannot change appointment status from CANCELLED to CONFIRMED"));
    }
 
    @Test
@@ -71,9 +74,9 @@ class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createAppointmentWithRegularHours();
       UUID appointmentId = createAppointmentId(context, futureDateAt(10, 0));
 
-      changeStatus(context, appointmentId, AppointmentStatus.CREATED)
-              .andExpect(status().isBadRequest())
-              .andExpect(jsonPath("$.message").value("Appointment already has this status"));
+      changeStatus(context, appointmentId, AppointmentStatus.CREATED).andExpect(status().isBadRequest())
+                                                                     .andExpect(jsonPath("$.message").value(
+                                                                             "Appointment already has this status"));
    }
 
    @Test
@@ -81,17 +84,23 @@ class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createPatientAppointmentContext();
       LocalDateTime scheduledAt = futureDateAt(10, 0);
       addRegularWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
-      UUID appointmentId = extractId(createPatientAppointment(context, scheduledAt).andExpect(status().isOk())
-                                                                                   .andReturn());
+      UUID appointmentId = extractId(
+              createPatientAppointment(context, scheduledAt).andExpect(status().isOk()).andReturn());
 
       ChangeAppointmentStatusRequestDto request = new ChangeAppointmentStatusRequestDto(AppointmentStatus.CONFIRMED);
 
-      mockMvc.perform(patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/change", context.patient()
-                                                                                       .getId(), appointmentId)
-                              .header("Authorization", jwtHelper.token(context.user().getId()))
-                              .header("X-API-KEY", context.apiKey().rawKey())
-                              .contentType(MediaType.APPLICATION_JSON)
-                              .content(objectMapper.writeValueAsString(request)))
+      mockMvc.perform(patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/change", appointmentId).header("Authorization",
+                                                                                                      jwtHelper.token(
+                                                                                                              context.user()
+                                                                                                                     .getId()))
+                                                                                              .header("X-API-KEY",
+                                                                                                      context.apiKey()
+                                                                                                             .rawKey())
+                                                                                              .contentType(
+                                                                                                      MediaType.APPLICATION_JSON)
+                                                                                              .content(
+                                                                                                      objectMapper.writeValueAsString(
+                                                                                                              request)))
              .andExpect(status().isForbidden());
    }
 
@@ -111,11 +120,17 @@ class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
            Exception {
       ChangeAppointmentStatusRequestDto request = new ChangeAppointmentStatusRequestDto(status);
 
-      return mockMvc.perform(patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/change", context.patient()
-                                                                                              .getId(), appointmentId)
-                                     .header("Authorization", jwtHelper.token(context.user().getId()))
-                                     .header("X-API-KEY", context.apiKey().rawKey())
-                                     .contentType(MediaType.APPLICATION_JSON)
-                                     .content(objectMapper.writeValueAsString(request)));
+      return mockMvc.perform(
+              patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/change", appointmentId).header("Authorization",
+                                                                                              jwtHelper.token(
+                                                                                                      context.user()
+                                                                                                             .getId()))
+                                                                                      .header("X-API-KEY",
+                                                                                              context.apiKey().rawKey())
+                                                                                      .contentType(
+                                                                                              MediaType.APPLICATION_JSON)
+                                                                                      .content(
+                                                                                              objectMapper.writeValueAsString(
+                                                                                                      request)));
    }
 }

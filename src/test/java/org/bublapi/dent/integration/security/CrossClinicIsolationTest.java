@@ -105,7 +105,7 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
                                                                                     1)),
                                                                             "Cross-clinic appointment attempt");
 
-      mockMvc.perform(post("/api/patients/{patientId}/appointments", patientFromClinicB.getId()).header("Authorization",
+      mockMvc.perform(post("/api/appointments/patients/{patientId}", patientFromClinicB.getId()).header("Authorization",
                                                                                                         jwtHelper.token(
                                                                                                                 receptionistFromClinicA.getId()))
                                                                                                 .header("X-API-KEY",

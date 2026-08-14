@@ -42,8 +42,7 @@ public class GlobalExceptionHandler {
    }
 
    @ExceptionHandler(MethodArgumentNotValidException.class)
-   public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(
-           MethodArgumentNotValidException e) {
+   public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
       Map<String, Object> response = new HashMap<>();
 
       response.put("error", "Method argument not valid");
@@ -55,8 +54,7 @@ public class GlobalExceptionHandler {
    }
 
    @ExceptionHandler(DataIntegrityViolationException.class)
-   public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(
-           DataIntegrityViolationException e) {
+   public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException e) {
       Map<String, Object> response = new HashMap<>();
 
       response.put("error", "Data Integrity Violation");
@@ -92,11 +90,14 @@ public class GlobalExceptionHandler {
    }
 
    @ExceptionHandler(Exception.class)
-   public ResponseEntity<Map<String, Object>> handleGeneral() {
+   public ResponseEntity<Map<String, Object>> handleGeneral(Exception e) {
+      System.err.println("===== GLOBAL EXCEPTION =====");
+      e.printStackTrace();
+
       Map<String, Object> response = new HashMap<>();
 
       response.put("error", "Internal Server Error");
-      response.put("message", "Unexpected Server Error");
+      response.put("message", e.getClass().getName() + ": " + e.getMessage());
       response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
       response.put("timestamp", LocalDateTime.now());
 

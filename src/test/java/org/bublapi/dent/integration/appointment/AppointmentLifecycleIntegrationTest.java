@@ -131,13 +131,15 @@ class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
               }
               """.formatted(context.doctor().getId(), formatResponseDateTime(scheduledAt));
 
-      mockMvc.perform(post(STAFF_APPOINTMENTS_URL, context.patient()
-                                                          .getId()).header("Authorization",
-                                                                           jwtHelper.token(context.user()
-                                                                                                  .getId()))
-                                                                   .header("X-API-KEY", context.apiKey().rawKey())
-                                                                   .contentType(MediaType.APPLICATION_JSON)
-                                                                   .content(body)).andExpect(status().isBadRequest());
+      mockMvc.perform(post(STAFF_PATIENT_APPOINTMENTS_URL, context.patient()
+                                                                  .getId()).header("Authorization",
+                                                                                   jwtHelper.token(context.user()
+                                                                                                          .getId()))
+                                                                           .header("X-API-KEY",
+                                                                                   context.apiKey().rawKey())
+                                                                           .contentType(MediaType.APPLICATION_JSON)
+                                                                           .content(body))
+             .andExpect(status().isBadRequest());
    }
 
    @Test
@@ -185,12 +187,14 @@ class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
               """.formatted(context.doctor().getId(), formatResponseDateTime(scheduledAt), context.clinicService()
                                                                                                   .getId());
 
-      mockMvc.perform(post(STAFF_APPOINTMENTS_URL, context.patient()
-                                                          .getId()).header("Authorization",
-                                                                           jwtHelper.token(context.user()
-                                                                                                  .getId()))
-                                                                   .header("X-API-KEY", context.apiKey().rawKey())
-                                                                   .contentType(MediaType.APPLICATION_JSON)
-                                                                   .content(body)).andExpect(status().isBadRequest());
+      mockMvc.perform(post(STAFF_PATIENT_APPOINTMENTS_URL, context.patient()
+                                                                  .getId()).header("Authorization",
+                                                                                   jwtHelper.token(context.user()
+                                                                                                          .getId()))
+                                                                           .header("X-API-KEY",
+                                                                                   context.apiKey().rawKey())
+                                                                           .contentType(MediaType.APPLICATION_JSON)
+                                                                           .content(body))
+             .andExpect(status().isBadRequest());
    }
 }

@@ -39,7 +39,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
 
-   private static final String STAFF_APPOINTMENTS_URL = "/api/patients/{patientId}/appointments";
+   private static final String STAFF_APPOINTMENTS_URL = "/api/appointments";
+   private static final String STAFF_PATIENT_APPOINTMENTS_URL = STAFF_APPOINTMENTS_URL + "/patients/{patientId}";
    private final static DateTimeFormatter RESPONSE_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern(
            "yyyy-MM-dd'T'HH:mm:ss");
 
@@ -64,12 +65,10 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
 
       createAppointment(context, scheduledAt).andExpect(status().isOk())
                                              .andExpect(jsonPath("$.id", notNullValue()))
-                                             .andExpect(jsonPath("$.doctorId").value(context.doctor()
-                                                                                            .getId()
-                                                                                            .toString()))
-                                             .andExpect(jsonPath("$.patientId").value(context.patient()
-                                                                                             .getId()
-                                                                                             .toString()))
+                                             .andExpect(
+                                                     jsonPath("$.doctorId").value(context.doctor().getId().toString()))
+                                             .andExpect(jsonPath("$.patientId").value(
+                                                     context.patient().getId().toString()))
                                              .andExpect(jsonPath("$.scheduledAt").value(
                                                      formatResponseDateTime(scheduledAt)))
                                              .andExpect(jsonPath("$.endAt").value(
@@ -191,13 +190,13 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
 
       UUID appointmentId = extractId(createResult);
 
-      mockMvc.perform(patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/cancel", context.patient()
-                                                                                       .getId(), appointmentId).header(
-                                                                                                                       "Authorization", jwtHelper.token(context.staff()
-                                                                                                                                                               .getId()))
-                                                                                                               .header("X-API-KEY",
-                                                                                                                       context.apiKey()
-                                                                                                                              .rawKey()))
+      mockMvc.perform(patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/cancel", appointmentId).header("Authorization",
+                                                                                                      jwtHelper.token(
+                                                                                                              context.staff()
+                                                                                                                     .getId()))
+                                                                                              .header("X-API-KEY",
+                                                                                                      context.apiKey()
+                                                                                                             .rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.status").value("CANCELLED"));
 
@@ -267,22 +266,24 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
 
    private org.springframework.test.web.servlet.ResultActions createAppointment(TestContext context, LocalDateTime scheduledAt) throws
            Exception {
-      CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(context.doctor()
-                                                                                   .getId(), scheduledAt,
+      CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(context.doctor().getId(), scheduledAt,
                                                                             List.of(new AppointmentServiceRequestDto(
-                                                                                    context.clinicService()
-                                                                                           .getId(), 1)),
+                                                                                    context.clinicService().getId(),
+                                                                                    1)),
                                                                             "Integration test appointment");
 
-      return mockMvc.perform(post(STAFF_APPOINTMENTS_URL, context.patient()
-                                                                 .getId()).header("Authorization",
-                                                                                  jwtHelper.token(context.staff()
-                                                                                                         .getId()))
-                                                                          .header("X-API-KEY", context.apiKey()
-                                                                                                      .rawKey())
-                                                                          .contentType(MediaType.APPLICATION_JSON)
-                                                                          .content(objectMapper.writeValueAsString(
-                                                                                  request)));
+      return mockMvc.perform(post(STAFF_PATIENT_APPOINTMENTS_URL, context.patient().getId()).header("Authorization",
+                                                                                                    jwtHelper.token(
+                                                                                                            context.staff()
+                                                                                                                   .getId()))
+                                                                                            .header("X-API-KEY",
+                                                                                                    context.apiKey()
+                                                                                                           .rawKey())
+                                                                                            .contentType(
+                                                                                                    MediaType.APPLICATION_JSON)
+                                                                                            .content(
+                                                                                                    objectMapper.writeValueAsString(
+                                                                                                            request)));
    }
 
    private UUID extractId(MvcResult mvcResult) throws Exception {
