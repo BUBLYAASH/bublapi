@@ -32,14 +32,14 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
       CreateApiKeyRequestDto request = new CreateApiKeyRequestDto("Clinic API key");
 
-      mockMvc.perform(post("/api/admin/clinics/{clinicId}/api-key", clinic.getId()).header("Authorization",
-                                                                                           jwtHelper.token(
-                                                                                                   admin.getId()))
-                                                                                   .contentType(
-                                                                                           MediaType.APPLICATION_JSON)
-                                                                                   .content(
-                                                                                           objectMapper.writeValueAsString(
-                                                                                                   request)))
+      mockMvc.perform(post("/api/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
+                                                                                    jwtHelper.token(
+                                                                                            admin.getId()))
+                                                                            .contentType(
+                                                                                    MediaType.APPLICATION_JSON)
+                                                                            .content(
+                                                                                    objectMapper.writeValueAsString(
+                                                                                            request)))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.rawKey", startsWith("pk_live_")));
    }
@@ -50,24 +50,24 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
       CreateApiKeyRequestDto request = new CreateApiKeyRequestDto("Clinic API key");
 
-      mockMvc.perform(post("/api/admin/clinics/{clinicId}/api-key", clinic.getId()).header("Authorization",
-                                                                                           jwtHelper.token(
-                                                                                                   admin.getId()))
-                                                                                   .contentType(
-                                                                                           MediaType.APPLICATION_JSON)
-                                                                                   .content(
-                                                                                           objectMapper.writeValueAsString(
-                                                                                                   request)))
+      mockMvc.perform(post("/api/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
+                                                                                    jwtHelper.token(
+                                                                                            admin.getId()))
+                                                                            .contentType(
+                                                                                    MediaType.APPLICATION_JSON)
+                                                                            .content(
+                                                                                    objectMapper.writeValueAsString(
+                                                                                            request)))
              .andExpect(status().isOk());
 
-      mockMvc.perform(post("/api/admin/clinics/{clinicId}/api-key", clinic.getId()).header("Authorization",
-                                                                                           jwtHelper.token(
-                                                                                                   admin.getId()))
-                                                                                   .contentType(
-                                                                                           MediaType.APPLICATION_JSON)
-                                                                                   .content(
-                                                                                           objectMapper.writeValueAsString(
-                                                                                                   request)))
+      mockMvc.perform(post("/api/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
+                                                                                    jwtHelper.token(
+                                                                                            admin.getId()))
+                                                                            .contentType(
+                                                                                    MediaType.APPLICATION_JSON)
+                                                                            .content(
+                                                                                    objectMapper.writeValueAsString(
+                                                                                            request)))
              .andExpect(status().is5xxServerError());
    }
 
@@ -79,9 +79,9 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       ApiKey before = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
       LocalDateTime oldExpiresAt = before.getExpiresAt();
 
-      mockMvc.perform(patch("/api/admin/clinics/{clinicId}/api-key/renew", clinic.getId()).header("Authorization",
-                                                                                                  jwtHelper.token(
-                                                                                                          admin.getId())))
+      mockMvc.perform(patch("/api/admin/api-keys/{clinicId}/renew", clinic.getId()).header("Authorization",
+                                                                                           jwtHelper.token(
+                                                                                                   admin.getId())))
              .andExpect(status().isOk());
 
       ApiKey after = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();

@@ -1,5 +1,6 @@
 package org.bublapi.dent.apikey.service;
 
+import org.bublapi.dent.apikey.dto.ApiKeyResponseDto;
 import org.bublapi.dent.apikey.dto.CreateApiKeyResponseDto;
 import org.bublapi.dent.apikey.entity.ApiKey;
 import org.bublapi.dent.apikey.repository.ApiKeyRepository;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -111,6 +113,16 @@ public class ApiKeyService {
                                       .orElseThrow(() -> new ResourceNotFoundException("ApiKey not found"));
 
       apiKey.setActive(false);
+   }
+
+   public List<ApiKeyResponseDto> findAll() {
+      return apiKeyRepository.findAll()
+                             .stream()
+                             .map(apiKey -> new ApiKeyResponseDto(apiKey.getId(), apiKey.getClinic().getId(),
+                                                                  apiKey.getName(), apiKey.getPrefix(),
+                                                                  apiKey.getExpiresAt(), apiKey.getGraceUntil(),
+                                                                  apiKey.isActive()))
+                             .toList();
    }
 
    private String generateRawKey() {
