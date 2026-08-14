@@ -2,6 +2,8 @@ package org.bublapi.dent.patient.repository;
 
 import org.bublapi.dent.patient.entity.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +15,10 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
    Optional<Patient> findByClinic_IdAndUser_Id(UUID clinicId, UUID userId);
 
-   Optional<Patient> findByClinic_IdAndEmailIgnoreCaseOrPhone(UUID clinicId, String email, String phone);
+   @Query("""
+           SELECT p FROM Patient p WHERE p.clinic.id = :clinicId AND (lower(p.email) = :email OR p.phone = :phone)
+           """)
+   Optional<Patient> findByClinic_IdAndEmailIgnoreCaseOrPhone(@Param("clinicId") UUID clinicId, @Param("email") String email, @Param("phone") String phone);
 
    Optional<Patient> findByClinic_IdAndId(UUID clinicId, UUID patientId);
 
