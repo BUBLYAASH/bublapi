@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 030-api-keys-active-unique
+      author: Gleb Kovalev
+      changes:
+        - dropUniqueConstraint:
+            tableName: api_keys
+            columnNames: clinic_id
+            constraintName: api_keys_clinic_id_key
+
+        - sql:
+            dbms: postgresql
+            sql: >
+              CREATE UNIQUE INDEX uk_api_keys_one_active_per_clinic
+              ON api_keys (clinic_id)
+              WHERE active = true;
