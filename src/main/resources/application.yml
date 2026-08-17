@@ -49,3 +49,12 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
   expiration-ms: 2592000000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
