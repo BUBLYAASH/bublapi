@@ -81,6 +81,6 @@ public class ClinicService {
    }
 
    public List<ClinicResponseDto> findAll() {
-      return clinicRepository.findAllByActiveTrue().stream().map(clinicMapper::toResponse).toList();
+      return clinicRepository.findAll().stream().map(clinicMapper::toResponse).toList();
    }
 }
