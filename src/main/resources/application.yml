@@ -35,16 +35,19 @@ spring:
         default-requeue-rejected: false
 
   mail:
-    host: ${MAIL_HOST:smtp.yandex.ru}
-    port: ${MAIL_PORT:465}
+    host: ${MAIL_HOST:smtp.mail.me.com}
+    port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
+    from: ${MAIL_FROM:}
+    reply-to: ${MAIL_REPLY_TO:}
     properties:
       mail:
         smtp:
           auth: true
-          ssl:
+          starttls:
             enable: true
+            required: true
 
 jwt:
   secret: ${JWT_SECRET}
