@@ -1,2 +1,2 @@
-@org.hibernate.annotations.FilterDef(name = "clinicFilter", defaultCondition = "clinic_id = :clinicId", parameters = @org.hibernate.annotations.ParamDef(name = "clinicId", type = java.util.UUID.class, resolver = org.bublapi.dent.common.context.ClinicIdResolver.class), autoEnabled = true, applyToLoadByKey = true)
+@org.hibernate.annotations.FilterDef(name = "clinicFilter", defaultCondition = "clinic_id = :clinicId ", parameters = @org.hibernate.annotations.ParamDef(name = "clinicId", type = java.util.UUID.class, resolver = org.bublapi.dent.common.context.ClinicIdResolver.class), autoEnabled = true, applyToLoadByKey = true)
 package org.bublapi.dent.common.filter;
