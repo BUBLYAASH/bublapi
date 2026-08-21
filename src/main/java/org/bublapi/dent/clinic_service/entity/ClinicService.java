@@ -40,6 +40,9 @@ public class ClinicService {
    @Column(nullable = false)
    private Boolean active = true;
 
+   @Column(name = "disabled_by_clinic", nullable = false)
+   private Boolean disabledByClinic = false;
+
    @PrePersist
    public void prePersist() {
       this.createdAt = LocalDateTime.now();

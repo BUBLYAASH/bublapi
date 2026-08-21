@@ -18,4 +18,6 @@ public interface ClinicServiceRepository extends JpaRepository<ClinicService, UU
    List<ClinicService> findAllByClinic_IdAndActiveTrue(UUID clinicId);
 
    List<ClinicService> findAllByClinic_Id(UUID clinicId);
+
+   List<ClinicService> findAllByClinic_IdAndDisabledByClinicTrue(UUID clinicId);
 }
