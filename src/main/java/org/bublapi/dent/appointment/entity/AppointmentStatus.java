@@ -10,8 +10,7 @@ public enum AppointmentStatus {
       return switch (this) {
          case CREATED -> target == CONFIRMED || target == CANCELLED;
          case CONFIRMED -> target == COMPLETED || target == CANCELLED;
-         case CANCELLED -> false;
-         case COMPLETED -> false;
+         case CANCELLED, COMPLETED -> false;
       };
    }
 }
