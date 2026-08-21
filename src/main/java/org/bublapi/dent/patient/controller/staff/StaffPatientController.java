@@ -61,6 +61,12 @@ public class StaffPatientController {
       return patientService.getByPhone(request);
    }
 
+   @Operation(summary = "Get patient by ID")
+   @GetMapping("/{patientId}")
+   public PatientResponseDto getById(@PathVariable UUID patientId) {
+      return patientService.findByPatientId(patientId);
+   }
+
    @Operation(summary = "Get all patients in clinic", description = "Get all patients in this clinic")
    @GetMapping
    public List<PatientResponseDto> findAll() {

@@ -137,6 +137,15 @@ public class PatientService {
       return patientMapper.toResponse(patient);
    }
 
+   public PatientResponseDto findByPatientId(UUID patientId) {
+      UUID clinicId = ClinicContext.getClinicId();
+
+      Patient patient = patientRepository.findByClinic_IdAndId(clinicId, patientId)
+                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+      return patientMapper.toResponse(patient);
+   }
+
    public List<PatientResponseDto> findAll() {
       UUID clinicId = ClinicContext.getClinicId();
 
