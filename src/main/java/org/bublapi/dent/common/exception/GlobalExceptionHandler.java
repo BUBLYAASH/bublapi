@@ -1,5 +1,7 @@
 package org.bublapi.dent.common.exception;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ import java.util.Map;
 @SuppressWarnings("unused")
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+   private static final Log log = LogFactory.getLog(GlobalExceptionHandler.class);
 
    @ExceptionHandler(ResourceNotFoundException.class)
    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException e) {
@@ -91,13 +95,12 @@ public class GlobalExceptionHandler {
 
    @ExceptionHandler(Exception.class)
    public ResponseEntity<Map<String, Object>> handleGeneral(Exception e) {
-      System.err.println("===== GLOBAL EXCEPTION =====");
-      e.printStackTrace();
+      log.error("Unhandled Exception", e);
 
       Map<String, Object> response = new HashMap<>();
 
       response.put("error", "Internal Server Error");
-      response.put("message", e.getClass().getName() + ": " + e.getMessage());
+      response.put("message", "An unexpected error occurred");
       response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
       response.put("timestamp", LocalDateTime.now());
 
