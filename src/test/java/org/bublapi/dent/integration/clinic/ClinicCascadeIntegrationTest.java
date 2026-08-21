@@ -31,8 +31,8 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
              .andExpect(status().isOk());
 
       User updated = userRepository.findById(owner.getId()).orElseThrow();
-      assertThat(updated.getEnabled()).isFalse();
-      assertThat(updated.getDisabledByClinic()).isTrue();
+      assertThat(updated.isEnabled()).isFalse();
+      assertThat(updated.isDisabledByClinic()).isTrue();
    }
 
    @Test
@@ -57,13 +57,13 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
 
       User ownerAfterDeactivation = userRepository.findById(owner.getId()).orElseThrow();
 
-      System.out.println("admin enabled = " + adminAfterDeactivation.getEnabled());
+      System.out.println("admin enabled = " + adminAfterDeactivation.isEnabled());
 
       System.out.println(
               "admin clinic = " + (adminAfterDeactivation.getClinic() == null ? null : adminAfterDeactivation.getClinic()
                                                                                                              .getId()));
 
-      System.out.println("owner enabled = " + ownerAfterDeactivation.getEnabled());
+      System.out.println("owner enabled = " + ownerAfterDeactivation.isEnabled());
 
       System.out.println("owner clinic = " + ownerAfterDeactivation.getClinic().getId());
 
@@ -73,8 +73,8 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
              .andExpect(status().isOk());
 
       User updated = userRepository.findById(owner.getId()).orElseThrow();
-      assertThat(updated.getEnabled()).isTrue();
-      assertThat(updated.getDisabledByClinic()).isFalse();
+      assertThat(updated.isEnabled()).isTrue();
+      assertThat(updated.isDisabledByClinic()).isFalse();
    }
 
    @Test

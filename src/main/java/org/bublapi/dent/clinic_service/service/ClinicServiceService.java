@@ -102,7 +102,7 @@ public class ClinicServiceService {
                                                            .orElseThrow(() -> new ResourceNotFoundException(
                                                                    "Clinic Service not found or unavailable"));
 
-      if (!clinicService.getActive()) {
+      if (!clinicService.isActive()) {
          throw new BadRequestException("Clinic service is already deactivated");
       }
 

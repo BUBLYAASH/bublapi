@@ -39,7 +39,7 @@ class ClinicServiceExtraBehaviorIntegrationTest extends IntegrationTestSupport {
       ClinicContext.set(data.clinic());
       try {
          ClinicService updated = clinicServiceRepository.findById(service.getId()).orElseThrow();
-         assertThat(updated.getActive()).isTrue();
+         assertThat(updated.isActive()).isTrue();
       } finally {
          ClinicContext.clear();
       }

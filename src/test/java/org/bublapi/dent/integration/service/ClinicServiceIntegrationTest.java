@@ -98,7 +98,7 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
 
       assertThat(clinicService.getId()).isNotNull();
       assertThat(clinicService.getClinic().getId()).isEqualTo(clinic.getId());
-      assertThat(clinicService.getActive()).isFalse();
+      assertThat(clinicService.isActive()).isFalse();
    }
 
 
@@ -215,7 +215,7 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
       ClinicService updatedService = inClinicContext(clinic,
                                                      () -> clinicServiceRepository.findById(clinicService.getId())
                                                                                   .orElseThrow());
-      assertThat(updatedService.getActive()).isFalse();
+      assertThat(updatedService.isActive()).isFalse();
    }
 
 

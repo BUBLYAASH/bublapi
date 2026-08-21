@@ -43,7 +43,7 @@ public class AuthService {
          throw new BadRequestException("Invalid email or password");
       }
 
-      if (!user.getEnabled()) {
+      if (!user.isEnabled()) {
          throw new BadRequestException("User is disabled");
       }
 
@@ -64,7 +64,7 @@ public class AuthService {
          throw new BadRequestException("Invalid email or password");
       }
 
-      if (!user.getEnabled()) {
+      if (!user.isEnabled()) {
          throw new BadRequestException("User is disabled");
       }
 
