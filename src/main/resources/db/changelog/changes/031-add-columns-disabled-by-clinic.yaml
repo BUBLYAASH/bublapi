@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 031-add-columns-disabled-by-clinic
+      author: Gleb Kovalev
+      changes:
+        - addColumn:
+            tableName: doctors
+            columns:
+              - column:
+                  name: disabled_by_clinic
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: clinic_services
+            columns:
+              - column:
+                  name: disabled_by_clinic
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
