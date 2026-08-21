@@ -35,5 +35,5 @@ public class DentalService {
    private Integer defaultDurationMinutes;
 
    @Column(nullable = false)
-   private Boolean active = true;
+   private boolean active = true;
 }

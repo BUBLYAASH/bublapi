@@ -64,7 +64,7 @@ public class Patient {
    private LocalDateTime updatedAt;
 
    @Column(nullable = false)
-   private Boolean active = true;
+   private boolean active = true;
 
    @PrePersist
    private void prePersist() {

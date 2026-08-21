@@ -53,10 +53,10 @@ public class Doctor {
    private LocalDateTime updatedAt;
 
    @Column(nullable = false)
-   private Boolean active = true;
+   private boolean active = true;
 
    @Column(name = "disabled_by_clinic", nullable = false)
-   private Boolean disabledByClinic = false;
+   private boolean disabledByClinic = false;
 
    @PrePersist
    public void prePersist() {

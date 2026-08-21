@@ -58,8 +58,6 @@ public class ClinicService {
       Clinic clinic = clinicRepository.findById(id)
                                       .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
 
-      clinic.setActive(false);
-
       List<User> users = userRepository.findAllByClinic_IdAndEnabledTrue(clinic.getId());
       List<Doctor> doctors = doctorRepository.findAllByClinic_IdAndActiveTrue(clinic.getId());
       List<org.bublapi.dent.clinic_service.entity.ClinicService> clinicServices = clinicServiceRepository.findAllByClinic_IdAndActiveTrue(
@@ -73,12 +71,15 @@ public class ClinicService {
       doctors.forEach(doctor -> {
          doctor.setActive(false);
          doctor.setDisabledByClinic(true);
+         System.out.println("Doctor: " + doctor.getId() + " active=" + doctor.isActive());
       });
 
       clinicServices.forEach(clinicService -> {
          clinicService.setActive(false);
          clinicService.setDisabledByClinic(true);
       });
+
+      clinic.setActive(false);
 
       return clinicMapper.toResponse(clinic);
    }
