@@ -2,6 +2,9 @@ FROM eclipse-temurin:21-jdk-alpine AS builder
 
 WORKDIR /app
 
+ARG APP_VERSION
+ENV APP_VERSION=${APP_VERSION}
+
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle .

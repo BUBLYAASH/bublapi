@@ -5,7 +5,10 @@ plugins {
 }
 
 group = 'org.bublapi'
-version = file('../../VERSION').text.trim()
+version = providers.gradleProperty("appVersion")
+        .orElse(providers.environmentVariable("APP_VERSION"))
+        .orElse(file('../../VERSION').text.trim())
+        .get()
 
 repositories {
     mavenCentral()
