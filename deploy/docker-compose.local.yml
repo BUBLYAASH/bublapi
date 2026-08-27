@@ -1,0 +1,183 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: bublapi-local-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bublapi_dent}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-bublapi_dent}
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - bublapi-local
+
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: bublapi-local-rabbitmq
+    restart: unless-stopped
+
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-bublapi}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-bublapi}
+
+    ports:
+      - "15672:15672"
+
+    volumes:
+      - local_rabbitmq_data:/var/lib/rabbitmq
+
+    healthcheck:
+      test:
+        - CMD
+        - rabbitmq-diagnostics
+        - ping
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    networks:
+      - bublapi-local
+
+
+  backend:
+    build:
+      context: ../services/dent-backend
+      dockerfile: Dockerfile
+
+    container_name: bublapi-local-backend
+    restart: unless-stopped
+
+    environment:
+      SERVER_PORT: 8080
+
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bublapi_dent}
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-bublapi}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-bublapi}
+
+      JWT_SECRET: ${JWT_SECRET:-local-development-jwt-secret-change-me}
+
+      MAIL_HOST: ${MAIL_HOST:-localhost}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-BublAPI <noreply@localhost>}
+      MAIL_REPLY_TO: ${MAIL_REPLY_TO:-noreply@localhost}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+    ports:
+      - "8080:8080"
+
+    networks:
+      - bublapi-local
+
+
+  demo:
+    build:
+      context: ../apps/dent-demo
+      dockerfile: Dockerfile
+
+    container_name: bublapi-local-demo
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+
+      SPRING_API_URL: http://backend:8080
+      CLINIC_API_KEY: ${CLINIC_API_KEY:-replace_with_local_clinic_api_key}
+
+      LIVE_APPOINTMENTS_POLL_MS: ${LIVE_APPOINTMENTS_POLL_MS:-1000}
+      AVATAR_STORAGE_PATH: /app/data/uploads/avatars
+
+    depends_on:
+      - backend
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - local_demo_uploads:/app/data/uploads/avatars
+
+    networks:
+      - bublapi-local
+
+
+  admin:
+    build:
+      context: ../apps/admin
+      dockerfile: Dockerfile
+
+    container_name: bublapi-local-admin
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+
+      SPRING_API_URL: http://backend:8080
+      ADMIN_PUBLIC_ORIGIN: http://localhost:3001
+      ADMIN_COOKIE_SECURE: "false"
+
+    depends_on:
+      - backend
+
+    ports:
+      - "3001:3000"
+
+    networks:
+      - bublapi-local
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://127.0.0.1:3000/login >/dev/null || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+
+volumes:
+  local_postgres_data:
+    external: true
+    name: bublapi-dent_postgres_data
+  local_rabbitmq_data:
+    external: true
+    name: bublapi-dent_rabbitmq_data
+  local_demo_uploads:
+
+
+networks:
+  bublapi-local:
+    name: bublapi-local-network
+    driver: bridge
