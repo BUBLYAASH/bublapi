@@ -1,0 +1,171 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: bublapi-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - bublapi
+
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: bublapi-rabbitmq
+    restart: unless-stopped
+
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+    healthcheck:
+      test:
+        - CMD
+        - rabbitmq-diagnostics
+        - ping
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    networks:
+      - bublapi
+
+
+  backend:
+    build:
+      context: ../services/dent-backend
+      dockerfile: Dockerfile
+
+    container_name: bublapi-backend
+    restart: unless-stopped
+
+    environment:
+      SERVER_PORT: 8080
+
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+
+      JWT_SECRET: ${JWT_SECRET}
+
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_REPLY_TO: ${MAIL_REPLY_TO}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+    ports:
+      - "127.0.0.1:8080:8080"
+
+    networks:
+      - bublapi
+
+
+  demo:
+    build:
+      context: ../apps/dent-demo
+      dockerfile: Dockerfile
+
+    container_name: bublapi-demo
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SPRING_API_URL: http://backend:8080
+      CLINIC_API_KEY: ${CLINIC_API_KEY}
+
+    depends_on:
+      - backend
+
+    ports:
+      - "127.0.0.1:3000:3000"
+
+    volumes:
+      - /opt/bublapi/data/dent-demo/avatars:/app/public/uploads/avatars
+
+    networks:
+      - bublapi
+
+
+  admin:
+    build:
+      context: ../apps/admin
+      dockerfile: Dockerfile
+
+    container_name: bublapi-admin
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      SPRING_API_URL: http://backend:8080
+      ADMIN_PUBLIC_ORIGIN: https://admin.bublapi.ru
+
+    depends_on:
+      - backend
+
+    ports:
+      - "127.0.0.1:3001:3000"
+
+    networks:
+      - bublapi
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://127.0.0.1:3000/login >/dev/null || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+
+volumes:
+  postgres_data:
+    external: true
+    name: dent_postgres_data
+
+  rabbitmq_data:
+    external: true
+    name: dent_rabbitmq_data
+
+
+networks:
+  bublapi:
+    name: bublapi-network
+    driver: bridge
