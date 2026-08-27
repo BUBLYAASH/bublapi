@@ -115,7 +115,7 @@ services:
       - "127.0.0.1:3000:3000"
 
     volumes:
-      - /opt/bublapi/data/dent-demo/avatars:/app/public/uploads/avatars
+      - /opt/bublapi/data/dent-demo/avatars:/app/data/uploads/avatars
 
     networks:
       - bublapi
