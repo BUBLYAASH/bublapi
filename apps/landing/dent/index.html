@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<script>
+(function(){try{var saved=localStorage.getItem('bublapi-theme');var dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var theme=saved|| (dark?'dark':'light');document.documentElement.dataset.theme=theme;document.documentElement.style.colorScheme=theme;}catch(e){}})();
+document.documentElement.classList.add('js');
+</script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="BublAPI Dent — backend-платформа для стоматологических клиник: врачи, услуги, расписание, свободные слоты, пациенты, онлайн-запись, роли сотрудников и уведомления." name="description"/>
+<meta content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" name="robots"/>
+<meta content="#155eef" media="(prefers-color-scheme: light)" name="theme-color"/>
+<link href="https://bublapi.ru/dent/" rel="canonical"/>
+<link href="https://bublapi.ru/dent/" hreflang="ru" rel="alternate"/>
+<meta content="website" property="og:type"/>
+<meta content="ru_RU" property="og:locale"/>
+<meta content="BublAPI" property="og:site_name"/>
+<meta content="BublAPI Dent — цифровая платформа для стоматологии" property="og:title"/>
+<meta content="Готовая серверная основа для сайта клиники, онлайн-записи, личного кабинета пациента и панели сотрудников." property="og:description"/>
+<meta content="https://bublapi.ru/dent/" property="og:url"/>
+<meta content="https://bublapi.ru/og-image-dent.png" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="BublAPI Dent — цифровая платформа для стоматологии" name="twitter:title"/>
+<meta content="Готовая серверная основа для сайта клиники, онлайн-записи, личного кабинета пациента и панели сотрудников." name="twitter:description"/>
+<meta content="https://bublapi.ru/og-image-dent.png" name="twitter:image"/>
+<title>BublAPI Dent — платформа для сайта и онлайн-записи стоматологии</title>
+<link href="/favicon.ico" rel="icon" sizes="any"/>
+<link href="/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+<link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="/site.webmanifest" rel="manifest"/>
+<link href="/styles.css" rel="stylesheet"/>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "BublAPI Dent",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": "https://bublapi.ru/dent/",
+      "description": "API и backend-платформа для цифровых сервисов стоматологических клиник.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "BublAPI",
+        "url": "https://bublapi.ru/",
+        "logo": "https://bublapi.ru/android-chrome-512x512.png"
+      },
+      "image": "https://bublapi.ru/og-image-dent.png",
+      "featureList": [
+        "Онлайн-запись",
+        "Расписание врачей",
+        "Каталог услуг",
+        "Карточки пациентов",
+        "Роли сотрудников",
+        "Уведомления"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "BublAPI Dent — это готовая стоматологическая CRM?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "BublAPI Dent — прежде всего backend-платформа и API. На её основе можно подключить готовый интерфейс, фирменный сайт, мобильное приложение или внутреннюю панель клиники."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Можно ли подключить BublAPI Dent к сайту клиники?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. API можно использовать для каталога врачей и услуг, расписания, свободных слотов, регистрации пациентов и онлайн-записи."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Есть ли демонстрационная версия?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да. Публичная демонстрационная версия доступна на https://demo.dent.bublapi.ru. Для доступа к возможностям сотрудников необходимо запросить отдельный демонстрационный аккаунт."
+          }
+        }
+      ]
+    }
+  ]
+}</script>
+<meta content="#0b1120" media="(prefers-color-scheme: dark)" name="theme-color"/><link href="https://bublapi.ru/dent/" hreflang="x-default" rel="alternate"/><meta content="1200" property="og:image:width"/><meta content="630" property="og:image:height"/><meta content="BublAPI Dent — цифровая платформа для стоматологии" property="og:image:alt"/><meta content="BublAPI" name="application-name"/><meta content="BublAPI" name="apple-mobile-web-app-title"/><meta content="telephone=no" name="format-detection"/></head>
+<body>
+<div class="page-glow page-glow-a"></div>
+<div class="page-glow page-glow-b"></div>
+<header class="topbar">
+<a aria-label="BublAPI — главная" class="brand" href="/">
+<img alt="" class="brand-logo" height="40" src="/favicon.svg" width="40"/>
+<span class="brand-copy"><strong>BublAPI</strong><small>Dent API</small></span>
+</a>
+<nav aria-label="Навигация по странице" class="topnav">
+<a href="#possibilities">Возможности</a>
+<a href="#use-cases">Сценарии</a>
+<a href="#integration">Интеграция</a>
+<a href="#faq">Вопросы</a>
+</nav>
+<div class="top-actions"><button aria-label="Переключить тему" class="theme-toggle" data-theme-toggle="" title="Переключить тему" type="button"><span class="theme-toggle-track"><span aria-hidden="true" class="theme-icon theme-icon-sun">☀</span><span aria-hidden="true" class="theme-icon theme-icon-moon">☾</span><span class="theme-toggle-thumb"></span></span></button>
+<a class="btn btn-ghost desktop-only" href="/">Все продукты</a>
+<a class="btn btn-primary" href="https://demo.dent.bublapi.ru" rel="noopener noreferrer" target="_blank">Открыть демо</a>
+</div>
+</header>
+<main id="top">
+<section class="hero section-shell dent-hero">
+<div class="hero-copy reveal">
+<div class="eyebrow"><span class="eyebrow-dot"></span> BublAPI Dent</div>
+<h1>API и backend-платформа для стоматологических клиник</h1>
+<p class="hero-lead">Готовая цифровая основа для сайта, мобильного приложения и внутренних сервисов клиники: пациенты, врачи, услуги, расписание, онлайн-запись, роли и уведомления.</p>
+<div class="hero-actions">
+<a class="btn btn-primary btn-lg" href="https://demo.dent.bublapi.ru" rel="noopener noreferrer" target="_blank">Посмотреть демо <span aria-hidden="true">→</span></a>
+<a class="btn btn-ghost btn-lg" href="#contact">Обсудить внедрение</a>
+</div>
+<div class="hero-points"><span>Для клиник</span><span>Для разработчиков</span><span>Для интеграторов</span></div>
+</div>
+<div aria-label="Схема работы BublAPI Dent" class="hero-visual reveal">
+<div class="architecture-card">
+<div class="architecture-label">Интерфейсы</div>
+<div class="architecture-row"><span>Сайт клиники</span><span>Мобильное приложение</span><span>Панель сотрудников</span></div>
+<div class="architecture-arrow">↓</div>
+<div class="architecture-core"><strong>Dent API</strong><small>API • Бизнес-логика • Авторизация • Данные</small></div>
+<div class="architecture-arrow">↓</div>
+<div class="architecture-row"><span>Пациенты</span><span>Расписание</span><span>Записи</span></div>
+</div>
+</div>
+</section>
+<section class="trust-strip section-shell reveal">
+<p>Одна платформа для ключевых процессов</p>
+<div class="trust-items"><span>Пациенты</span><span>Врачи</span><span>Услуги</span><span>Расписание</span><span>Записи</span><span>Уведомления</span></div>
+</section>
+<section class="section section-shell" id="possibilities">
+<div class="section-heading reveal"><div class="eyebrow">Возможности</div><h2>Готовые модули вместо разработки backend с нуля</h2><p>Компоненты BublAPI Dent объединены общей моделью данных и рассчитаны на работу внутри конкретной клиники.</p></div>
+<div class="feature-grid">
+<article class="feature-card feature-card-primary reveal"><div class="feature-icon">01</div><h3>Пациенты и карточки</h3><p>Регистрация, контактные данные, привязка карточки пациента и история взаимодействия с клиникой.</p><div class="feature-tags"><span>Профили</span><span>Карточки</span><span>История</span></div></article>
+<article class="feature-card reveal"><div class="feature-icon">02</div><h3>Врачи и роли</h3><p>Профили специалистов, роли сотрудников, безопасный доступ и изоляция данных между клиниками.</p><div class="feature-tags"><span>Врачи</span><span>Роли</span><span>Доступ</span></div></article>
+<article class="feature-card reveal"><div class="feature-icon">03</div><h3>Услуги клиники</h3><p>Каталог стоматологических услуг, категории, длительность, стоимость и связь с врачами.</p><div class="feature-tags"><span>Каталог</span><span>Цены</span><span>Категории</span></div></article>
+<article class="feature-card reveal"><div class="feature-icon">04</div><h3>Расписание и слоты</h3><p>Рабочие интервалы, исключения, доступность специалистов и расчёт свободного времени для записи.</p><div class="feature-tags"><span>Графики</span><span>Слоты</span><span>Исключения</span></div></article>
+<article class="feature-card reveal"><div class="feature-icon">05</div><h3>Онлайн-запись</h3><p>Создание и управление приёмами, статусы записей и понятный путь пациента от выбора услуги до визита.</p><div class="feature-tags"><span>Приёмы</span><span>Статусы</span><span>Контроль</span></div></article>
+<article class="feature-card reveal"><div class="feature-icon">06</div><h3>Уведомления</h3><p>Внутренние и почтовые уведомления о регистрации, записях и других важных событиях.</p><div class="feature-tags"><span>In-app</span><span>Email</span><span>События</span></div></article>
+</div>
+</section>
+<section class="section section-shell" id="use-cases">
+<div class="section-heading reveal"><div class="eyebrow">Сценарии использования</div><h2>Что можно построить на BublAPI Dent</h2><p>Платформа подходит как клиникам, так и командам, которые разрабатывают для них цифровые решения.</p></div>
+<div class="platform-grid">
+<article class="platform-card reveal"><span>01</span><h3>Сайт с онлайн-записью</h3><p>Показывайте врачей, услуги, свободные слоты и принимайте записи прямо на фирменном сайте клиники.</p></article>
+<article class="platform-card reveal"><span>02</span><h3>Личный кабинет пациента</h3><p>Регистрация, профиль, предстоящие визиты, уведомления и взаимодействие с клиникой в одном интерфейсе.</p></article>
+<article class="platform-card reveal"><span>03</span><h3>Рабочая панель сотрудников</h3><p>Управление пациентами, расписанием, услугами, записями и текущей загрузкой клиники.</p></article>
+<article class="platform-card reveal"><span>04</span><h3>Мобильное приложение</h3><p>Используйте единый API для собственного приложения пациента или сотрудников.</p></article>
+<article class="platform-card reveal"><span>05</span><h3>Решение для сети клиник</h3><p>Разделяйте данные и процессы по клиникам, сохраняя единый технический фундамент.</p></article>
+<article class="platform-card reveal"><span>06</span><h3>Интеграционный слой</h3><p>Подключайте внешние интерфейсы и сервисы к единой модели данных стоматологической клиники.</p></article>
+</div>
+</section>
+<section class="section section-shell" id="integration">
+<div class="advantage-panel reveal">
+<div class="advantage-copy"><div class="eyebrow eyebrow-light">Для запуска цифрового продукта</div><h2>Основа для сайта, CRM и приложения</h2><p>Dent API работает как серверная часть системы: хранит данные, управляет расписанием, записями и доступом сотрудников. К нему можно подключить уже существующий сайт или программу клиники <u>либо заказать разработку готового решения под ключ</u>.</p><a class="btn btn-light btn-lg" href="https://demo.dent.bublapi.ru" rel="noopener noreferrer" target="_blank">Посмотреть демо-систему</a></div>
+<div class="advantage-list">
+<div><span>01</span><strong>REST API</strong><p>Понятная интеграция с веб- и мобильными интерфейсами.</p></div>
+<div><span>02</span><strong>Роли и безопасность</strong><p>Разграничение доступа для пациентов, врачей и администрации.</p></div>
+<div><span>03</span><strong>Изоляция клиник</strong><p>Данные каждой клиники обрабатываются в собственном контексте.</p></div>
+<div><span>04</span><strong>Готовность к развитию</strong><p>Новые модули можно добавлять по мере роста продукта.</p></div>
+</div>
+</div>
+</section>
+<section class="section section-shell" id="faq">
+<div class="section-heading reveal"><div class="eyebrow">Вопросы и ответы</div><h2>Что важно знать перед знакомством с продуктом</h2></div>
+<div class="faq-list">
+<details class="faq-item reveal"><summary>BublAPI Dent — это готовая CRM?</summary><p>Нет. BublAPI Dent — это backend-платформа и API для стоматологических клиник. Если у вас уже есть сайт или собственная система — подключим Dent API к ним. Если нет — разработаем решение под ключ: сайт клиники, CRM, личный кабинет пациента и другие необходимые сервисы.</p></details>
+<details class="faq-item reveal"><summary>Можно ли подключить платформу к существующему сайту?</summary><p>Да. Через API сайт может получать врачей, услуги, расписание и свободные слоты, а также создавать записи пациентов.</p></details>
+<details class="faq-item reveal"><summary>Кому подходит BublAPI Dent?</summary><p>Стоматологическим клиникам, сетям, веб-студиям, интеграторам и разработчикам, которым нужна готовая серверная основа для стоматологического сервиса.</p></details>
+<details class="faq-item reveal"><summary>Можно ли посмотреть продукт до внедрения?</summary><p>Да. На <a href="https://demo.dent.bublapi.ru" rel="noopener noreferrer" target="_blank">demo.dent.bublapi.ru</a> доступна публичная демонстрационная клиника.<br/><br/>Для получения доступа к возможностям сотрудников (Staff) напишите мне на <a href="mailto:sales@bublapi.ru">email</a> или в <a href="https://t.me/bublyaash" rel="noopener noreferrer" target="_blank">Telegram</a> — я выдам отдельный демонстрационный аккаунт.</p></details>
+</div>
+</section>
+<section class="section section-shell" id="contact">
+<div class="contact-card reveal">
+<div><div class="eyebrow">Следующий шаг</div><h2>Покажем BublAPI Dent на реальном сценарии клиники</h2><p>Можно начать с демонстрации, обсудить нужный интерфейс и определить состав пилотного внедрения.</p></div>
+<div class="contact-actions">
+<a class="btn btn-primary btn-lg" href="mailto:sales@bublapi.ru"><span aria-hidden="true" class="contact-btn-icon">@</span>sales@bublapi.ru</a>
+<a class="btn btn-telegram btn-lg" href="https://t.me/bublyaash" rel="noopener noreferrer" target="_blank"><span aria-hidden="true" class="contact-btn-icon contact-btn-icon-telegram"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M21.7 3.35 18.54 18.2c-.24 1.05-.86 1.31-1.74.82l-4.81-3.55-2.32 2.23c-.26.26-.47.47-.97.47l.35-4.9 8.91-8.05c.39-.35-.08-.55-.6-.2L6.35 11.96l-4.75-1.49c-1.03-.32-1.05-1.03.22-1.53L20.4 1.78c.86-.31 1.61.2 1.3 1.57Z"/></svg></span>Написать в Telegram</a>
+<a class="btn btn-ghost btn-lg" href="https://demo.dent.bublapi.ru" rel="noopener noreferrer" target="_blank">Открыть демо</a>
+</div>
+</div>
+</section>
+</main>
+<footer class="footer section-shell">
+<a class="brand" href="/"><img alt="" class="brand-logo" height="40" src="/favicon.svg" width="40"/><span class="brand-copy"><strong>BublAPI</strong><small>экосистема API для бизнеса</small></span></a>
+<p>© <span id="year"></span> BublAPI. Все права защищены.</p>
+<div class="footer-nav">
+<nav aria-label="Навигация по сайту" class="footer-links"><a href="/">Главная</a><a href="https://demo.dent.bublapi.ru" rel="noopener noreferrer" target="_blank">Демо</a></nav>
+<nav aria-label="Правовая информация" class="footer-links footer-legal-links"><a href="/legal/privacy/">Политика обработки ПДн</a><a href="/legal/terms/">Пользовательское соглашение</a></nav>
+</div>
+</footer>
+<script src="/script.js"></script>
+</body>
+</html>

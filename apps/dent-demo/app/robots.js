@@ -1,0 +1,1 @@
+export default function robots(){return {rules:[{userAgent:'*',allow:['/','/doctors','/services'],disallow:['/admin','/api/','/live/','/demo/','/login','/profile','/patient/','/staff/']}],sitemap:'https://demo.dent.bublapi.ru/sitemap.xml',host:'https://demo.dent.bublapi.ru'};}

@@ -1,0 +1,5 @@
+export const themeToggleMarkup = `<button aria-label="Включить тёмную тему" aria-pressed="false" class="theme-toggle" data-theme-toggle id="themeToggle" title="Включить тёмную тему" type="button"><span aria-hidden="true" class="theme-toggle-copy"><span class="theme-toggle-label">Тема</span><span class="theme-toggle-value" data-theme-value>Светлая</span></span><span aria-hidden="true" class="theme-toggle-track"><span class="theme-icon theme-icon-sun"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2.5v2M12 19.5v2M4.5 12h-2M21.5 12h-2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"></path></svg></span><span class="theme-icon theme-icon-moon"><svg viewBox="0 0 24 24"><path d="M20.2 15.1A8.4 8.4 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z"></path></svg></span><span class="theme-toggle-thumb"></span></span></button>`;
+
+export function withThemeToggle(shell) {
+  return shell.replace(/<button[^>]*data-theme-toggle[^>]*>[\s\S]*?<\/button>/, themeToggleMarkup);
+}

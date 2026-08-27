@@ -1,0 +1,19 @@
+{
+  "name": "bublapi-dent-demo",
+  "version": "2.0.0",
+  "private": true,
+  "description": "BublAPI Dent demo on Next.js with SSR and live staff appointment updates",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "16.2.11",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "engines": {
+    "node": ">=20.9"
+  }
+}

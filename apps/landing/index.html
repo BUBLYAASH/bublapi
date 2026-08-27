@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('bublapi-theme');
+        var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (dark ? 'dark' : 'light');
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch (e) {
+      }
+    })();
+    document.documentElement.classList.add('js');
+  </script>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta
+      content="BublAPI создаёт готовые отраслевые API и backend-платформы для сайтов, приложений и внутренних систем бизнеса. Первый продукт — BublAPI Dent для стоматологических клиник."
+      name="description"/>
+  <meta content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        name="robots"/>
+  <meta content="#155eef" media="(prefers-color-scheme: light)" name="theme-color"/>
+  <link href="https://bublapi.ru/" rel="canonical"/>
+  <link href="https://bublapi.ru/" hreflang="ru" rel="alternate"/>
+  <meta content="website" property="og:type"/>
+  <meta content="ru_RU" property="og:locale"/>
+  <meta content="BublAPI" property="og:site_name"/>
+  <meta content="BublAPI — отраслевые API и backend-платформы" property="og:title"/>
+  <meta
+      content="Готовая серверная бизнес-логика для цифровых продуктов. Выберите отраслевое решение и подключите свой интерфейс."
+      property="og:description"/>
+  <meta content="https://bublapi.ru/" property="og:url"/>
+  <meta content="https://bublapi.ru/og-image-2.png" property="og:image"/>
+  <meta content="summary_large_image" name="twitter:card"/>
+  <meta content="BublAPI — отраслевые API и backend-платформы" name="twitter:title"/>
+  <meta
+      content="Готовая серверная бизнес-логика для цифровых продуктов. Выберите отраслевое решение и подключите свой интерфейс."
+      name="twitter:description"/>
+  <meta content="https://bublapi.ru/og-image-2.png" name="twitter:image"/>
+  <title>BublAPI — готовые API и backend-платформы для бизнеса</title>
+  <link href="/favicon.ico" rel="icon" sizes="any"/>
+  <link href="/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
+  <link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
+  <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+  <link href="/site.webmanifest" rel="manifest"/>
+  <link href="/styles.css" rel="stylesheet"/>
+  <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://bublapi.ru/#organization",
+        "name": "BublAPI",
+        "url": "https://bublapi.ru/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://bublapi.ru/android-chrome-512x512.png",
+          "width": 512,
+          "height": 512
+        },
+        "email": "sales@bublapi.ru"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://bublapi.ru/#website",
+        "url": "https://bublapi.ru/",
+        "name": "BublAPI",
+        "description": "Каталог готовых отраслевых API и backend-платформ для бизнеса",
+        "inLanguage": "ru-RU",
+        "publisher": {
+          "@id": "https://bublapi.ru/#organization"
+        }
+      },
+      {
+        "@type": "ItemList",
+        "name": "Продукты BublAPI",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "url": "https://bublapi.ru/dent/",
+            "name": "BublAPI Dent"
+          }
+        ]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "BublAPI Dent",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://bublapi.ru/dent/",
+        "description": "Backend-платформа и API для цифровых сервисов стоматологических клиник.",
+        "publisher": {
+          "@id": "https://bublapi.ru/#organization"
+        }
+      }
+    ]
+  }</script>
+  <meta content="#0b1120" media="(prefers-color-scheme: dark)" name="theme-color"/>
+  <link href="https://bublapi.ru/" hreflang="x-default" rel="alternate"/>
+  <meta content="1200" property="og:image:width"/>
+  <meta content="630" property="og:image:height"/>
+  <meta content="BublAPI — отраслевые API и backend-платформы" property="og:image:alt"/>
+  <meta content="BublAPI" name="application-name"/>
+  <meta content="BublAPI" name="apple-mobile-web-app-title"/>
+  <meta content="telephone=no" name="format-detection"/>
+</head>
+<body>
+<div class="page-glow page-glow-a"></div>
+<div class="page-glow page-glow-b"></div>
+<header class="topbar">
+  <a aria-label="BublAPI" class="brand" href="#top">
+    <img alt="" class="brand-logo" height="40" src="/favicon.svg" width="40"/>
+    <span
+        class="brand-copy"><strong>BublAPI</strong><small>экосистема API для бизнеса</small></span>
+  </a>
+  <nav aria-label="Основная навигация" class="topnav">
+    <a href="#products">Продукты</a>
+    <a href="#principles">Как это работает</a>
+    <a href="#contact">Контакты</a>
+  </nav>
+  <div class="top-actions">
+    <button aria-label="Переключить тему" class="theme-toggle" data-theme-toggle=""
+            title="Переключить тему" type="button"><span class="theme-toggle-track"><span
+        aria-hidden="true" class="theme-icon theme-icon-sun">☀</span><span aria-hidden="true"
+                                                                           class="theme-icon theme-icon-moon">☾</span><span
+        class="theme-toggle-thumb"></span></span></button>
+    <a class="btn btn-primary" href="#products">Выбрать API</a>
+  </div>
+</header>
+<main id="top">
+  <section class="hero section-shell platform-hero">
+    <div class="hero-copy reveal">
+      <div class="eyebrow"><span class="eyebrow-dot"></span> BublAPI Platform</div>
+      <h1>Одна платформа.<br/>Несколько отраслевых API.</h1>
+      <p class="hero-lead">BublAPI создаёт готовые backend-продукты для конкретных отраслей.
+        Выберите подходящий API, изучите возможности и подключите к нему сайт, мобильное приложение
+        или внутреннюю систему.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="#products">Перейти к продуктам <span
+            aria-hidden="true">↓</span></a>
+        <a class="btn btn-ghost btn-lg" href="/dent/">Посмотреть Dent API</a>
+      </div>
+      <div class="hero-points">
+        <span>Готовая бизнес-логика</span><span>Единая архитектура</span><span>Собственный интерфейс</span>
+      </div>
+    </div>
+    <div aria-label="Экосистема продуктов BublAPI" class="hero-visual reveal">
+      <div class="ecosystem-visual">
+        <div class="ecosystem-core"><span>B</span><strong>BublAPI</strong><small>API
+          Platform</small></div>
+        <a class="ecosystem-product ecosystem-product-live" href="/dent/">
+          <span class="ecosystem-product-icon">D</span>
+          <div><strong>Dent API</strong><small>Стоматологии</small></div>
+          <em>Доступен</em>
+        </a>
+        <div class="ecosystem-product ecosystem-product-soon ecosystem-product-top">
+          <span class="ecosystem-product-icon">+</span>
+          <div><strong>Новый API</strong><small>Скоро</small></div>
+        </div>
+        <div class="ecosystem-product ecosystem-product-soon ecosystem-product-bottom">
+          <span class="ecosystem-product-icon">+</span>
+          <div><strong>Новый API</strong><small>Скоро</small></div>
+        </div>
+        <span class="ecosystem-line ecosystem-line-a"></span>
+        <span class="ecosystem-line ecosystem-line-b"></span>
+        <span class="ecosystem-line ecosystem-line-c"></span>
+      </div>
+    </div>
+  </section>
+  <section class="section section-shell" id="products">
+    <div class="section-heading reveal">
+      <div class="eyebrow">Каталог продуктов</div>
+      <h2>Выберите API под свою задачу</h2>
+      <p>На главной странице собраны продукты BublAPI. Подробное описание, возможности и сценарии
+        каждого решения находятся на его отдельной странице.</p>
+    </div>
+    <div class="product-catalog">
+      <article class="product-card product-card-live reveal">
+        <div class="product-card-head">
+          <span class="product-logo">D</span>
+          <div class="product-status"><span></span> Доступен</div>
+        </div>
+        <div class="product-card-body">
+          <p class="product-kicker">BublAPI Dent</p>
+          <h3>API и backend-платформа для стоматологии</h3>
+          <p>Пациенты, врачи, услуги, расписание, онлайн-запись, роли и уведомления в единой системе
+            для клиник и разработчиков.</p>
+          <div class="feature-tags"><span>Стоматологии</span><span>REST API</span><span>Онлайн-запись</span>
+          </div>
+        </div>
+        <div class="product-card-actions">
+          <a class="btn btn-primary" href="/dent/">Подробнее о Dent API</a>
+          <a class="btn btn-ghost" href="https://demo.dent.bublapi.ru" rel="noopener noreferrer"
+             target="_blank">Открыть демо</a>
+          <span aria-disabled="true" class="btn btn-disabled"
+                title="Документация будет добавлена позже">Документация — скоро</span>
+        </div>
+      </article>
+      <article aria-label="Будущий продукт BublAPI"
+               class="product-card product-card-placeholder reveal">
+        <div class="product-card-head"><span class="product-logo product-logo-muted">+</span>
+          <div class="product-status product-status-soon">В разработке</div>
+        </div>
+        <div class="product-card-body"><p class="product-kicker">Следующий продукт</p>
+          <h3>Каталог будет расширяться</h3>
+          <p>Новые отраслевые API появятся здесь вместе с отдельными страницами, демонстрациями и
+            документацией.</p></div>
+        <div class="product-card-actions"><span aria-disabled="true"
+                                                class="btn btn-disabled">Скоро</span></div>
+      </article>
+    </div>
+  </section>
+  <section class="section section-shell" id="principles">
+    <div class="section-heading reveal">
+      <div class="eyebrow">Как устроен BublAPI</div>
+      <h2>Общая платформа, отдельные отраслевые продукты</h2>
+      <p>Главная страница помогает выбрать решение. Каждая продуктовая страница объясняет конкретную
+        отрасль, её процессы и способы интеграции.</p>
+    </div>
+    <div class="platform-grid">
+      <article class="platform-card reveal"><span>01</span>
+        <h3>Выбираете продукт</h3>
+        <p>Находите API, который соответствует отрасли и задаче вашего бизнеса.</p></article>
+      <article class="platform-card reveal"><span>02</span>
+        <h3>Изучаете возможности</h3>
+        <p>Переходите на отдельную страницу продукта, смотрите сценарии и демонстрацию.</p>
+      </article>
+      <article class="platform-card reveal"><span>03</span>
+        <h3>Запускаете цифровую систему</h3>
+        <p>Используете уже существующий сайт или программу вашей клиники или мы полностью создаём
+          решение под ваши задачи — от сайта до CRM и мобильного приложения.</p></article>
+    </div>
+  </section>
+  <section class="section section-shell" id="contact">
+    <div class="contact-card reveal">
+      <div>
+        <div class="eyebrow">Связаться</div>
+        <h2>Нужен отраслевой API или внедрение BublAPI Dent?</h2>
+        <p>Расскажите о задаче — обсудим подходящий продукт, формат интеграции и следующий шаг.</p>
+      </div>
+      <div class="contact-actions">
+        <a class="btn btn-primary btn-lg" href="mailto:sales@bublapi.ru"><span aria-hidden="true"
+                                                                                  class="contact-btn-icon">@</span>sales@bublapi.ru</a>
+        <a class="btn btn-telegram btn-lg" href="https://t.me/bublyaash" rel="noopener noreferrer"
+           target="_blank"><span aria-hidden="true"
+                                 class="contact-btn-icon contact-btn-icon-telegram"><svg
+            viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor"
+                                                                                d="M21.7 3.35 18.54 18.2c-.24 1.05-.86 1.31-1.74.82l-4.81-3.55-2.32 2.23c-.26.26-.47.47-.97.47l.35-4.9 8.91-8.05c.39-.35-.08-.55-.6-.2L6.35 11.96l-4.75-1.49c-1.03-.32-1.05-1.03.22-1.53L20.4 1.78c.86-.31 1.61.2 1.3 1.57Z"/></svg></span>Telegram</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="footer section-shell">
+  <a class="brand" href="/"><img alt="" class="brand-logo" height="40" src="/favicon.svg"
+                                 width="40"/><span
+      class="brand-copy"><strong>BublAPI</strong><small>экосистема API для бизнеса</small></span></a>
+  <p>© <span id="year"></span> BublAPI. Все права защищены.</p>
+  <div class="footer-nav">
+    <nav aria-label="Навигация по сайту" class="footer-links">
+      <a href="#products">Продукты</a><a href="/dent/">Dent API</a>
+    </nav>
+    <nav aria-label="Правовая информация" class="footer-links footer-legal-links">
+      <a href="/legal/privacy/">Политика обработки ПДн</a>
+      <a href="/legal/terms/">Пользовательское соглашение</a>
+    </nav>
+  </div>
+</footer>
+<script src="/script.js"></script>
+</body>
+</html>

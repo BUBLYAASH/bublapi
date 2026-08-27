@@ -1,0 +1,28 @@
+services:
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bublapi-admin
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      SPRING_API_URL: ${SPRING_API_URL:-http://bublapi-backend:8080}
+      ADMIN_PUBLIC_ORIGIN: ${ADMIN_PUBLIC_ORIGIN:-https://admin.bublapi.ru}
+    ports:
+      - "127.0.0.1:3001:3000"
+    networks:
+      - bublapi-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/login >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+networks:
+  bublapi-network:
+    external: true
+    name: ${BUBLAPI_DOCKER_NETWORK:-dent_bublapi-network}

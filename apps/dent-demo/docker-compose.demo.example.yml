@@ -1,0 +1,14 @@
+services:
+  demo:
+    build: .
+    container_name: bublapi-demo
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - demo_uploads:/app/data/uploads
+
+volumes:
+  demo_uploads:

@@ -1,0 +1,9 @@
+node_modules
+.next
+.env
+.env.*
+.git
+.idea
+.DS_Store
+*.log
+logs
