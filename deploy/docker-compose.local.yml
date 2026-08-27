@@ -62,6 +62,8 @@ services:
     build:
       context: ../services/dent-backend
       dockerfile: Dockerfile
+      args:
+        APP_VERSION: ${APP_VERSION}
 
     container_name: bublapi-local-backend
     restart: unless-stopped
