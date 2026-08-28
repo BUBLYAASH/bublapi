@@ -226,3 +226,49 @@ html:not([data-auth-ready="true"]) [data-initial-view="profile"] .main::before {
     animation: none !important;
   }
 }
+
+/* -------------------------------------------------------------------------
+   Protected-route first paint
+   SSR intentionally cannot know the JWT stored in Web Storage. On a direct
+   /staff, /patient/* or /profile refresh the server shell may therefore still
+   contain the public home as its active view. Keep both the page body and the
+   sidebar navigation visually gated until legacy/app.js has activated the
+   route that matches location.pathname. This prevents the home page and the
+   old staff nav group from flashing for a frame after auth has resolved.
+   ------------------------------------------------------------------------- */
+html[data-protected-initial-route="true"]:not([data-route-ready="true"]) .main > *,
+html[data-protected-initial-route="true"]:not([data-route-ready="true"]) .sidebar > * {
+  visibility: hidden !important;
+}
+
+html[data-protected-initial-route="true"]:not([data-route-ready="true"]) .main {
+  min-height: 42vh;
+  pointer-events: none;
+  user-select: none;
+}
+
+html[data-protected-initial-route="true"]:not([data-route-ready="true"]) .main::after {
+  content: "";
+  visibility: visible;
+  display: block;
+  width: 88px;
+  height: 34px;
+  margin: min(18vh, 150px) auto 0;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 21px 17px, var(--primary) 0 5px, transparent 5.5px),
+    radial-gradient(circle at 44px 17px, color-mix(in srgb, var(--primary) 70%, var(--surface)) 0 5px, transparent 5.5px),
+    radial-gradient(circle at 67px 17px, color-mix(in srgb, var(--primary) 40%, var(--surface)) 0 5px, transparent 5.5px),
+    color-mix(in srgb, var(--surface-2) 88%, transparent);
+  animation: bublapi-bubble-pulse 850ms ease-in-out infinite alternate;
+}
+
+/* In staff mode only the dedicated staff navigation belongs in the sidebar.
+   The public/patient groups must never leak underneath the panel controls. */
+body[data-sidebar-mode="staff"] .sidebar > .nav-group:not([data-access="staff-core,staff-appointments"]):not(.sidebar-context-exit) {
+  display: none !important;
+}
+
+body[data-sidebar-mode="patient"] .sidebar > .nav-group[data-access="staff-core,staff-appointments"] {
+  display: none !important;
+}

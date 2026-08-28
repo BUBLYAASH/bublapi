@@ -17,6 +17,29 @@
   let pendingCalendarStart = null;
   let pendingApplyGeneration = 0;
 
+  const ROUTE_VIEW_MAP = {
+    '/profile': 'profile',
+    '/patient/card': 'patient-card',
+    '/patient/appointments': 'patient-appointments',
+    '/patient/notifications': 'patient-notifications',
+    '/staff': 'staff-dashboard',
+    '/staff/patients': 'staff-patients',
+    '/staff/doctors': 'staff-doctors',
+    '/staff/services': 'staff-services',
+    '/staff/appointments': 'staff-appointments',
+    '/staff/users': 'staff-users'
+  };
+
+  const initialPath = location.pathname.replace(/\/+$/, '') || '/';
+  const expectedInitialView = ROUTE_VIEW_MAP[initialPath] || null;
+  const protectedInitialRoute = Boolean(expectedInitialView);
+  if (protectedInitialRoute) {
+    root.dataset.protectedInitialRoute = 'true';
+    root.dataset.expectedInitialView = expectedInitialView;
+  } else {
+    root.dataset.routeReady = 'true';
+  }
+
   const qs = (selector, scope = document) => scope.querySelector(selector);
   const qsa = (selector, scope = document) => [...scope.querySelectorAll(selector)];
 
@@ -49,6 +72,46 @@
       .some(item => item === 'authenticated' ? authenticated : Boolean(profile[item]));
   }
 
+  function syncInitialRouteReady(profile = null, authenticated = null) {
+    if (!protectedInitialRoute || root.dataset.routeReady === 'true') return;
+
+    const active = document.querySelector('.view.active');
+    const activeName = active?.id?.replace(/^view-/, '') || '';
+    if (activeName === expectedInitialView) {
+      root.dataset.routeReady = 'true';
+      return;
+    }
+
+    // If the saved session cannot access the requested protected route, the
+    // legacy router intentionally falls back to home. Do not leave the loader
+    // hanging forever in that case.
+    if (root.dataset.authReady === 'true' && profile && authenticated !== null) {
+      const needsStaff = expectedInitialView.startsWith('staff-');
+      const needsPatient = expectedInitialView.startsWith('patient-');
+      const allowed = expectedInitialView === 'profile'
+        ? authenticated
+        : needsStaff
+          ? Boolean(profile['staff-core'] || profile['staff-appointments'])
+          : needsPatient
+            ? Boolean(profile.patient)
+            : true;
+      if (!allowed && activeName === 'home') root.dataset.routeReady = 'true';
+    }
+  }
+
+  function installInitialRouteObserver() {
+    if (!protectedInitialRoute) return;
+    const check = () => syncInitialRouteReady();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    check();
+  }
+
   function applyResolvedAccess(profile, authenticated) {
     qsa('[data-access]').forEach(element => {
       element.classList.toggle(
@@ -65,6 +128,7 @@
     if (logout) logout.classList.toggle('hidden', !authenticated);
 
     root.dataset.authReady = 'true';
+    syncInitialRouteReady(profile, authenticated);
   }
 
   async function probe(url, token) {
@@ -414,6 +478,7 @@
   }
 
   function bootstrapDomFeatures() {
+    installInitialRouteObserver();
     installStickyOffsetObserver();
     installImageOptimizer();
     installCalendarClickMode();
