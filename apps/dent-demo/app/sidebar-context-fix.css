@@ -1,0 +1,29 @@
+/*
+ * Final sidebar context guard.
+ * Keeps patient/public navigation and staff workspace mutually exclusive,
+ * while preserving the explicit "Панель сотрудника" entry for users who
+ * actually have staff permissions.
+ */
+
+body[data-sidebar-mode="patient"] .sidebar-context-entry:not(.hidden) {
+  display: block !important;
+}
+
+body[data-sidebar-mode="patient"] .sidebar-context-exit {
+  display: none !important;
+}
+
+body[data-sidebar-mode="patient"]
+  .sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry) {
+  display: none !important;
+}
+
+body[data-sidebar-mode="staff"] .sidebar-context-entry {
+  display: none !important;
+}
+
+@media (max-width: 1050px) {
+  body[data-sidebar-mode="patient"] .sidebar-context-entry:not(.hidden) {
+    display: flex !important;
+  }
+}
