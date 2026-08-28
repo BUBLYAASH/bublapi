@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import Script from 'next/script';
 import './styles.css';
+import './fixes.css';
 
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();
@@ -11,6 +12,7 @@ export default async function RootLayout({ children }) {
     <html lang="ru" data-theme={theme} suppressHydrationWarning>
       <body>
         {children}
+        <Script src="/legacy/preload.js" strategy="beforeInteractive" />
         <Script src="/theme.js" strategy="afterInteractive" />
       </body>
     </html>

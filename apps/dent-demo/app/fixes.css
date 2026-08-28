@@ -1,0 +1,228 @@
+/*
+ * Dent demo stability/performance fixes.
+ * Loaded after styles.css so this file only contains targeted overrides.
+ */
+
+:root {
+  --bublapi-topbar-height: 67px;
+  --bublapi-mobile-nav-height: 64px;
+}
+
+/* -------------------------------------------------------------------------
+   Auth bootstrap
+   SSR cannot read the JWT while it is kept in local/sessionStorage. Hide
+   auth-sensitive controls until preload.js resolves the saved session, so
+   guest controls never flash before staff/patient controls are known.
+   ------------------------------------------------------------------------- */
+html:not([data-auth-ready="true"]) #openAuthBtn,
+html:not([data-auth-ready="true"]) #logoutBtn,
+html:not([data-auth-ready="true"]) [data-guest-only],
+html:not([data-auth-ready="true"]) .sidebar [data-access],
+html:not([data-auth-ready="true"]) .sidebar-context-entry,
+html:not([data-auth-ready="true"]) .sidebar-context-exit {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+html:not([data-auth-ready="true"]) .top-actions::after {
+  content: "";
+  display: inline-block;
+  width: 82px;
+  height: 36px;
+  flex: 0 0 82px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 19px 18px, color-mix(in srgb, var(--primary) 72%, transparent) 0 4px, transparent 4.5px),
+    radial-gradient(circle at 41px 18px, color-mix(in srgb, var(--primary) 52%, transparent) 0 4px, transparent 4.5px),
+    radial-gradient(circle at 63px 18px, color-mix(in srgb, var(--primary) 34%, transparent) 0 4px, transparent 4.5px),
+    color-mix(in srgb, var(--surface-2) 90%, transparent);
+  animation: bublapi-bubble-pulse 900ms ease-in-out infinite alternate;
+}
+
+/* On protected deep links do not flash the SSR home view while the saved
+   session is being checked. The header stays interactive and the body gets a
+   very cheap CSS-only bubble loader. */
+html:not([data-auth-ready="true"]) [data-initial-view^="staff-"] .main,
+html:not([data-auth-ready="true"]) [data-initial-view^="patient-"] .main,
+html:not([data-auth-ready="true"]) [data-initial-view="profile"] .main {
+  min-height: 42vh;
+  color: transparent;
+  pointer-events: none;
+  user-select: none;
+}
+
+html:not([data-auth-ready="true"]) [data-initial-view^="staff-"] .main > *,
+html:not([data-auth-ready="true"]) [data-initial-view^="patient-"] .main > *,
+html:not([data-auth-ready="true"]) [data-initial-view="profile"] .main > * {
+  visibility: hidden;
+}
+
+html:not([data-auth-ready="true"]) [data-initial-view^="staff-"] .main::before,
+html:not([data-auth-ready="true"]) [data-initial-view^="patient-"] .main::before,
+html:not([data-auth-ready="true"]) [data-initial-view="profile"] .main::before {
+  content: "";
+  visibility: visible;
+  display: block;
+  width: 88px;
+  height: 34px;
+  margin: min(18vh, 150px) auto 0;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 21px 17px, var(--primary) 0 5px, transparent 5.5px),
+    radial-gradient(circle at 44px 17px, color-mix(in srgb, var(--primary) 70%, var(--surface)) 0 5px, transparent 5.5px),
+    radial-gradient(circle at 67px 17px, color-mix(in srgb, var(--primary) 40%, var(--surface)) 0 5px, transparent 5.5px),
+    color-mix(in srgb, var(--surface-2) 88%, transparent);
+  animation: bublapi-bubble-pulse 850ms ease-in-out infinite alternate;
+}
+
+@keyframes bublapi-bubble-pulse {
+  from { opacity: .58; transform: translateY(1px); }
+  to { opacity: 1; transform: translateY(-1px); }
+}
+
+/* -------------------------------------------------------------------------
+   Mobile/tablet sticky navigation
+   The previous CSS alternated between sticky/relative and used a hard coded
+   67px offset even when the topbar wrapped to two rows. preload.js measures
+   the real topbar and stores it in --bublapi-topbar-height.
+   ------------------------------------------------------------------------- */
+@media (max-width: 1050px) {
+  .sidebar {
+    position: sticky !important;
+    top: var(--bublapi-topbar-height, 67px) !important;
+    z-index: 29 !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    height: var(--bublapi-mobile-nav-height) !important;
+    min-height: var(--bublapi-mobile-nav-height) !important;
+    max-height: var(--bublapi-mobile-nav-height) !important;
+    padding: 8px 10px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    background: color-mix(in srgb, var(--surface) 96%, transparent) !important;
+    backdrop-filter: blur(14px);
+    contain: layout paint;
+  }
+
+  .sidebar::-webkit-scrollbar { display: none; }
+
+  .sidebar .nav-group {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin: 0 !important;
+    height: 48px;
+    min-height: 48px;
+  }
+
+  .sidebar .nav-group.hidden { display: none !important; }
+
+  .sidebar .nav-button {
+    flex: 0 0 auto;
+    width: auto !important;
+    min-height: 44px;
+    max-height: 48px;
+    margin: 0 !important;
+    white-space: nowrap;
+  }
+
+  .sidebar .context-button small { display: none; }
+}
+
+@media (max-width: 700px) {
+  /* Override the old mobile rule `.sidebar { position:relative; top:auto; }`. */
+  .sidebar {
+    position: sticky !important;
+    top: var(--bublapi-topbar-height, 104px) !important;
+  }
+
+  .topbar {
+    z-index: 30;
+  }
+
+  .top-actions {
+    min-height: 44px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Staff calendar: click-to-start only.
+   No visual drag range; each free cell is a start-time candidate. Duration is
+   resolved later by the selected service availability.
+   ------------------------------------------------------------------------- */
+.staff-timeline-cell.is-selecting {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.staff-timeline-cell.is-free {
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.staff-timeline-cell.is-free:active {
+  transform: none;
+  background: color-mix(in srgb, var(--primary) 14%, var(--surface));
+}
+
+.staff-calendar-loading-bubbles {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 24px;
+  margin-top: 8px;
+}
+
+.staff-calendar-loading-bubbles > i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  opacity: .35;
+  animation: bublapi-calendar-bubble 850ms ease-in-out infinite alternate;
+}
+
+.staff-calendar-loading-bubbles > i:nth-child(2) { animation-delay: 120ms; }
+.staff-calendar-loading-bubbles > i:nth-child(3) { animation-delay: 240ms; }
+
+@keyframes bublapi-calendar-bubble {
+  to { opacity: 1; transform: translateY(-3px); }
+}
+
+.staff-calendar-start-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.staff-calendar-start-note.is-warning {
+  color: var(--warning);
+}
+
+/* Native optimisation for legacy-rendered doctor images. Next <Image> cannot
+   own images created from HTML strings, so preload.js applies lazy decoding
+   without changing layout or forcing a component rewrite. */
+.doctor-avatar {
+  content-visibility: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-auth-ready="true"]) .top-actions::after,
+  html:not([data-auth-ready="true"]) [data-initial-view^="staff-"] .main::before,
+  html:not([data-auth-ready="true"]) [data-initial-view^="patient-"] .main::before,
+  html:not([data-auth-ready="true"]) [data-initial-view="profile"] .main::before,
+  .staff-calendar-loading-bubbles > i {
+    animation: none !important;
+  }
+}
