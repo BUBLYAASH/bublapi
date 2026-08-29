@@ -12,12 +12,10 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /*
- * The legacy admin UI manages users through Spring's /api/users controller.
- * Previously admin.bublapi.ru had no Next route for that path, so Next returned
- * its HTML 404 document. api.js then surfaced that HTML as the error text.
- *
- * Keep the browser talking only to the same-origin admin app and proxy the
- * HttpOnly admin session to Spring as Bearer auth.
+ * Browser compatibility route for the existing admin frontend.
+ * The UI historically calls /api/users. A system ADMIN has no clinicId,
+ * therefore the clinic-scoped /api/users endpoint correctly answers 403.
+ * Proxy those calls to the dedicated global-admin endpoint instead.
  */
 async function proxy(request, context) {
   const token = adminToken(request);
@@ -41,7 +39,8 @@ async function proxy(request, context) {
   const suffix = Array.isArray(path) && path.length
     ? `/${path.map(part => encodeURIComponent(part)).join('/')}`
     : '';
-  const target = new URL(`${API_BASE}/api/users${suffix}`);
+
+  const target = new URL(`${API_BASE}/api/admin/users${suffix}`);
   target.search = incoming.search;
 
   const init = {
@@ -62,7 +61,6 @@ async function proxy(request, context) {
       headers: copyResponseHeaders(upstream)
     });
 
-    // Only a genuinely expired/invalid token ends the whole admin session.
     if (upstream.status === 401) {
       response.cookies.set(
         sessionCookieName(),
