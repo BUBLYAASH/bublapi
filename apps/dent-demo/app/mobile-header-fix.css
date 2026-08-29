@@ -1,0 +1,226 @@
+/*
+ * BublAPI Dent demo — compact mobile topbar + staff entry fix.
+ * Loaded after styles.css and fixes.css.
+ */
+
+/* -------------------------------------------------------------------------
+   Staff entry
+   fixes.css used a broad selector that hid every
+   [data-access="staff-core,staff-appointments"] group in patient mode.
+   That also matched .sidebar-context-entry itself.
+   ------------------------------------------------------------------------- */
+body[data-sidebar-mode="patient"]
+  .sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry) {
+  display: none !important;
+}
+
+body[data-sidebar-mode="patient"] .sidebar-context-exit {
+  display: none !important;
+}
+
+body[data-sidebar-mode="patient"] .sidebar-context-entry:not(.hidden) {
+  display: flex !important;
+}
+
+body[data-sidebar-mode="staff"] .sidebar-context-entry {
+  display: none !important;
+}
+
+body[data-sidebar-mode="staff"] .sidebar-context-exit:not(.hidden) {
+  display: flex !important;
+}
+
+/* -------------------------------------------------------------------------
+   Compact topbar on tablet/mobile.
+   Keep brand + controls in ONE row. The logout text becomes a compact icon
+   only on narrow screens, while its accessible text/aria semantics remain.
+   ------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .topbar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 11px 14px !important;
+    min-width: 0;
+  }
+
+  .topbar .brand {
+    min-width: 0;
+    flex: 1 1 auto;
+    gap: 9px !important;
+  }
+
+  .topbar .brand-mark {
+    width: 36px !important;
+    height: 36px !important;
+    flex: 0 0 36px !important;
+  }
+
+  .topbar .brand > span:last-child {
+    min-width: 0;
+    line-height: 1.05;
+  }
+
+  .topbar .brand small {
+    white-space: nowrap;
+  }
+
+  .top-actions {
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  /* Theme control is only the actual pill on compact layouts.
+     This removes the oversized invisible/button background seen on iPhone. */
+  .top-actions .theme-toggle {
+    min-width: 0 !important;
+    width: 64px !important;
+    max-width: 64px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 3px !important;
+    border-radius: 999px !important;
+    flex: 0 0 64px !important;
+    overflow: hidden !important;
+  }
+
+  .top-actions .theme-toggle-copy,
+  .top-actions .theme-toggle-label,
+  .top-actions .theme-toggle-value {
+    display: none !important;
+  }
+
+  .top-actions .theme-toggle-track {
+    width: 56px !important;
+    height: 30px !important;
+    flex: 0 0 56px !important;
+    margin: 0 !important;
+  }
+
+  #logoutBtn {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .topbar {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  .topbar .brand-mark {
+    width: 34px !important;
+    height: 34px !important;
+    flex-basis: 34px !important;
+  }
+
+  .topbar .brand > span:last-child {
+    font-size: clamp(15px, 4.1vw, 18px) !important;
+    white-space: nowrap;
+  }
+
+  .topbar .brand small {
+    display: none !important;
+  }
+
+  .top-actions {
+    gap: 6px !important;
+  }
+
+  .top-actions .theme-toggle {
+    width: 58px !important;
+    max-width: 58px !important;
+    flex-basis: 58px !important;
+    height: 38px !important;
+  }
+
+  .top-actions .theme-toggle-track {
+    width: 50px !important;
+  }
+
+  /* Visually convert "Выйти" to a compact logout icon without disabling
+     the original text for assistive technologies. */
+  #logoutBtn:not(.hidden) {
+    position: relative;
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 !important;
+    overflow: hidden;
+    white-space: nowrap;
+    text-indent: -9999px;
+    border-radius: 12px !important;
+  }
+
+  #logoutBtn:not(.hidden)::after {
+    content: "↪";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-indent: 0;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 700;
+    color: currentColor;
+    transform: rotate(180deg);
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar .brand > span:last-child {
+    font-size: 15px !important;
+  }
+
+  .top-actions .theme-toggle {
+    width: 54px !important;
+    max-width: 54px !important;
+    flex-basis: 54px !important;
+  }
+
+  .top-actions .theme-toggle-track {
+    width: 46px !important;
+  }
+
+  #logoutBtn:not(.hidden) {
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+  }
+}
+
+/* Make the context entry fit the horizontal mobile second header naturally. */
+@media (max-width: 1050px) {
+  body[data-sidebar-mode="patient"] .sidebar-context-entry:not(.hidden) {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    margin: 0 !important;
+  }
+
+  body[data-sidebar-mode="patient"] .sidebar-context-entry .nav-title {
+    display: none !important;
+  }
+
+  body[data-sidebar-mode="patient"] .sidebar-context-entry .context-button {
+    min-height: 44px !important;
+    height: 44px !important;
+    max-height: 44px !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 10px 14px !important;
+    white-space: nowrap !important;
+  }
+
+  body[data-sidebar-mode="patient"] .sidebar-context-entry .context-button small {
+    display: none !important;
+  }
+}

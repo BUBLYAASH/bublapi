@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import Script from 'next/script';
 import './styles.css';
 import './fixes.css';
+import './mobile-header-fix.css';
 
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();

@@ -1,0 +1,190 @@
+/*
+ * Admin list-first workflow and mobile modal adaptation.
+ * Loaded after the existing styles/admin-fixes.
+ */
+
+.admin-section-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-create-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.admin-create-modal.hidden {
+  display: none !important;
+}
+
+.admin-create-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 10, 20, .58);
+  backdrop-filter: blur(5px);
+}
+
+.admin-create-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
+  max-height: min(820px, calc(100dvh - 40px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+}
+
+.admin-create-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-create-modal-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.admin-create-modal-body {
+  min-height: 0;
+  overflow: auto;
+  padding: 18px 22px 22px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-create-modal-body > form.card {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.admin-create-modal-body > form.card > h2 {
+  display: none;
+}
+
+#adminCreateParking {
+  display: none !important;
+}
+
+/* When creation forms are moved away, lists become the primary page content. */
+#view-admin-clinics #clinicsTable,
+#view-admin-catalog #catalogTable,
+#view-admin-api-keys #apiKeysTable {
+  margin-top: 0 !important;
+}
+
+/* Prevent giant raw HTML errors from destroying layout if any future frontend
+   route accidentally responds with a document rather than JSON. */
+.toast {
+  max-width: min(440px, calc(100vw - 32px));
+  max-height: min(52dvh, 440px);
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+
+/* Generic responsive hardening for admin forms/tables. */
+.form-grid > *,
+.section-head > *,
+.card,
+.table-wrap {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .section-head {
+    align-items: flex-start;
+  }
+
+  .admin-section-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .admin-section-actions .btn {
+    flex: 0 0 auto;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .form-grid .full {
+    grid-column: 1 !important;
+  }
+
+  /* iOS Safari: 16px prevents focus auto-zoom. */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  .admin-create-modal {
+    align-items: end;
+    padding: 0;
+  }
+
+  .admin-create-modal-dialog {
+    width: 100%;
+    max-height: min(88dvh, 760px);
+    border-radius: 22px 22px 0 0;
+    border-bottom: 0;
+  }
+
+  .admin-create-modal-head {
+    padding: 16px 16px 12px;
+  }
+
+  .admin-create-modal-body {
+    padding: 16px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
+  .admin-create-modal-body .btn {
+    min-height: 46px;
+  }
+}
+
+@media (max-width: 520px) {
+  .section-head {
+    gap: 12px;
+  }
+
+  .section-head h1,
+  .section-head h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .admin-section-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-section-actions .btn {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 10px;
+  }
+
+  .admin-create-modal-head h2 {
+    font-size: 20px;
+  }
+}
