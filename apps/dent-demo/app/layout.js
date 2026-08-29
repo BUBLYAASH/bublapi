@@ -14,6 +14,7 @@ export default async function RootLayout({ children }) {
       <body>
         {children}
         <Script src="/legacy/preload.js" strategy="beforeInteractive" />
+        <Script src="/legacy/stability-guard.js" strategy="beforeInteractive" />
         <Script src="/legacy/final-fixes.js" strategy="beforeInteractive" />
         <Script src="/legacy/calendar-prefill-fix.js" strategy="beforeInteractive" />
         <Script src="/theme.js" strategy="afterInteractive" />
