@@ -1,0 +1,87 @@
+/*
+ * Dent demo final targeted UI fixes.
+ * Loaded after styles.css + fixes.css.
+ */
+
+/* -------------------------------------------------------------------------
+   Staff navigation: never expose the real workspace buttons on the patient
+   side while access/route bootstrap is still resolving.
+   ------------------------------------------------------------------------- */
+html:not([data-staff-nav-ready="true"]) .sidebar-context-entry,
+html:not([data-staff-nav-ready="true"])
+  .sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry),
+html:not([data-staff-nav-ready="true"]) .sidebar-context-exit {
+  display: none !important;
+}
+
+html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"]
+  .sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry),
+html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"] .sidebar-context-exit {
+  display: none !important;
+}
+
+html[data-staff-nav-ready="true"] body[data-sidebar-mode="staff"] .sidebar-context-entry {
+  display: none !important;
+}
+
+html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"]
+  .sidebar-context-entry:not(.hidden) {
+  display: block !important;
+}
+
+@media (max-width: 1050px) {
+  html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"]
+    .sidebar-context-entry:not(.hidden) {
+    display: flex !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Staff appointment modal: iOS/Safari gives date controls a fairly large
+   intrinsic width. Make every form-grid child shrinkable.
+   ------------------------------------------------------------------------- */
+#staffAppointmentForm .form-grid,
+#staffAppointmentForm .form-grid > *,
+#staffAppointmentForm label,
+#staffAppointmentForm input,
+#staffAppointmentForm select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#staffAppointmentDate {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+@media (max-width: 700px) {
+  #staffAppointmentForm .form-grid {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  #staffAppointmentDate {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  #staffAppointmentForm .booking-date-quick-list {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+/* Disabled/past calendar slots are visibly non-interactive. */
+#staffDashboardCalendar [data-calendar-slot].hotfix-past-slot {
+  opacity: .28 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+#staffBookingDates [data-booking-date].hotfix-past-date,
+#patientBookingDates [data-booking-date].hotfix-past-date {
+  display: none !important;
+}

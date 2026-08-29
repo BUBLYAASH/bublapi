@@ -1,0 +1,115 @@
+:root {
+  --admin-topbar-height: 67px;
+  --admin-mobile-nav-height: 62px;
+}
+
+[data-admin-ssr-ready="true"] {
+  min-height: 100dvh;
+}
+
+@media (max-width: 900px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  .topbar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+  }
+
+  .layout {
+    display: block !important;
+    min-height: calc(100dvh - var(--admin-topbar-height));
+  }
+
+  .sidebar {
+    position: sticky !important;
+    top: var(--admin-topbar-height, 67px) !important;
+    z-index: 40 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+
+    width: 100% !important;
+    height: var(--admin-mobile-nav-height) !important;
+    min-height: var(--admin-mobile-nav-height) !important;
+    max-height: var(--admin-mobile-nav-height) !important;
+
+    padding: 7px 10px !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+
+    background: color-mix(in srgb, var(--surface) 96%, transparent) !important;
+    backdrop-filter: blur(14px);
+    contain: layout paint;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sidebar .nav-group {
+    display: flex !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+
+    width: max-content !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .sidebar .nav-title {
+    display: none !important;
+  }
+
+  .sidebar .nav-button {
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+
+    width: auto !important;
+    min-width: max-content !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 9px 13px !important;
+    white-space: nowrap !important;
+    line-height: 1.15 !important;
+  }
+
+  .sidebar .nav-button.hidden {
+    display: none !important;
+  }
+
+  .main {
+    padding-top: 22px;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    min-height: 0 !important;
+  }
+
+  .main {
+    padding: 20px 16px 28px !important;
+  }
+}

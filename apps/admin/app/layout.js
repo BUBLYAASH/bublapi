@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import Script from 'next/script';
 import './styles.css';
+import './admin-fixes.css';
 import NavigationBridge from './navigation-bridge';
 
 export default async function RootLayout({ children }) {
@@ -13,6 +14,7 @@ export default async function RootLayout({ children }) {
       <body data-surface="admin">
         <NavigationBridge />
         {children}
+        <Script src="/admin-bootstrap.js" strategy="beforeInteractive" />
         <Script src="/theme.js" strategy="afterInteractive" />
       </body>
     </html>

@@ -4,19 +4,20 @@ import { notFound, redirect } from 'next/navigation';
 import { adminShell } from '../../lib/shells';
 import { themeToggleMarkup, withThemeToggle } from '../../lib/theme-toggle';
 import { sessionCookieName } from '../../lib/session';
+import { hasValidAdminSession } from '../../lib/admin-session';
 
 export const dynamic = 'force-dynamic';
 
 const PAGES = {
   login: { kind: 'login', title: 'Вход администратора', public: true },
   apis: { kind: 'catalog', title: 'Выбор API' },
-  'dent/clinics': { view: 'admin-clinics', title: 'Клиники' },
-  'dent/catalog': { view: 'admin-catalog', title: 'Каталог услуг' },
-  'dent/api-keys': { view: 'admin-api-keys', title: 'API-ключи' },
-  'dent/notifications': { view: 'admin-notifications', title: 'Системные уведомления' },
-  'dent/users': { view: 'admin-users', title: 'Пользователи и роли' },
-  'dent/docs': { view: 'admin-docs', title: 'API-документация' },
-  'dent/system': { view: 'admin-system', title: 'Состояние системы' }
+  'dent/clinics': { view:'admin-clinics', title:'Клиники' },
+  'dent/catalog': { view:'admin-catalog', title:'Каталог услуг' },
+  'dent/api-keys': { view:'admin-api-keys', title:'API-ключи' },
+  'dent/notifications': { view:'admin-notifications', title:'Системные уведомления' },
+  'dent/users': { view:'admin-users', title:'Пользователи и роли' },
+  'dent/docs': { view:'admin-docs', title:'API-документация' },
+  'dent/system': { view:'admin-system', title:'Состояние системы' }
 };
 
 const EXTRA_NAV = `
@@ -45,7 +46,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `${config.title} | BublAPI Admin`,
     description: 'Защищённая системная панель управления BublAPI.',
-    robots: { index: false, follow: false, nocache: true }
+    robots: { index:false, follow:false, nocache:true }
   };
 }
 
@@ -130,20 +131,24 @@ function buildDentShell(view) {
 
 export default async function AdminRoute({ params }) {
   const { key, config } = await resolvePage(params);
+  if (!config && key) notFound();
+
   const cookieStore = await cookies();
-  const authenticated = Boolean(cookieStore.get(sessionCookieName())?.value);
+  const token = cookieStore.get(sessionCookieName())?.value || '';
+  const authenticated = await hasValidAdminSession(token);
 
   if (!key) redirect(authenticated ? '/apis' : '/login');
   if (!config) notFound();
-  if (!config.public && !authenticated) redirect('/login');
+
   if (config.public && authenticated) redirect('/apis');
+  if (!config.public && !authenticated) redirect('/login');
 
   if (config.kind === 'login') return <LoginPage />;
 
   const catalogActive = config.kind === 'catalog';
   const initialView = config.view || 'admin-clinics';
 
-  return <>
+  return <div data-admin-ssr-ready="true" data-admin-role-ready="true">
     <div data-workspace-surface="catalog" hidden={!catalogActive}>
       <ApiCatalogSurface />
     </div>
@@ -153,5 +158,5 @@ export default async function AdminRoute({ params }) {
     <Script src="/portal.js" strategy="afterInteractive" />
     <Script src="/legacy/admin.js" type="module" strategy="afterInteractive" />
     <Script src="/workspace-navigation.js" strategy="afterInteractive" />
-  </>;
+  </div>;
 }
