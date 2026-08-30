@@ -6,13 +6,17 @@
  * - past date/time guards
  * - final verification of a selected start time against service duration
  *
- * This file makes the clicked calendar date/time visible in the modal
- * immediately, before a service is selected.
+ * This file mirrors the clicked calendar date/time into the modal immediately,
+ * before a service is selected. Legacy code may rebuild/reset those controls
+ * while the modal opens, so the clicked values are re-applied for a short time
+ * until the user selects a service. After that final-fixes.js performs the
+ * authoritative service-duration-aware availability check.
  */
 (() => {
   'use strict';
 
   const qs = (selector, scope = document) => scope.querySelector(selector);
+  let prefillGeneration = 0;
 
   function localDateKey(date = new Date()) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -46,46 +50,57 @@
       select.append(option);
     }
 
-    select.value = value;
+    if (select.value !== value) select.value = value;
+  }
+
+  function mirrorClickedStart(dateValue, timeValue) {
+    const date = qs('#staffAppointmentDate');
+    const time = qs('#staffAppointmentTime');
+    if (!date || !time) return false;
+
+    date.min = localDateKey();
+    if (date.value !== dateValue) date.value = dateValue;
+    setTemporaryTimeOption(time, timeValue);
+
+    date.dataset.calendarPrefilled = 'true';
+    time.dataset.calendarPrefilled = 'true';
+    return true;
   }
 
   function prefill(slot) {
     const dateValue = slot.dataset.date || '';
     const timeValue = slot.dataset.start || '';
-
     if (isPast(dateValue, timeValue)) return;
 
+    const generation = ++prefillGeneration;
     const startedAt = performance.now();
 
     const tick = () => {
-      if (performance.now() - startedAt > 5000) return;
+      if (generation !== prefillGeneration) return;
+      if (performance.now() - startedAt > 8000) return;
 
       const modal = qs('#staffWorkflowModal:not(.hidden)');
-      const date = qs('#staffAppointmentDate');
-      const time = qs('#staffAppointmentTime');
-
-      if (!modal || !date || !time) {
+      if (!modal) {
         setTimeout(tick, 40);
         return;
       }
 
-      date.min = localDateKey();
-      date.value = dateValue;
+      const service = qs('#staffServiceSelect');
 
-      // The legacy form keeps the controls disabled until service availability
-      // is known. A selected option is still rendered by browsers while the
-      // control is disabled, so the employee sees the chosen start at once.
-      setTemporaryTimeOption(time, timeValue);
+      // Once a service is selected, stop forcing the temporary value. The
+      // service-duration-aware logic in final-fixes.js now owns date/time.
+      if (service?.value) return;
 
-      date.dataset.calendarPrefilled = 'true';
-      time.dataset.calendarPrefilled = 'true';
+      // The legacy workflow can reset/rebuild these fields several times while
+      // opening the modal. Keep the clicked start visible until service choice.
+      mirrorClickedStart(dateValue, timeValue);
+      setTimeout(tick, 80);
     };
 
     tick();
   }
 
-  // Run before the legacy bubbling handler opens the workflow. We only remember
-  // and mirror the value; final-fixes.js still performs the authoritative check.
+  // Run before the legacy bubbling handler opens the workflow.
   document.addEventListener('click', event => {
     const slot = event.target.closest?.('#staffDashboardCalendar [data-calendar-slot]');
     if (!slot || slot.disabled) return;
@@ -97,6 +112,13 @@
     }
 
     prefill(slot);
+  }, true);
+
+  // Cancel an old mirror loop when the workflow closes.
+  document.addEventListener('click', event => {
+    if (event.target.closest?.('[data-staff-workflow-close]')) {
+      prefillGeneration += 1;
+    }
   }, true);
 
   // Native date inputs must never allow an earlier calendar day even if a

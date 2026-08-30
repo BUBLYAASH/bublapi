@@ -17,7 +17,7 @@
   .topbar {
     position: sticky !important;
     top: 0 !important;
-    z-index: 50 !important;
+    z-index: 60 !important;
   }
 
   .layout {
@@ -27,8 +27,9 @@
 
   .sidebar {
     position: sticky !important;
-    top: var(--admin-topbar-height, 67px) !important;
-    z-index: 40 !important;
+    /* +1px prevents a subpixel seam/overlap on mobile Safari/Chrome. */
+    top: calc(var(--admin-topbar-height, 67px) + 1px) !important;
+    z-index: 45 !important;
 
     display: flex !important;
     align-items: center !important;
@@ -51,7 +52,10 @@
 
     background: color-mix(in srgb, var(--surface) 96%, transparent) !important;
     backdrop-filter: blur(14px);
-    contain: layout paint;
+
+    /* Layout/paint containment on a sticky element causes incorrect sticky
+       offsets in some mobile engines when the header height changes. */
+    contain: none !important;
   }
 
   .sidebar::-webkit-scrollbar {
