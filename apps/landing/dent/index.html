@@ -4,8 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <script>
-(function(){try{var saved=localStorage.getItem('bublapi-theme');var dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var theme=saved|| (dark?'dark':'light');document.documentElement.dataset.theme=theme;document.documentElement.style.colorScheme=theme;}catch(e){}})();
-document.documentElement.classList.add('js');
+(function(){try{var saved=localStorage.getItem('bublapi-theme');var dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var theme=saved||(dark?'dark':'light');document.documentElement.dataset.theme=theme;document.documentElement.style.colorScheme=theme;}catch(e){}document.documentElement.classList.add('js');})();
 </script>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="BublAPI Dent — backend-платформа для стоматологических клиник: врачи, услуги, расписание, свободные слоты, пациенты, онлайн-запись, роли сотрудников и уведомления." name="description"/>
@@ -25,13 +24,36 @@ document.documentElement.classList.add('js');
 <meta content="Готовая серверная основа для сайта клиники, онлайн-записи, личного кабинета пациента и панели сотрудников." name="twitter:description"/>
 <meta content="https://bublapi.ru/og-image-dent.png" name="twitter:image"/>
 <title>BublAPI Dent — платформа для сайта и онлайн-записи стоматологии</title>
+
+<!-- Keep the 1.5 MB SVG out of favicon discovery. Raster favicons are enough. -->
 <link href="/favicon.ico" rel="icon" sizes="any"/>
-<link href="/favicon.svg" rel="icon" type="image/svg+xml"/>
 <link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/>
 <link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/>
 <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
 <link href="/site.webmanifest" rel="manifest"/>
-<link href="/styles.css" rel="stylesheet"/>
+
+<!-- Load the full stylesheet without blocking the first paint. -->
+<link rel="preload" href="/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link href="/styles.css" rel="stylesheet"/></noscript>
+
+<!-- Critical first-screen CSS. Mirrors the theme before the full stylesheet is ready. -->
+<style>
+:root{--bg:#f5f7fb;--surface:#fff;--surface-2:#eef3f8;--text:#172033;--muted:#667085;--primary:#155eef;--primary-dark:#0b46be;--teal:#0b8d91;--border:#dce3ec;--shadow:0 20px 55px rgba(28,45,75,.1);--topbar-bg:rgba(255,255,255,.92);--topbar-border:rgba(220,227,236,.9);--soft-text:#465066;--soft-bg-hover:#e3eaf3;--card-solid:#fff}
+html[data-theme="dark"]{--bg:#090f1c;--surface:#101827;--surface-2:#182235;--text:#f2f6fc;--muted:#9ba8bb;--primary:#5b8cff;--primary-dark:#79a1ff;--teal:#35b7b9;--border:#26344a;--shadow:0 22px 58px rgba(0,0,0,.35);--topbar-bg:rgba(9,15,28,.82);--topbar-border:rgba(38,52,74,.92);--soft-text:#c5cfdd;--soft-bg-hover:#22314a;--card-solid:#101827}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;overflow-x:hidden;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;color:var(--text);background:var(--bg)}a{color:inherit;text-decoration:none}button,a{-webkit-tap-highlight-color:transparent}button{font:inherit}
+.section-shell{width:min(1180px,calc(100% - 40px));margin:0 auto}.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:13px max(20px,calc((100vw - 1180px)/2));background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);backdrop-filter:blur(18px)}
+.brand{display:inline-flex;align-items:center;gap:12px;min-width:max-content}.brand-logo{width:40px;height:40px;display:block;object-fit:contain;flex:0 0 auto}.brand-copy{display:grid;gap:1px}.brand-copy strong{font-size:15px}.brand-copy small{color:var(--muted);font-size:11px;font-weight:600}.topnav{display:flex;align-items:center;gap:26px;margin-left:auto}.topnav a{color:var(--soft-text);font-size:14px;font-weight:650}.top-actions{display:flex;gap:10px}
+.btn{min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border:0;border-radius:12px;cursor:pointer;font-size:14px;font-weight:750}.btn-primary{color:#fff;background:var(--primary);box-shadow:0 10px 24px rgba(21,94,239,.22)}.btn-ghost{color:var(--soft-text);background:var(--surface-2)}.btn-ghost:hover{color:var(--text);background:var(--soft-bg-hover)}.btn-lg{min-height:50px;padding:13px 20px;border-radius:14px;font-size:15px}
+.hero{min-height:680px;display:grid;grid-template-columns:1.02fr .98fr;align-items:center;gap:60px;padding-top:76px;padding-bottom:62px}.dent-hero{min-height:760px}.eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;color:var(--primary);font-size:12px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.eyebrow-dot{width:8px;height:8px;flex:0 0 auto;border-radius:50%;background:linear-gradient(145deg,var(--primary),var(--teal));box-shadow:0 0 0 5px rgba(21,94,239,.1)}.hero h1{margin:0;max-width:720px;font-size:clamp(44px,5.7vw,76px);line-height:.99;letter-spacing:-.055em}.hero-lead{max-width:680px;margin:25px 0 0;color:var(--muted);font-size:18px;line-height:1.65}.hero-actions{display:flex;align-items:center;gap:12px;margin-top:31px;flex-wrap:wrap}.hero-points{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:28px}.hero-points span{position:relative;padding-left:21px;color:var(--soft-text);font-size:13px;font-weight:650}.hero-points span:before{content:"✓";position:absolute;left:0;color:var(--teal);font-weight:900}
+.hero-visual{position:relative;min-width:0}.architecture-card{width:100%;padding:28px;border:1px solid var(--border);border-radius:28px;background:var(--card-solid);box-shadow:var(--shadow);transform:rotate(1deg)}.architecture-label{margin-bottom:16px;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.architecture-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.architecture-row span{min-height:74px;display:grid;place-items:center;padding:12px;border:1px solid var(--border);border-radius:16px;color:var(--muted);background:var(--surface-2);font-size:12px;font-weight:750;text-align:center}.architecture-arrow{padding:12px 0;color:var(--primary);font-size:25px;font-weight:800;text-align:center}.architecture-core{display:grid;gap:6px;padding:25px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#155eef,#0b8d91);text-align:center}.architecture-core strong{font-size:22px}.architecture-core small{color:rgba(255,255,255,.75)}
+/* Keep the LCP hero immediately paintable; lower sections may still use reveal animations. */
+.js .dent-hero .reveal{opacity:1!important;filter:none!important;transform:none!important}
+/* Avoid the 344 KiB Inter request and non-composited pulse work on first paint. */
+body{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}.eyebrow-dot,.product-status span{animation:none!important}
+@media(max-width:1080px){.topnav{display:none}.hero{grid-template-columns:1fr;gap:40px;padding-top:70px}.hero-copy{text-align:center}.hero h1,.hero-lead{margin-left:auto;margin-right:auto}.hero-actions,.hero-points{justify-content:center}.hero-visual{width:min(760px,100%);margin:0 auto}}
+@media(max-width:760px){.section-shell{width:min(100% - 28px,1180px)}.topbar{padding:11px 14px}.brand-copy small{display:none}.desktop-only{display:none}.hero{min-height:auto;padding-top:52px;padding-bottom:45px}.dent-hero{min-height:auto}.hero h1{font-size:clamp(40px,13vw,58px)}.hero-lead{font-size:16px}.hero-actions{flex-direction:column;align-items:stretch}.hero-actions .btn{width:100%}.architecture-row{grid-template-columns:1fr}.architecture-card{transform:none;padding:20px}}
+</style>
+
 <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@graph": [
@@ -89,13 +111,21 @@ document.documentElement.classList.add('js');
     }
   ]
 }</script>
-<meta content="#0b1120" media="(prefers-color-scheme: dark)" name="theme-color"/><link href="https://bublapi.ru/dent/" hreflang="x-default" rel="alternate"/><meta content="1200" property="og:image:width"/><meta content="630" property="og:image:height"/><meta content="BublAPI Dent — цифровая платформа для стоматологии" property="og:image:alt"/><meta content="BublAPI" name="application-name"/><meta content="BublAPI" name="apple-mobile-web-app-title"/><meta content="telephone=no" name="format-detection"/></head>
+<meta content="#0b1120" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<link href="https://bublapi.ru/dent/" hreflang="x-default" rel="alternate"/>
+<meta content="1200" property="og:image:width"/>
+<meta content="630" property="og:image:height"/>
+<meta content="BublAPI Dent — цифровая платформа для стоматологии" property="og:image:alt"/>
+<meta content="BublAPI" name="application-name"/>
+<meta content="BublAPI" name="apple-mobile-web-app-title"/>
+<meta content="telephone=no" name="format-detection"/>
+</head>
 <body>
 <div class="page-glow page-glow-a"></div>
 <div class="page-glow page-glow-b"></div>
 <header class="topbar">
 <a aria-label="BublAPI — главная" class="brand" href="/">
-<img alt="" class="brand-logo" height="40" src="/favicon.svg" width="40"/>
+<img alt="" class="brand-logo" decoding="async" fetchpriority="high" height="40" src="/favicon-32x32.png" width="40"/>
 <span class="brand-copy"><strong>BublAPI</strong><small>Dent API</small></span>
 </a>
 <nav aria-label="Навигация по странице" class="topnav">
@@ -190,13 +220,13 @@ document.documentElement.classList.add('js');
 </section>
 </main>
 <footer class="footer section-shell">
-<a class="brand" href="/"><img alt="" class="brand-logo" height="40" src="/favicon.svg" width="40"/><span class="brand-copy"><strong>BublAPI</strong><small>экосистема API для бизнеса</small></span></a>
+<a class="brand" href="/"><img alt="" class="brand-logo" decoding="async" height="40" loading="lazy" src="/favicon-32x32.png" width="40"/><span class="brand-copy"><strong>BublAPI</strong><small>экосистема API для бизнеса</small></span></a>
 <p>© <span id="year"></span> BublAPI. Все права защищены.</p>
 <div class="footer-nav">
 <nav aria-label="Навигация по сайту" class="footer-links"><a href="/">Главная</a><a href="https://demo.dent.bublapi.ru" rel="noopener noreferrer" target="_blank">Демо</a></nav>
 <nav aria-label="Правовая информация" class="footer-links footer-legal-links"><a href="/legal/privacy/">Политика обработки ПДн</a><a href="/legal/terms/">Пользовательское соглашение</a></nav>
 </div>
 </footer>
-<script src="/script.js"></script>
+<script defer src="/script.js"></script>
 </body>
 </html>
