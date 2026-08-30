@@ -6,11 +6,12 @@
  * - past date/time guards
  * - final verification of a selected start time against service duration
  *
- * This file mirrors the clicked calendar date/time into the modal immediately,
- * before a service is selected. Legacy code may rebuild/reset those controls
- * while the modal opens, so the clicked values are re-applied for a short time
- * until the user selects a service. After that final-fixes.js performs the
- * authoritative service-duration-aware availability check.
+ * This file mirrors the clicked calendar doctor/date/time into the modal
+ * immediately, before a service is selected. Legacy code may rebuild/reset
+ * those controls while the modal opens, so the clicked values are re-applied
+ * for a short time until the user selects a service. After that
+ * final-fixes.js performs the authoritative service-duration-aware
+ * availability check.
  */
 (() => {
   'use strict';
@@ -53,21 +54,38 @@
     if (select.value !== value) select.value = value;
   }
 
-  function mirrorClickedStart(dateValue, timeValue) {
+  function mirrorClickedContext(doctorId, dateValue, timeValue) {
+    const doctor = qs('#staffDoctorSelect');
     const date = qs('#staffAppointmentDate');
     const time = qs('#staffAppointmentTime');
-    if (!date || !time) return false;
+    if (!doctor || !date || !time) return false;
 
+    // The doctor list can appear asynchronously. As soon as the clicked doctor
+    // exists in the select, make it the selected value. Dispatching change is
+    // important because the legacy workflow filters the available services
+    // using the selected doctor.
+    if (doctorId && String(doctor.value) !== String(doctorId)) {
+      const option = [...doctor.options].find(item => String(item.value) === String(doctorId));
+      if (option) {
+        doctor.value = String(doctorId);
+        doctor.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+
+    // Do not wait for service availability here: the employee already picked
+    // this exact calendar start, so date/time should be visible immediately.
     date.min = localDateKey();
     if (date.value !== dateValue) date.value = dateValue;
     setTemporaryTimeOption(time, timeValue);
 
+    doctor.dataset.calendarPrefilled = 'true';
     date.dataset.calendarPrefilled = 'true';
     time.dataset.calendarPrefilled = 'true';
     return true;
   }
 
   function prefill(slot) {
+    const doctorId = slot.dataset.doctorId || '';
     const dateValue = slot.dataset.date || '';
     const timeValue = slot.dataset.start || '';
     if (isPast(dateValue, timeValue)) return;
@@ -87,14 +105,18 @@
 
       const service = qs('#staffServiceSelect');
 
-      // Once a service is selected, stop forcing the temporary value. The
-      // service-duration-aware logic in final-fixes.js now owns date/time.
-      if (service?.value) return;
+      // Until a service is selected, keep all values already known from the
+      // calendar visible: doctor + date + start time. The legacy workflow may
+      // reset date/time after the doctor change, so re-apply them briefly.
+      if (!service?.value) {
+        mirrorClickedContext(doctorId, dateValue, timeValue);
+        setTimeout(tick, 80);
+        return;
+      }
 
-      // The legacy workflow can reset/rebuild these fields several times while
-      // opening the modal. Keep the clicked start visible until service choice.
-      mirrorClickedStart(dateValue, timeValue);
-      setTimeout(tick, 80);
+      // Once a service is selected, stop forcing the temporary values.
+      // final-fixes.js now validates this start against the service duration
+      // and keeps it only when the resulting appointment can actually fit.
     };
 
     tick();
