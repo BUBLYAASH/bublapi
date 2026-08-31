@@ -8,6 +8,7 @@
 !.env.example
 local.properties
 !local.properties.example
+docs
 
 # Java / Gradle
 .gradle/
