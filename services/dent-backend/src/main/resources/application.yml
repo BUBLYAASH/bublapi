@@ -35,7 +35,7 @@ spring:
         default-requeue-rejected: false
 
   mail:
-    host: ${MAIL_HOST:smtp.mail.me.com}
+    host: ${MAIL_HOST:smtp.timeweb.ru}
     port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
