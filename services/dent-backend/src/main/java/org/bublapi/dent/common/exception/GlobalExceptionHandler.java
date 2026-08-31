@@ -1,7 +1,7 @@
 package org.bublapi.dent.common.exception;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-   private static final Log log = LogFactory.getLog(GlobalExceptionHandler.class);
+   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
    @ExceptionHandler(ResourceNotFoundException.class)
    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException e) {
@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
 
    @ExceptionHandler(Exception.class)
    public ResponseEntity<Map<String, Object>> handleGeneral(Exception e) {
-      log.error("Unhandled Exception", e);
+      log.atError().addKeyValue("errorClass", e.getClass().getName()).setCause(e).log("Unhandled exception");
 
       Map<String, Object> response = new HashMap<>();
 

@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.bublapi.dent.auth.service.JwtService;
+import org.slf4j.MDC;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -55,12 +56,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+            if (userDetails instanceof CustomUserDetails customUserDetails) {
+               MDC.put("userId", customUserDetails.getId().toString());
+
+               if (customUserDetails.getClinicId() != null) {
+                  MDC.put("clinicId", customUserDetails.getClinicId().toString());
+               }
+            }
          }
       } catch (JwtException | IllegalArgumentException | UsernameNotFoundException ignored) {
          response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
          return;
       }
 
-      filterChain.doFilter(request, response);
+      try {
+         filterChain.doFilter(request, response);
+      } finally {
+         MDC.remove("userId");
+         MDC.remove("clinicId");
+      }
    }
 }
