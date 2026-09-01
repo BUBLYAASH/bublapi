@@ -1,0 +1,42 @@
+{
+  "formatVersion": 1,
+  "hashAlgorithm": "SHA-256",
+  "documents": [
+    {
+      "type": "privacy",
+      "revision": "BUBLAPI-PRIVACY-2026-08-22-R1",
+      "effectiveFrom": "2026-08-22",
+      "supersededOn": "2026-08-31",
+      "path": "privacy/2026-08-22-r1.html",
+      "sourceCommit": "f9f9a09ff4848d7fe4fb1f8428f1dbfd6cd886cc",
+      "sha256": "d1e5a89c90c10c7a29df809db375160a8e7dcf8307069a345e37c2db4226451a"
+    },
+    {
+      "type": "privacy",
+      "revision": "BUBLAPI-PRIVACY-2026-08-31-R2",
+      "effectiveFrom": "2026-08-31",
+      "supersededOn": "2026-08-31",
+      "path": "privacy/2026-08-31-r2.html",
+      "sourceCommit": "12b2c21f7de892fe9385cd9d1352a50d4df3ad83",
+      "sha256": "253260adfa445846839529cf866faf813534b9f75d8716a747e8b5fb54f12856"
+    },
+    {
+      "type": "privacy",
+      "revision": "BUBLAPI-PRIVACY-2026-08-31-R3",
+      "effectiveFrom": "2026-08-31",
+      "supersededOn": "2026-08-31",
+      "path": "privacy/2026-08-31-r3.html",
+      "sourceCommit": "0b53fc66ccc82b21c24564840eb59ac468a2195b",
+      "sha256": "9a3fad3307ef1142533cf5295e480a5130f341299a5fbd99fd628fb8a56d1d59"
+    },
+    {
+      "type": "terms",
+      "revision": "BUBLAPI-TERMS-2026-08-22-R1",
+      "effectiveFrom": "2026-08-22",
+      "supersededOn": "2026-08-31",
+      "path": "terms/2026-08-22-r1.html",
+      "sourceCommit": "f9f9a09ff4848d7fe4fb1f8428f1dbfd6cd886cc",
+      "sha256": "6dee96b4278efe3b62f7f1e717914abcf5ca06999a91e766dbacd2a99ef3d327"
+    }
+  ]
+}
