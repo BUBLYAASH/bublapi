@@ -9,7 +9,7 @@
 local.properties
 !local.properties.example
 docs
-legal-archive
+logs
 
 # Java / Gradle
 .gradle/
