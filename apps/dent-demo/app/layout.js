@@ -24,6 +24,7 @@ export default async function RootLayout({ children }) {
         */}
         <Script src="/legacy/final-fixes.js" strategy="afterInteractive" />
         <Script src="/legacy/calendar-prefill-fix.js" strategy="afterInteractive" />
+        <Script src="/legacy/schedule-admin-fixes.js" type="module" strategy="afterInteractive" />
 
         <Script src="/theme.js" strategy="afterInteractive" />
       </body>
