@@ -50,6 +50,21 @@ public class ClinicServiceService {
       this.userAuditService = userAuditService;
    }
 
+   private static List<String> getChangedFields(ClinicService clinicService, UpdateClinicServiceRequestDto request) {
+      List<String> changedFields = new ArrayList<>();
+
+      if (request.durationMinutes() != null && !Objects.equals(clinicService.getDurationMinutes(),
+                                                               request.durationMinutes())) {
+         changedFields.add("durationMinutes");
+      }
+
+      if (request.price() != null && !Objects.equals(clinicService.getPrice(), request.price())) {
+         changedFields.add("price");
+      }
+
+      return changedFields;
+   }
+
    private void publishClinicServiceNotifications(Appointment appointment, NotificationType type, String title,
                                                   String message) {
       UUID patientUserId = appointment.getPatient().getUser() != null ? appointment.getPatient()
@@ -180,20 +195,5 @@ public class ClinicServiceService {
                                     .stream()
                                     .map(clinicServiceMapper::toResponse)
                                     .toList();
-   }
-
-   private static List<String> getChangedFields(ClinicService clinicService, UpdateClinicServiceRequestDto request) {
-      List<String> changedFields = new ArrayList<>();
-
-      if (request.durationMinutes() != null && !Objects.equals(clinicService.getDurationMinutes(),
-                                                               request.durationMinutes())) {
-         changedFields.add("durationMinutes");
-      }
-
-      if (request.price() != null && !Objects.equals(clinicService.getPrice(), request.price())) {
-         changedFields.add("price");
-      }
-
-      return changedFields;
    }
 }

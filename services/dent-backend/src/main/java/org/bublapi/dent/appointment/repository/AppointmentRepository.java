@@ -26,7 +26,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
              and a.scheduledAt < :endAt
              and a.endAt > :scheduledAt
            """)
-   boolean existsOverlappingAppointment(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId, @Param("scheduledAt") LocalDateTime scheduledAt, @Param("endAt") LocalDateTime endAt, @Param("cancelledStatus") AppointmentStatus cancelledStatus);
+   boolean existsOverlappingAppointment(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId,
+                                        @Param("scheduledAt") LocalDateTime scheduledAt,
+                                        @Param("endAt") LocalDateTime endAt,
+                                        @Param("cancelledStatus") AppointmentStatus cancelledStatus);
 
    List<Appointment> findAllByClinic_IdAndPatient_IdOrderByScheduledAtDesc(UUID clinicId, UUID patientId);
 

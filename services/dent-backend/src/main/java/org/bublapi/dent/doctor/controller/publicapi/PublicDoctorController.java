@@ -31,7 +31,9 @@ public class PublicDoctorController {
    private final DoctorAvailabilityService doctorAvailabilityService;
    private final DoctorClinicServiceService doctorClinicServiceService;
 
-   public PublicDoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService, DoctorAvailabilityService doctorAvailabilityService, DoctorClinicServiceService doctorClinicServiceService) {
+   public PublicDoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService,
+                                 DoctorAvailabilityService doctorAvailabilityService,
+                                 DoctorClinicServiceService doctorClinicServiceService) {
       this.doctorService = doctorService;
       this.doctorWorkingHoursService = doctorWorkingHoursService;
       this.doctorAvailabilityService = doctorAvailabilityService;
@@ -58,7 +60,9 @@ public class PublicDoctorController {
 
    @Operation(summary = "Get doctor availability", description = "Shows doctor availability")
    @GetMapping("/{doctorId}/availability")
-   public List<DoctorAvailabilityResponseDto> getAvailability(@PathVariable UUID doctorId, @RequestParam(defaultValue = "30") int durationMinutes, @RequestParam(defaultValue = "60") int days) {
+   public List<DoctorAvailabilityResponseDto> getAvailability(@PathVariable UUID doctorId,
+                                                              @RequestParam(defaultValue = "30") int durationMinutes,
+                                                              @RequestParam(defaultValue = "60") int days) {
       return doctorAvailabilityService.getAvailability(doctorId, durationMinutes, days);
    }
 

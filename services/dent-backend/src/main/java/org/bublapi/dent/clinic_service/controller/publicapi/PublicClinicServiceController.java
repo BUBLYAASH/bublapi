@@ -23,7 +23,8 @@ public class PublicClinicServiceController {
    private final ClinicServiceService clinicServiceService;
    private final DoctorClinicServiceService doctorClinicServiceService;
 
-   public PublicClinicServiceController(ClinicServiceService clinicServiceService, DoctorClinicServiceService doctorClinicServiceService) {
+   public PublicClinicServiceController(ClinicServiceService clinicServiceService,
+                                        DoctorClinicServiceService doctorClinicServiceService) {
       this.clinicServiceService = clinicServiceService;
       this.doctorClinicServiceService = doctorClinicServiceService;
    }

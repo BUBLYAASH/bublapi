@@ -14,7 +14,8 @@ public class EmailNotificationSender implements NotificationSender {
    private final String fromEmail;
    private final String replyTo;
 
-   public EmailNotificationSender(JavaMailSender mailSender, @Value("${spring.mail.from}") String fromEmail, @Value("${spring.mail.reply-to}") String replyTo) {
+   public EmailNotificationSender(JavaMailSender mailSender, @Value("${spring.mail.from}") String fromEmail,
+                                  @Value("${spring.mail.reply-to}") String replyTo) {
       this.mailSender = mailSender;
       this.fromEmail = fromEmail;
       this.replyTo = replyTo;

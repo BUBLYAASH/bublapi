@@ -12,7 +12,8 @@ public interface DoctorClinicServiceRepository extends JpaRepository<DoctorClini
 
    List<DoctorClinicService> findAllByDoctor_Clinic_IdAndClinicService_Id(UUID clinicId, UUID clinicServiceId);
 
-   Optional<DoctorClinicService> findByDoctor_Clinic_IdAndDoctor_IdAndClinicService_Id(UUID clinicId, UUID doctorId, UUID clinicServiceId);
+   Optional<DoctorClinicService> findByDoctor_Clinic_IdAndDoctor_IdAndClinicService_Id(UUID clinicId, UUID doctorId,
+                                                                                       UUID clinicServiceId);
 
    boolean existsByDoctor_Clinic_IdAndDoctor_IdAndClinicService_Id(UUID clinicId, UUID doctorId, UUID clinicServiceId);
 }

@@ -39,13 +39,15 @@ public class PatientAppointmentController {
 
    @Operation(summary = "Create new appointment", description = "Creates new appointment by patient card for the current authenticated patient")
    @PostMapping
-   public AppointmentResponseDto create(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody CreateAppointmentRequestDto request) {
+   public AppointmentResponseDto create(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                        @Valid @RequestBody CreateAppointmentRequestDto request) {
       return appointmentService.createForPatient(userDetails.getId(), request);
    }
 
    @Operation(summary = "Cancel an appointment", description = "Cancels an appointment")
    @PatchMapping("/{appointmentId}/cancel")
-   public AppointmentResponseDto cancel(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID appointmentId) {
+   public AppointmentResponseDto cancel(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                        @PathVariable UUID appointmentId) {
       return appointmentService.cancelByPatient(userDetails.getId(), appointmentId);
    }
 
@@ -57,7 +59,8 @@ public class PatientAppointmentController {
 
    @Operation(summary = "Get information about one appointment", description = "Shows information about one appointment by ID")
    @GetMapping("/{appointmentId}")
-   public AppointmentResponseDto findById(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID appointmentId) {
+   public AppointmentResponseDto findById(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                          @PathVariable UUID appointmentId) {
       return appointmentService.findByIdForPatient(userDetails.getId(), appointmentId);
    }
 }

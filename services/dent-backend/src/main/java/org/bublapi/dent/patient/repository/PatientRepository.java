@@ -18,7 +18,9 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
    @Query("""
            SELECT p FROM Patient p WHERE p.clinic.id = :clinicId AND (lower(p.email) = :email OR p.phone = :phone)
            """)
-   Optional<Patient> findByClinic_IdAndEmailIgnoreCaseOrPhone(@Param("clinicId") UUID clinicId, @Param("email") String email, @Param("phone") String phone);
+   Optional<Patient> findByClinic_IdAndEmailIgnoreCaseOrPhone(@Param("clinicId") UUID clinicId,
+                                                              @Param("email") String email,
+                                                              @Param("phone") String phone);
 
    Optional<Patient> findByClinic_IdAndId(UUID clinicId, UUID patientId);
 

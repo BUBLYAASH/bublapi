@@ -48,6 +48,36 @@ public class DoctorService {
       this.administrativeAuditService = administrativeAuditService;
    }
 
+   private static List<String> getChangedFields(Doctor doctor, UpdateDoctorRequestDto request) {
+      List<String> changedFields = new ArrayList<>();
+
+      if (request.firstName() != null && !Objects.equals(doctor.getFirstName(), request.firstName())) {
+         changedFields.add("firstName");
+      }
+
+      if (request.lastName() != null && !Objects.equals(doctor.getLastName(), request.lastName())) {
+         changedFields.add("lastName");
+      }
+
+      if (request.middleName() != null && !Objects.equals(doctor.getMiddleName(), request.middleName())) {
+         changedFields.add("middleName");
+      }
+
+      if (request.specialty() != null && !Objects.equals(doctor.getSpecialty(), request.specialty())) {
+         changedFields.add("specialty");
+      }
+
+      if (request.avatarUrl() != null && !Objects.equals(doctor.getAvatarUrl(), request.avatarUrl())) {
+         changedFields.add("avatarUrl");
+      }
+
+      if (request.description() != null && !Objects.equals(doctor.getDescription(), request.description())) {
+         changedFields.add("description");
+      }
+
+      return changedFields;
+   }
+
    @Transactional
    public DoctorResponseDto create(CreateDoctorRequestDto request) {
       Clinic clinic = ClinicContext.get();
@@ -202,35 +232,5 @@ public class DoctorService {
       administrativeAuditService.roleRevoked(user.getId(), clinicId, RoleName.DOCTOR.name());
 
       return doctorMapper.toResponse(doctor);
-   }
-
-   private static List<String> getChangedFields(Doctor doctor, UpdateDoctorRequestDto request) {
-      List<String> changedFields = new ArrayList<>();
-
-      if (request.firstName() != null && !Objects.equals(doctor.getFirstName(), request.firstName())) {
-         changedFields.add("firstName");
-      }
-
-      if (request.lastName() != null && !Objects.equals(doctor.getLastName(), request.lastName())) {
-         changedFields.add("lastName");
-      }
-
-      if (request.middleName() != null && !Objects.equals(doctor.getMiddleName(), request.middleName())) {
-         changedFields.add("middleName");
-      }
-
-      if (request.specialty() != null && !Objects.equals(doctor.getSpecialty(), request.specialty())) {
-         changedFields.add("specialty");
-      }
-
-      if (request.avatarUrl() != null && !Objects.equals(doctor.getAvatarUrl(), request.avatarUrl())) {
-         changedFields.add("avatarUrl");
-      }
-
-      if (request.description() != null && !Objects.equals(doctor.getDescription(), request.description())) {
-         changedFields.add("description");
-      }
-
-      return changedFields;
    }
 }

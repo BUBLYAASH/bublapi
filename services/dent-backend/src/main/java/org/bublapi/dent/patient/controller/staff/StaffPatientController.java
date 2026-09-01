@@ -45,7 +45,8 @@ public class StaffPatientController {
 
    @Operation(summary = "Update a patient card by receptionist", description = "Update provided fields in patient card by receptionist")
    @PatchMapping("/{patientId}")
-   public PatientResponseDto updatePatient(@PathVariable UUID patientId, @Valid @RequestBody UpdatePatientRequestDto request) {
+   public PatientResponseDto updatePatient(@PathVariable UUID patientId,
+                                           @Valid @RequestBody UpdatePatientRequestDto request) {
       return patientService.update(patientId, request);
    }
 

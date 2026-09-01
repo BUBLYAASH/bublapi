@@ -10,15 +10,22 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
-   Optional<Notification> findByIdAndUser_IdAndChannelAndStatusAndDeletedFalse(UUID notificationId, UUID userId, NotificationChannel channel, NotificationStatus status);
+   Optional<Notification> findByIdAndUser_IdAndChannelAndStatusAndDeletedFalse(UUID notificationId, UUID userId,
+                                                                               NotificationChannel channel,
+                                                                               NotificationStatus status);
 
    Optional<Notification> findByRequestId(UUID requestId);
 
-   List<Notification> findAllByUser_IdAndChannelAndStatusAndReadFalseAndDeletedFalse(UUID userId, NotificationChannel channel, NotificationStatus status);
+   List<Notification> findAllByUser_IdAndChannelAndStatusAndReadFalseAndDeletedFalse(UUID userId,
+                                                                                     NotificationChannel channel,
+                                                                                     NotificationStatus status);
 
-   long countByUser_IdAndChannelAndStatusAndReadFalseAndDeletedFalse(UUID userId, NotificationChannel channel, NotificationStatus status);
+   long countByUser_IdAndChannelAndStatusAndReadFalseAndDeletedFalse(UUID userId, NotificationChannel channel,
+                                                                     NotificationStatus status);
 
-   List<Notification> findAllByUser_IdAndChannelAndStatusAndDeletedFalseOrderBySentAtDesc(UUID userId, NotificationChannel channel, NotificationStatus status);
+   List<Notification> findAllByUser_IdAndChannelAndStatusAndDeletedFalseOrderBySentAtDesc(UUID userId,
+                                                                                          NotificationChannel channel,
+                                                                                          NotificationStatus status);
 
    List<Notification> findAllByOrderByCreatedAtDesc();
 }

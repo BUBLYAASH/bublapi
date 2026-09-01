@@ -38,7 +38,8 @@ public class StaffAppointmentController {
 
    @Operation(summary = "Create new appointment", description = "Creates new appointment by staff for specified patient")
    @PostMapping("/patients/{patientId}")
-   public AppointmentResponseDto create(@PathVariable UUID patientId, @Valid @RequestBody CreateAppointmentRequestDto request) {
+   public AppointmentResponseDto create(@PathVariable UUID patientId,
+                                        @Valid @RequestBody CreateAppointmentRequestDto request) {
       return appointmentService.createForStaff(patientId, request);
    }
 
@@ -50,7 +51,8 @@ public class StaffAppointmentController {
 
    @Operation(summary = "Change appointment's status", description = "Changes appointment's status by staff")
    @PatchMapping("/{appointmentId}/change")
-   public AppointmentResponseDto changeStatus(@PathVariable UUID appointmentId, @Valid @RequestBody ChangeAppointmentStatusRequestDto request) {
+   public AppointmentResponseDto changeStatus(@PathVariable UUID appointmentId,
+                                              @Valid @RequestBody ChangeAppointmentStatusRequestDto request) {
       return appointmentService.changeStatusByStaff(appointmentId, request);
    }
 

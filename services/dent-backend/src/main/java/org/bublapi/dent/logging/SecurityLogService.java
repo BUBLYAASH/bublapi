@@ -17,6 +17,18 @@ public class SecurityLogService {
 
    private static final Logger log = LoggerFactory.getLogger("SECURITY");
 
+   private static String fingerprint(String apiKey) {
+      try {
+         MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+         byte[] hash = digest.digest(apiKey.getBytes(StandardCharsets.UTF_8));
+
+         return HexFormat.of().formatHex(hash).substring(0, 16);
+      } catch (NoSuchAlgorithmException e) {
+         throw new IllegalStateException("SHA-256 is not available", e);
+      }
+   }
+
    public void apiKeyAuthenticationFailed(String reason, String apiKey) {
       LoggingEventBuilder event = log.atWarn()
                                      .addKeyValue("eventType", "API_KEY_AUTHENTICATION")
@@ -122,17 +134,5 @@ public class SecurityLogService {
       }
 
       event.log("User activated");
-   }
-
-   private static String fingerprint(String apiKey) {
-      try {
-         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-
-         byte[] hash = digest.digest(apiKey.getBytes(StandardCharsets.UTF_8));
-
-         return HexFormat.of().formatHex(hash).substring(0, 16);
-      } catch (NoSuchAlgorithmException e) {
-         throw new IllegalStateException("SHA-256 is not available", e);
-      }
    }
 }

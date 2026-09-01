@@ -25,7 +25,9 @@ public class NotificationService {
    private final NotificationTransactionService transactionService;
    private final NotificationDispatcher notificationDispatcher;
 
-   public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper, NotificationTransactionService transactionService, NotificationDispatcher notificationDispatcher) {
+   public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper,
+                              NotificationTransactionService transactionService,
+                              NotificationDispatcher notificationDispatcher) {
       this.notificationRepository = notificationRepository;
       this.notificationMapper = notificationMapper;
       this.transactionService = transactionService;

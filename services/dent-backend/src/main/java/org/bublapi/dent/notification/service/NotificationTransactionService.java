@@ -25,7 +25,9 @@ public class NotificationTransactionService {
    private final ClinicRepository clinicRepository;
    private final UserRepository userRepository;
 
-   public NotificationTransactionService(NotificationRepository notificationRepository, AppointmentRepository appointmentRepository, ClinicRepository clinicRepository, UserRepository userRepository) {
+   public NotificationTransactionService(NotificationRepository notificationRepository,
+                                         AppointmentRepository appointmentRepository, ClinicRepository clinicRepository,
+                                         UserRepository userRepository) {
       this.notificationRepository = notificationRepository;
       this.appointmentRepository = appointmentRepository;
       this.clinicRepository = clinicRepository;

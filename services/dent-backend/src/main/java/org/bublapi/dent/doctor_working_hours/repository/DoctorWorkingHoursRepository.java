@@ -16,7 +16,8 @@ public interface DoctorWorkingHoursRepository extends JpaRepository<DoctorWorkin
 
    List<DoctorWorkingHours> findAllByDoctor_Clinic_IdAndDoctor_Id(UUID clinicId, UUID doctorId);
 
-   List<DoctorWorkingHours> findAllByDoctor_Clinic_IdAndDoctor_IdAndDayOfWeek(UUID clinicId, UUID doctorId, DayOfWeek dayOfWeek);
+   List<DoctorWorkingHours> findAllByDoctor_Clinic_IdAndDoctor_IdAndDayOfWeek(UUID clinicId, UUID doctorId,
+                                                                              DayOfWeek dayOfWeek);
 
    @Query("""
            SELECT count(wh) > 0 FROM DoctorWorkingHours wh
@@ -26,7 +27,9 @@ public interface DoctorWorkingHoursRepository extends JpaRepository<DoctorWorkin
            AND wh.startTime < :endTime
            AND wh.endTime > :startTime
            """)
-   boolean existsOverlappingInterval(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId, @Param("dayOfWeek") DayOfWeek dayOfWeek, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
+   boolean existsOverlappingInterval(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId,
+                                     @Param("dayOfWeek") DayOfWeek dayOfWeek, @Param("startTime") LocalTime startTime,
+                                     @Param("endTime") LocalTime endTime);
 
    @Query("""
            SELECT count(wh) > 0 FROM DoctorWorkingHours wh
@@ -37,5 +40,9 @@ public interface DoctorWorkingHoursRepository extends JpaRepository<DoctorWorkin
            AND wh.startTime < :endTime
            AND wh.endTime > :startTime
            """)
-   boolean existsOverlappingIntervalExcept(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId, @Param("scheduleId") UUID scheduleId, @Param("dayOfWeek") DayOfWeek dayOfWeek, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
+   boolean existsOverlappingIntervalExcept(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId,
+                                           @Param("scheduleId") UUID scheduleId,
+                                           @Param("dayOfWeek") DayOfWeek dayOfWeek,
+                                           @Param("startTime") LocalTime startTime,
+                                           @Param("endTime") LocalTime endTime);
 }

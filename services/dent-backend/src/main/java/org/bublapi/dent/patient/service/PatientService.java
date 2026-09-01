@@ -32,11 +32,63 @@ public class PatientService {
    private final PatientMapper patientMapper;
    private final UserAuditService userAuditService;
 
-   public PatientService(PatientRepository patientRepository, UserRepository userRepository, PatientMapper patientMapper, UserAuditService userAuditService) {
+   public PatientService(PatientRepository patientRepository, UserRepository userRepository,
+                         PatientMapper patientMapper, UserAuditService userAuditService) {
       this.patientRepository = patientRepository;
       this.userRepository = userRepository;
       this.patientMapper = patientMapper;
       this.userAuditService = userAuditService;
+   }
+
+   private static List<String> getChangedFields(Patient patient, UpdatePatientRequestDto request) {
+      List<String> changedFields = new ArrayList<>();
+
+      if (request.firstName() != null && !Objects.equals(patient.getFirstName(), request.firstName())) {
+         changedFields.add("firstName");
+      }
+
+      if (request.lastName() != null && !Objects.equals(patient.getLastName(), request.lastName())) {
+         changedFields.add("lastName");
+      }
+
+      if (request.middleName() != null && !Objects.equals(patient.getMiddleName(), request.middleName())) {
+         changedFields.add("middleName");
+      }
+
+      if (request.phone() != null) {
+         String normalizedPhone = request.phone().trim();
+
+         if (!Objects.equals(patient.getPhone(), normalizedPhone)) {
+            changedFields.add("phone");
+         }
+      }
+
+      if (request.email() != null) {
+         String normalizedEmail = request.email().trim().toLowerCase(Locale.ROOT);
+
+         if (!Objects.equals(patient.getEmail(), normalizedEmail)) {
+            changedFields.add("email");
+         }
+      }
+
+      if (request.birthDate() != null && !Objects.equals(patient.getBirthDate(), request.birthDate())) {
+         changedFields.add("birthDate");
+      }
+
+      if (request.notes() != null && !Objects.equals(patient.getNotes(), request.notes())) {
+         changedFields.add("notes");
+      }
+
+      if (request.allergies() != null && !Objects.equals(patient.getAllergies(), request.allergies())) {
+         changedFields.add("allergies");
+      }
+
+      if (request.chronicDiseases() != null && !Objects.equals(patient.getChronicDiseases(),
+                                                               request.chronicDiseases())) {
+         changedFields.add("chronicDiseases");
+      }
+
+      return changedFields;
    }
 
    @Transactional
@@ -168,56 +220,5 @@ public class PatientService {
       UUID clinicId = ClinicContext.getClinicId();
 
       return patientRepository.findAllByClinic_Id(clinicId).stream().map(patientMapper::toResponse).toList();
-   }
-
-   private static List<String> getChangedFields(Patient patient, UpdatePatientRequestDto request) {
-      List<String> changedFields = new ArrayList<>();
-
-      if (request.firstName() != null && !Objects.equals(patient.getFirstName(), request.firstName())) {
-         changedFields.add("firstName");
-      }
-
-      if (request.lastName() != null && !Objects.equals(patient.getLastName(), request.lastName())) {
-         changedFields.add("lastName");
-      }
-
-      if (request.middleName() != null && !Objects.equals(patient.getMiddleName(), request.middleName())) {
-         changedFields.add("middleName");
-      }
-
-      if (request.phone() != null) {
-         String normalizedPhone = request.phone().trim();
-
-         if (!Objects.equals(patient.getPhone(), normalizedPhone)) {
-            changedFields.add("phone");
-         }
-      }
-
-      if (request.email() != null) {
-         String normalizedEmail = request.email().trim().toLowerCase(Locale.ROOT);
-
-         if (!Objects.equals(patient.getEmail(), normalizedEmail)) {
-            changedFields.add("email");
-         }
-      }
-
-      if (request.birthDate() != null && !Objects.equals(patient.getBirthDate(), request.birthDate())) {
-         changedFields.add("birthDate");
-      }
-
-      if (request.notes() != null && !Objects.equals(patient.getNotes(), request.notes())) {
-         changedFields.add("notes");
-      }
-
-      if (request.allergies() != null && !Objects.equals(patient.getAllergies(), request.allergies())) {
-         changedFields.add("allergies");
-      }
-
-      if (request.chronicDiseases() != null && !Objects.equals(patient.getChronicDiseases(),
-                                                               request.chronicDiseases())) {
-         changedFields.add("chronicDiseases");
-      }
-
-      return changedFields;
    }
 }

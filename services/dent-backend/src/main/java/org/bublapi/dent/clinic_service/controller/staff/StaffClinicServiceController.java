@@ -38,13 +38,15 @@ public class StaffClinicServiceController {
 
    @Operation(summary = "Add new clinic service", description = "Add new clinic service from global catalog")
    @PostMapping("/{dentalServiceId}")
-   public ClinicServiceResponseDto addService(@PathVariable UUID dentalServiceId, @Valid @RequestBody AddClinicServiceRequestDto request) {
+   public ClinicServiceResponseDto addService(@PathVariable UUID dentalServiceId,
+                                              @Valid @RequestBody AddClinicServiceRequestDto request) {
       return clinicServiceService.add(dentalServiceId, request);
    }
 
    @Operation(summary = "Update a clinic service", description = "Update provided fields in a clinic service by ID")
    @PatchMapping("/{clinicServiceId}")
-   public ClinicServiceResponseDto updateService(@PathVariable UUID clinicServiceId, @Valid @RequestBody UpdateClinicServiceRequestDto request) {
+   public ClinicServiceResponseDto updateService(@PathVariable UUID clinicServiceId,
+                                                 @Valid @RequestBody UpdateClinicServiceRequestDto request) {
       return clinicServiceService.update(clinicServiceId, request);
    }
 

@@ -22,7 +22,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
    @Query("""
            SELECT u FROM User u WHERE u.clinic.id = :clinicId AND (lower(u.email) = lower(:email) OR u.phone = :phone)
            """)
-   Optional<User> findByEmailOrPhoneInClinic(@Param("email") String email, @Param("phone") String phone, @Param("clinicId") UUID clinicId);
+   Optional<User> findByEmailOrPhoneInClinic(@Param("email") String email, @Param("phone") String phone,
+                                             @Param("clinicId") UUID clinicId);
 
    @Query("""
            SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.clinic.id = :clinicId AND lower(u.email) = lower(:email)

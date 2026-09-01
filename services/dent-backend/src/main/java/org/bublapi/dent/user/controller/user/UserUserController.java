@@ -36,7 +36,8 @@ public class UserUserController {
 
    @Operation(summary = "Update a user from profile", description = "Update only provided fields from profile")
    @PatchMapping
-   public UserResponseDto updateUser(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody UpdateUserRequestDto request) {
+   public UserResponseDto updateUser(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                     @Valid @RequestBody UpdateUserRequestDto request) {
       return userService.update(userDetails.getId(), request);
    }
 

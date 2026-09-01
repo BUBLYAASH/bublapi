@@ -35,7 +35,9 @@ public class DoctorAvailabilityService {
    private final DoctorScheduleExceptionRepository scheduleExceptionRepository;
    private final AppointmentRepository appointmentRepository;
 
-   public DoctorAvailabilityService(DoctorService doctorService, DoctorWorkingHoursRepository workingHoursRepository, DoctorScheduleExceptionRepository scheduleExceptionRepository, AppointmentRepository appointmentRepository) {
+   public DoctorAvailabilityService(DoctorService doctorService, DoctorWorkingHoursRepository workingHoursRepository,
+                                    DoctorScheduleExceptionRepository scheduleExceptionRepository,
+                                    AppointmentRepository appointmentRepository) {
       this.doctorService = doctorService;
       this.workingHoursRepository = workingHoursRepository;
       this.scheduleExceptionRepository = scheduleExceptionRepository;
@@ -80,7 +82,8 @@ public class DoctorAvailabilityService {
       return result;
    }
 
-   private List<TimeInterval> resolveWorkingIntervals(UUID clinicId, UUID doctorId, LocalDate date, List<DoctorWorkingHours> allWorkingHours) {
+   private List<TimeInterval> resolveWorkingIntervals(UUID clinicId, UUID doctorId, LocalDate date,
+                                                      List<DoctorWorkingHours> allWorkingHours) {
       List<DoctorScheduleException> exceptions = scheduleExceptionRepository.findAllByDoctor_Clinic_IdAndDoctor_IdAndDate(
               clinicId, doctorId, date);
 
@@ -116,7 +119,8 @@ public class DoctorAvailabilityService {
                             .toList();
    }
 
-   private List<LocalTime> createFreeSlots(LocalDate date, List<TimeInterval> workingIntervals, List<Appointment> appointments, int durationMinutes, LocalDateTime now) {
+   private List<LocalTime> createFreeSlots(LocalDate date, List<TimeInterval> workingIntervals,
+                                           List<Appointment> appointments, int durationMinutes, LocalDateTime now) {
       List<LocalTime> slots = new ArrayList<>();
 
       for (TimeInterval workingInterval : workingIntervals) {
@@ -148,7 +152,8 @@ public class DoctorAvailabilityService {
       return slots.stream().distinct().sorted().toList();
    }
 
-   private boolean hasOverlappingAppointment(List<Appointment> appointments, LocalDateTime slotStart, LocalDateTime slotEnd) {
+   private boolean hasOverlappingAppointment(List<Appointment> appointments, LocalDateTime slotStart,
+                                             LocalDateTime slotEnd) {
       return appointments.stream()
                          .filter(appointment -> appointment.getStatus() != AppointmentStatus.CANCELLED)
                          .filter(appointment -> appointment.getScheduledAt() != null && appointment.getEndAt() != null)
@@ -156,7 +161,8 @@ public class DoctorAvailabilityService {
                                                                    appointment.getEndAt()));
    }
 
-   private boolean intervalsOverlap(LocalDateTime firstStart, LocalDateTime firstEnd, LocalDateTime secondStart, LocalDateTime secondEnd) {
+   private boolean intervalsOverlap(LocalDateTime firstStart, LocalDateTime firstEnd, LocalDateTime secondStart,
+                                    LocalDateTime secondEnd) {
       return firstStart.isBefore(secondEnd) && firstEnd.isAfter(secondStart);
    }
 

@@ -40,7 +40,8 @@ public class AdminDentalServiceController {
 
    @Operation(summary = "Update a service", description = "Update a service by provided information")
    @PatchMapping("/{dentalServiceId}")
-   public DentalServiceResponseDto update(@PathVariable UUID dentalServiceId, @Valid @RequestBody UpdateDentalServiceRequestDto request) {
+   public DentalServiceResponseDto update(@PathVariable UUID dentalServiceId,
+                                          @Valid @RequestBody UpdateDentalServiceRequestDto request) {
       return dentalServiceService.update(dentalServiceId, request);
    }
 

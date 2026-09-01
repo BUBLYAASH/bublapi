@@ -42,13 +42,15 @@ public class PatientNotificationController {
 
    @Operation(summary = "Show detailed information about one notification", description = "Shows detailed information about one notification")
    @GetMapping("/{notificationId}")
-   public UserNotificationResponseDto findById(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID notificationId) {
+   public UserNotificationResponseDto findById(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                               @PathVariable UUID notificationId) {
       return notificationService.findByIdForPatient(userDetails.getId(), notificationId);
    }
 
    @Operation(summary = "Unread notifications", description = "Count unread notifications")
    @GetMapping("/unread-count")
-   public UnreadNotificationsCountResponseDto unreadNotifications(@AuthenticationPrincipal CustomUserDetails userDetails) {
+   public UnreadNotificationsCountResponseDto unreadNotifications(
+           @AuthenticationPrincipal CustomUserDetails userDetails) {
       return notificationService.unreadCount(userDetails.getId());
    }
 

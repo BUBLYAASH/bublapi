@@ -41,7 +41,8 @@ public class AdminClinicController {
 
    @Operation(summary = "Update a clinic", description = "Update provided fields in clinic by ID")
    @PatchMapping("/{clinicId}")
-   public ClinicResponseDto updateClinic(@PathVariable UUID clinicId, @Valid @RequestBody UpdateClinicRequestDto request) {
+   public ClinicResponseDto updateClinic(@PathVariable UUID clinicId,
+                                         @Valid @RequestBody UpdateClinicRequestDto request) {
       return clinicService.update(clinicId, request);
    }
 

@@ -39,13 +39,15 @@ public class StaffUserController {
 
    @Operation(summary = "Assign a role", description = "Adds selected role to user")
    @PostMapping("/{userId}/roles/{roleId}")
-   public UserRoleResponseDto assignRole(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID userId, @PathVariable UUID roleId) {
+   public UserRoleResponseDto assignRole(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                         @PathVariable UUID userId, @PathVariable UUID roleId) {
       return userService.assignRole(userDetails.getId(), userId, roleId);
    }
 
    @Operation(summary = "Remove a role", description = "Removes selected role¬ from user")
    @DeleteMapping("/{userId}/roles/{roleId}")
-   public UserRoleResponseDto removeRole(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID userId, @PathVariable UUID roleId) {
+   public UserRoleResponseDto removeRole(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                         @PathVariable UUID userId, @PathVariable UUID roleId) {
       return userService.removeRole(userDetails.getId(), userId, roleId);
    }
 

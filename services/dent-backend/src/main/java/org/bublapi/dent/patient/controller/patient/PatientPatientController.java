@@ -36,13 +36,15 @@ public class PatientPatientController {
 
    @Operation(summary = "Create a patient card from profile", description = "Create a patient card from user's profile")
    @PostMapping
-   public PatientResponseDto createPatientFromProfile(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody CreatePatientFromProfileRequestDto request) {
+   public PatientResponseDto createPatientFromProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                      @Valid @RequestBody CreatePatientFromProfileRequestDto request) {
       return patientService.createFromProfile(userDetails.getId(), request);
    }
 
    @Operation(summary = "Update a patient card from profile", description = "Update provided fields in patient card from profile")
    @PatchMapping
-   public PatientResponseDto updatePatient(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody UpdatePatientRequestDto request) {
+   public PatientResponseDto updatePatient(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                           @Valid @RequestBody UpdatePatientRequestDto request) {
       return patientService.updateByUserId(userDetails.getId(), request);
    }
 
