@@ -246,10 +246,35 @@ import { api, escapeHtml, toast } from './api.js';
     }
   }
 
+  let lastLoadedExceptionDoctorId = '';
+
   function syncExceptionDoctor() {
     const regularDoctor = $('#doctorScheduleForm [name="doctorId"]');
     const hiddenDoctor = $('#doctorScheduleExceptionForm [name="doctorId"]');
     if (hiddenDoctor && regularDoctor) hiddenDoctor.value = regularDoctor.value || '';
+  }
+
+  function syncExceptionDoctorAndLoad() {
+    syncExceptionDoctor();
+
+    const doctorId = currentScheduleDoctorId();
+    if (!doctorId) return;
+
+    if (String(doctorId) === String(lastLoadedExceptionDoctorId)) return;
+
+    lastLoadedExceptionDoctorId = String(doctorId);
+    loadScheduleExceptions(doctorId, { silent: true });
+  }
+
+  function watchScheduleDoctorSelection() {
+    // The legacy workflow fills doctorId asynchronously after the modal/panel
+    // already exists. Setting input.value programmatically does not emit
+    // change/input events and MutationObserver does not see property changes,
+    // so poll only while the schedule UI exists and react to actual ID changes.
+    setInterval(() => {
+      if (!$('#doctorScheduleForm') || !$('#doctorScheduleExceptionForm')) return;
+      syncExceptionDoctorAndLoad();
+    }, 200);
   }
 
   function toggleExceptionTimes() {
@@ -331,10 +356,10 @@ import { api, escapeHtml, toast } from './api.js';
 
   document.addEventListener('change', event => {
     if (event.target.matches?.('#doctorScheduleForm [name="doctorId"]')) {
-      syncExceptionDoctor();
+      lastLoadedExceptionDoctorId = '';
       scheduleExceptions = [];
       renderScheduleExceptions();
-      loadScheduleExceptions(event.target.value, { silent: true });
+      syncExceptionDoctorAndLoad();
     }
 
     if (event.target.matches?.('#doctorScheduleExceptionForm [name="type"]')) {
@@ -544,7 +569,8 @@ import { api, escapeHtml, toast } from './api.js';
   function start() {
     installExceptionPanel();
     fixModalStacking();
-    loadScheduleExceptions(currentScheduleDoctorId(), { silent: true });
+    syncExceptionDoctorAndLoad();
+    watchScheduleDoctorSelection();
     observeStaffCalendar();
     scheduleCalendarAvailabilityRefresh();
 
