@@ -8,6 +8,7 @@ import org.bublapi.dent.apikey.entity.ApiKey;
 import org.bublapi.dent.apikey.service.ApiKeyService;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.bublapi.dent.logging.SecurityLogService;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,9 +19,11 @@ import java.io.IOException;
 @Order(1)
 public class ApiKeyFilter extends OncePerRequestFilter {
    private final ApiKeyService apiKeyService;
+   private final SecurityLogService securityLogService;
 
-   public ApiKeyFilter(ApiKeyService apiKeyService) {
+   public ApiKeyFilter(ApiKeyService apiKeyService, SecurityLogService securityLogService) {
       this.apiKeyService = apiKeyService;
+      this.securityLogService = securityLogService;
    }
 
    @Override
@@ -39,6 +42,8 @@ public class ApiKeyFilter extends OncePerRequestFilter {
       String apiKey = request.getHeader("X-API-KEY");
 
       if (apiKey == null || apiKey.isBlank()) {
+         securityLogService.apiKeyAuthenticationFailed("MISSING_API_KEY", null);
+
          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
          return;
       }
@@ -47,8 +52,12 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
          ClinicContext.set(key.getClinic());
 
+         securityLogService.apiKeyAuthenticationSuccess(key.getId(), key.getClinic().getId());
+
          filterChain.doFilter(request, response);
       } catch (IllegalArgumentException | ResourceNotFoundException e) {
+         securityLogService.apiKeyAuthenticationFailed("INVALID_API_KEY", apiKey);
+
          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       } finally {
          ClinicContext.clear();

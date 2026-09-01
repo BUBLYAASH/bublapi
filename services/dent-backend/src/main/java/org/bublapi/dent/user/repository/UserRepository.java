@@ -13,6 +13,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
    List<User> findAllByClinic_IdAndEnabledTrue(UUID clinicId);
 
+   List<User> findAllByClinic_Id(UUID clinicId);
+
    List<User> findAllByClinic_IdAndDisabledByClinicTrue(UUID clinicId);
 
    Optional<User> findByEmailIgnoreCaseAndClinic_Id(String email, UUID clinicId);

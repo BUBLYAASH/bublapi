@@ -49,7 +49,9 @@ public class StaffDoctorController {
    private final DoctorScheduleExceptionService doctorScheduleExceptionService;
    private final DoctorClinicServiceService doctorClinicServiceService;
 
-   public StaffDoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService, DoctorScheduleExceptionService doctorScheduleExceptionService, DoctorClinicServiceService doctorClinicServiceService) {
+   public StaffDoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService,
+                                DoctorScheduleExceptionService doctorScheduleExceptionService,
+                                DoctorClinicServiceService doctorClinicServiceService) {
       this.doctorService = doctorService;
       this.doctorWorkingHoursService = doctorWorkingHoursService;
       this.doctorScheduleExceptionService = doctorScheduleExceptionService;
@@ -64,7 +66,8 @@ public class StaffDoctorController {
 
    @Operation(summary = "Update doctor's profile", description = "Update provided fields in doctor's profile")
    @PatchMapping("/{doctorId}")
-   public DoctorResponseDto updateDoctor(@PathVariable UUID doctorId, @Valid @RequestBody UpdateDoctorRequestDto request) {
+   public DoctorResponseDto updateDoctor(@PathVariable UUID doctorId,
+                                         @Valid @RequestBody UpdateDoctorRequestDto request) {
       return doctorService.update(doctorId, request);
    }
 
@@ -94,13 +97,15 @@ public class StaffDoctorController {
 
    @Operation(summary = "Set doctor's working hours", description = "Set working hours for a doctor on a specific day of week")
    @PostMapping("/{doctorId}/working-hours")
-   public DoctorWorkingHoursResponseDto setSchedule(@PathVariable UUID doctorId, @Valid @RequestBody SetDoctorWorkingHoursRequestDto request) {
+   public DoctorWorkingHoursResponseDto setSchedule(@PathVariable UUID doctorId,
+                                                    @Valid @RequestBody SetDoctorWorkingHoursRequestDto request) {
       return doctorWorkingHoursService.setSchedule(doctorId, request);
    }
 
    @Operation(summary = "Update doctor's working hours", description = "Update working hours for a doctor on a specific day of week")
    @PatchMapping("/{doctorId}/working-hours/{scheduleId}")
-   public DoctorWorkingHoursResponseDto updateWorkingHours(@PathVariable UUID doctorId, @PathVariable UUID scheduleId, @Valid @RequestBody UpdateDoctorWorkingHoursRequestDto request) {
+   public DoctorWorkingHoursResponseDto updateWorkingHours(@PathVariable UUID doctorId, @PathVariable UUID scheduleId,
+                                                           @Valid @RequestBody UpdateDoctorWorkingHoursRequestDto request) {
       return doctorWorkingHoursService.updateSchedule(doctorId, scheduleId, request);
    }
 
@@ -113,7 +118,8 @@ public class StaffDoctorController {
 
    @Operation(summary = "Set doctor's schedule exception", description = "Set schedule exception for doctor")
    @PostMapping("/{doctorId}/schedule-exceptions")
-   public DoctorScheduleExceptionResponseDto setScheduleException(@PathVariable UUID doctorId, @Valid @RequestBody SetDoctorScheduleExceptionRequestDto request) {
+   public DoctorScheduleExceptionResponseDto setScheduleException(@PathVariable UUID doctorId,
+                                                                  @Valid @RequestBody SetDoctorScheduleExceptionRequestDto request) {
       return doctorScheduleExceptionService.setException(doctorId, request);
    }
 
@@ -124,9 +130,16 @@ public class StaffDoctorController {
       doctorScheduleExceptionService.deleteException(doctorId, scheduleExceptionId);
    }
 
+   @Operation(summary = "Get doctor's schedule exceptions")
+   @GetMapping("/{doctorId}/schedule-exceptions")
+   public List<DoctorScheduleExceptionResponseDto> findAll(@PathVariable UUID doctorId) {
+      return doctorScheduleExceptionService.findAll(doctorId);
+   }
+
    @Operation(summary = "Link user to doctor", description = "Connect user profile with doctor profile")
    @PatchMapping("/{doctorId}/link-user")
-   public DoctorResponseDto linkUserToDoctor(@PathVariable UUID doctorId, @Valid @RequestBody LinkUserToDoctorRequestDto request) {
+   public DoctorResponseDto linkUserToDoctor(@PathVariable UUID doctorId,
+                                             @Valid @RequestBody LinkUserToDoctorRequestDto request) {
       return doctorService.linkUser(doctorId, request);
    }
 
@@ -138,7 +151,8 @@ public class StaffDoctorController {
 
    @Operation(summary = "Assign service to a doctor", description = "Assign service to a doctor")
    @PostMapping("/{doctorId}/services/{clinicServiceId}")
-   public DoctorClinicServiceResponseDto assignService(@PathVariable UUID doctorId, @PathVariable UUID clinicServiceId) {
+   public DoctorClinicServiceResponseDto assignService(@PathVariable UUID doctorId,
+                                                       @PathVariable UUID clinicServiceId) {
       return doctorClinicServiceService.assignService(doctorId, clinicServiceId);
    }
 

@@ -7,6 +7,7 @@ import org.bublapi.dent.apikey.repository.ApiKeyRepository;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.bublapi.dent.logging.AdministrativeAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,38 +22,22 @@ public class ApiKeyService {
 
    private final ApiKeyRepository apiKeyRepository;
    private final ClinicRepository clinicRepository;
+   private final AdministrativeAuditService administrativeAuditService;
 
-   public ApiKeyService(ApiKeyRepository apiKeyRepository, ClinicRepository clinicRepository) {
+   public ApiKeyService(ApiKeyRepository apiKeyRepository, ClinicRepository clinicRepository,
+                        AdministrativeAuditService administrativeAuditService) {
       this.apiKeyRepository = apiKeyRepository;
       this.clinicRepository = clinicRepository;
+      this.administrativeAuditService = administrativeAuditService;
    }
 
    @Transactional
    public CreateApiKeyResponseDto createApiKey(UUID clinicId, String name) {
-      if (apiKeyRepository.existsByClinic_IdAndActiveTrue(clinicId)) {
-         throw new IllegalStateException("API Key already exists");
-      }
+      ApiKeyCreationResult result = createApiKeyInternal(clinicId, name);
 
-      Clinic clinic = clinicRepository.findByIdAndActiveTrue(clinicId)
-                                      .orElseThrow(
-                                              () -> new ResourceNotFoundException("Clinic not found or unavailable"));
+      administrativeAuditService.apiKeyCreated(result.apiKeyId, clinicId);
 
-      String rawKey = generateRawKey();
-      ParsedKey parsed = parse(rawKey);
-
-      LocalDateTime now = LocalDateTime.now();
-
-      ApiKey apiKey = new ApiKey();
-      apiKey.setClinic(clinic);
-      apiKey.setName(name);
-      apiKey.setPrefix(parsed.prefix);
-      apiKey.setHash(hash(parsed.secret));
-      apiKey.setExpiresAt(now.plusMonths(1));
-      apiKey.setGraceUntil(now.plusMonths(1).plusDays(14));
-
-      apiKeyRepository.save(apiKey);
-
-      return new CreateApiKeyResponseDto(rawKey);
+      return new CreateApiKeyResponseDto(result.rawKey);
    }
 
    @Transactional
@@ -69,6 +54,8 @@ public class ApiKeyService {
          apiKey.setExpiresAt(now.plusMonths(1));
          apiKey.setGraceUntil(now.plusMonths(1).plusDays(14));
       }
+
+      administrativeAuditService.apiKeyRenewed(apiKey.getId(), clinicId);
    }
 
    public ApiKey validate(String rawKey) {
@@ -104,7 +91,11 @@ public class ApiKeyService {
                                    .orElseThrow(() -> new ResourceNotFoundException("API Key not found"));
       old.setActive(false);
 
-      return createApiKey(clinicId, old.getName());
+      ApiKeyCreationResult result = createApiKeyInternal(clinicId, old.getName());
+
+      administrativeAuditService.apiKeyRotated(result.apiKeyId, clinicId);
+
+      return new CreateApiKeyResponseDto(result.rawKey);
    }
 
    @Transactional
@@ -113,6 +104,8 @@ public class ApiKeyService {
                                       .orElseThrow(() -> new ResourceNotFoundException("ApiKey not found"));
 
       apiKey.setActive(false);
+
+      administrativeAuditService.apiKeyRevoked(apiKey.getId(), apiKey.getClinic().getId());
    }
 
    public List<ApiKeyResponseDto> findAll() {
@@ -123,6 +116,33 @@ public class ApiKeyService {
                                                                   apiKey.getExpiresAt(), apiKey.getGraceUntil(),
                                                                   apiKey.isActive()))
                              .toList();
+   }
+
+   public ApiKeyCreationResult createApiKeyInternal(UUID clinicId, String name) {
+      if (apiKeyRepository.existsByClinic_IdAndActiveTrue(clinicId)) {
+         throw new IllegalStateException("API Key already exists");
+      }
+
+      Clinic clinic = clinicRepository.findByIdAndActiveTrue(clinicId)
+                                      .orElseThrow(
+                                              () -> new ResourceNotFoundException("Clinic not found or unavailable"));
+
+      String rawKey = generateRawKey();
+      ParsedKey parsed = parse(rawKey);
+
+      LocalDateTime now = LocalDateTime.now();
+
+      ApiKey apiKey = new ApiKey();
+      apiKey.setClinic(clinic);
+      apiKey.setName(name);
+      apiKey.setPrefix(parsed.prefix);
+      apiKey.setHash(hash(parsed.secret));
+      apiKey.setExpiresAt(now.plusMonths(1));
+      apiKey.setGraceUntil(now.plusMonths(1).plusDays(14));
+
+      ApiKey saved = apiKeyRepository.save(apiKey);
+
+      return new ApiKeyCreationResult(saved.getId(), rawKey);
    }
 
    private String generateRawKey() {
@@ -167,6 +187,9 @@ public class ApiKeyService {
    }
 
    private record ParsedKey(String prefix, String secret) {
+   }
+
+   private record ApiKeyCreationResult(UUID apiKeyId, String rawKey) {
    }
 
 // TODO:

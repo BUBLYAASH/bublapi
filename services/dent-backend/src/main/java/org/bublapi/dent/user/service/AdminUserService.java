@@ -2,6 +2,7 @@ package org.bublapi.dent.user.service;
 
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.bublapi.dent.logging.AdministrativeAuditService;
 import org.bublapi.dent.role.entity.Role;
 import org.bublapi.dent.role.repository.RoleRepository;
 import org.bublapi.dent.user.dto.UserResponseDto;
@@ -22,11 +23,14 @@ public class AdminUserService {
    private final UserRepository userRepository;
    private final RoleRepository roleRepository;
    private final UserMapper userMapper;
+   private final AdministrativeAuditService administrativeAuditService;
 
-   public AdminUserService(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper) {
+   public AdminUserService(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper,
+                           AdministrativeAuditService administrativeAuditService) {
       this.userRepository = userRepository;
       this.roleRepository = roleRepository;
       this.userMapper = userMapper;
+      this.administrativeAuditService = administrativeAuditService;
    }
 
    @Transactional(readOnly = true)
@@ -54,6 +58,8 @@ public class AdminUserService {
          throw new BadRequestException("User already has this role");
       }
 
+      administrativeAuditService.roleGranted(user.getId(), user.getClinic().getId(), role.getName().name());
+
       return new UserRoleResponseDto(user.getId(), role.getId());
    }
 
@@ -65,6 +71,8 @@ public class AdminUserService {
       if (!user.getRoles().remove(role)) {
          throw new ResourceNotFoundException("User does not have this role");
       }
+
+      administrativeAuditService.roleRevoked(user.getId(), user.getClinic().getId(), role.getName().name());
 
       return new UserRoleResponseDto(user.getId(), role.getId());
    }

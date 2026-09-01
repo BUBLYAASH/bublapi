@@ -11,10 +11,12 @@ import org.bublapi.dent.doctor_schedule_exception.entity.DoctorScheduleException
 import org.bublapi.dent.doctor_schedule_exception.entity.ScheduleExceptionType;
 import org.bublapi.dent.doctor_schedule_exception.mapper.DoctorScheduleExceptionMapper;
 import org.bublapi.dent.doctor_schedule_exception.repository.DoctorScheduleExceptionRepository;
+import org.bublapi.dent.logging.UserAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,11 +24,16 @@ public class DoctorScheduleExceptionService {
    private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
    private final DoctorRepository doctorRepository;
    private final DoctorScheduleExceptionMapper doctorScheduleExceptionMapper;
+   private final UserAuditService userAuditService;
 
-   public DoctorScheduleExceptionService(DoctorScheduleExceptionRepository doctorScheduleExceptionRepository, DoctorRepository doctorRepository, DoctorScheduleExceptionMapper doctorScheduleExceptionMapper) {
+   public DoctorScheduleExceptionService(DoctorScheduleExceptionRepository doctorScheduleExceptionRepository,
+                                         DoctorRepository doctorRepository,
+                                         DoctorScheduleExceptionMapper doctorScheduleExceptionMapper,
+                                         UserAuditService userAuditService) {
       this.doctorScheduleExceptionRepository = doctorScheduleExceptionRepository;
       this.doctorRepository = doctorRepository;
       this.doctorScheduleExceptionMapper = doctorScheduleExceptionMapper;
+      this.userAuditService = userAuditService;
    }
 
    @Transactional
@@ -56,9 +63,12 @@ public class DoctorScheduleExceptionService {
 
       DoctorScheduleException saved = doctorScheduleExceptionRepository.save(scheduleException);
 
+      userAuditService.doctorScheduleExceptionCreated(saved.getId());
+
       return doctorScheduleExceptionMapper.toResponse(saved);
    }
 
+   @Transactional
    public void deleteException(UUID doctorId, UUID scheduleExceptionId) {
       UUID clinicId = ClinicContext.getClinicId();
 
@@ -69,5 +79,20 @@ public class DoctorScheduleExceptionService {
                                                                                                    "Schedule Exception not found"));
 
       doctorScheduleExceptionRepository.delete(scheduleException);
+
+      userAuditService.doctorScheduleExceptionDeleted(scheduleException.getId());
+   }
+
+   @Transactional
+   public List<DoctorScheduleExceptionResponseDto> findAll(UUID doctorId) {
+      UUID clinicId = ClinicContext.getClinicId();
+
+      doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
+                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+
+      return doctorScheduleExceptionRepository.findAllByDoctor_Clinic_IdAndDoctor_IdOrderByDateAsc(clinicId, doctorId)
+                                              .stream()
+                                              .map(doctorScheduleExceptionMapper::toResponse)
+                                              .toList();
    }
 }

@@ -48,9 +48,15 @@ public class GlobalExceptionHandler {
    @ExceptionHandler(MethodArgumentNotValidException.class)
    public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
       Map<String, Object> response = new HashMap<>();
+      Map<String, String> validationErrors = new HashMap<>();
 
-      response.put("error", "Method argument not valid");
-      response.put("message", e.getMessage());
+      e.getBindingResult()
+       .getFieldErrors()
+       .forEach(error -> validationErrors.put(error.getField(), error.getDefaultMessage()));
+
+      response.put("error", "Validation failed");
+      response.put("message", "Request contains invalid data");
+      response.put("validationErrors", validationErrors);
       response.put("status", HttpStatus.BAD_REQUEST.value());
       response.put("timestamp", LocalDateTime.now());
 
@@ -58,11 +64,11 @@ public class GlobalExceptionHandler {
    }
 
    @ExceptionHandler(DataIntegrityViolationException.class)
-   public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+   public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation() {
       Map<String, Object> response = new HashMap<>();
 
-      response.put("error", "Data Integrity Violation");
-      response.put("message", e.getMessage());
+      response.put("error", "Data integrity violation");
+      response.put("message", "The operation conflicts with existing data");
       response.put("status", HttpStatus.CONFLICT.value());
       response.put("timestamp", LocalDateTime.now());
 
@@ -95,7 +101,10 @@ public class GlobalExceptionHandler {
 
    @ExceptionHandler(Exception.class)
    public ResponseEntity<Map<String, Object>> handleGeneral(Exception e) {
-      log.atError().addKeyValue("errorClass", e.getClass().getName()).setCause(e).log("Unhandled exception");
+      log.atError()
+         .addKeyValue("errorClass", e.getClass().getName())
+         .addKeyValue("errorLocation", getErrorLocation(e))
+         .log("Unhandled exception");
 
       Map<String, Object> response = new HashMap<>();
 
@@ -105,5 +114,17 @@ public class GlobalExceptionHandler {
       response.put("timestamp", LocalDateTime.now());
 
       return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+   }
+
+   private static String getErrorLocation(Exception e) {
+      StackTraceElement[] stackTrace = e.getStackTrace();
+
+      if (stackTrace.length == 0) {
+         return "unknown";
+      }
+
+      StackTraceElement element = stackTrace[0];
+
+      return element.getClassName() + "." + element.getMethodName() + ":" + element.getLineNumber();
    }
 }

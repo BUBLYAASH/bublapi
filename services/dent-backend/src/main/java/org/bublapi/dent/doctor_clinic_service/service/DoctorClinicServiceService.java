@@ -11,6 +11,7 @@ import org.bublapi.dent.doctor_clinic_service.dto.DoctorClinicServiceResponseDto
 import org.bublapi.dent.doctor_clinic_service.entity.DoctorClinicService;
 import org.bublapi.dent.doctor_clinic_service.mapper.DoctorClinicServiceMapper;
 import org.bublapi.dent.doctor_clinic_service.repository.DoctorClinicServiceRepository;
+import org.bublapi.dent.logging.UserAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +24,17 @@ public class DoctorClinicServiceService {
    private final DoctorRepository doctorRepository;
    private final ClinicServiceRepository clinicServiceRepository;
    private final DoctorClinicServiceMapper doctorClinicServiceMapper;
+   private final UserAuditService userAuditService;
 
-   public DoctorClinicServiceService(DoctorClinicServiceRepository doctorClinicServiceRepository, DoctorRepository doctorRepository, ClinicServiceRepository clinicServiceRepository, DoctorClinicServiceMapper doctorClinicServiceMapper) {
+   public DoctorClinicServiceService(DoctorClinicServiceRepository doctorClinicServiceRepository,
+                                     DoctorRepository doctorRepository, ClinicServiceRepository clinicServiceRepository,
+                                     DoctorClinicServiceMapper doctorClinicServiceMapper,
+                                     UserAuditService userAuditService) {
       this.doctorClinicServiceRepository = doctorClinicServiceRepository;
       this.doctorRepository = doctorRepository;
       this.clinicServiceRepository = clinicServiceRepository;
       this.doctorClinicServiceMapper = doctorClinicServiceMapper;
+      this.userAuditService = userAuditService;
    }
 
    @Transactional(readOnly = true)
@@ -82,6 +88,8 @@ public class DoctorClinicServiceService {
 
       DoctorClinicService saved = doctorClinicServiceRepository.save(doctorClinicService);
 
+      userAuditService.doctorClinicServiceCreated(saved.getId());
+
       return doctorClinicServiceMapper.toResponse(saved);
    }
 
@@ -103,5 +111,7 @@ public class DoctorClinicServiceService {
                                                                                              "DoctorClinicService not found or unavailable"));
 
       doctorClinicServiceRepository.delete(doctorClinicService);
+
+      userAuditService.doctorClinicServiceDeleted(doctorClinicService.getId());
    }
 }

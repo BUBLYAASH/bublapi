@@ -15,6 +15,7 @@ import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.dental_service.entity.DentalService;
 import org.bublapi.dent.dental_service.repository.DentalServiceRepository;
+import org.bublapi.dent.logging.UserAuditService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationType;
@@ -23,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -33,16 +36,22 @@ public class ClinicServiceService {
    private final ClinicServiceMapper clinicServiceMapper;
    private final AppointmentServiceRepository appointmentServiceRepository;
    private final NotificationPublisher notificationPublisher;
+   private final UserAuditService userAuditService;
 
-   public ClinicServiceService(ClinicServiceRepository clinicServiceRepository, DentalServiceRepository dentalServiceRepository, ClinicServiceMapper clinicServiceMapper, AppointmentServiceRepository appointmentServiceRepository, NotificationPublisher notificationPublisher) {
+   public ClinicServiceService(ClinicServiceRepository clinicServiceRepository,
+                               DentalServiceRepository dentalServiceRepository, ClinicServiceMapper clinicServiceMapper,
+                               AppointmentServiceRepository appointmentServiceRepository,
+                               NotificationPublisher notificationPublisher, UserAuditService userAuditService) {
       this.clinicServiceRepository = clinicServiceRepository;
       this.dentalServiceRepository = dentalServiceRepository;
       this.clinicServiceMapper = clinicServiceMapper;
       this.appointmentServiceRepository = appointmentServiceRepository;
       this.notificationPublisher = notificationPublisher;
+      this.userAuditService = userAuditService;
    }
 
-   private void publishClinicServiceNotifications(Appointment appointment, NotificationType type, String title, String message) {
+   private void publishClinicServiceNotifications(Appointment appointment, NotificationType type, String title,
+                                                  String message) {
       UUID patientUserId = appointment.getPatient().getUser() != null ? appointment.getPatient()
                                                                                    .getUser()
                                                                                    .getId() : null;
@@ -60,6 +69,7 @@ public class ClinicServiceService {
       }
    }
 
+   @Transactional
    public ClinicServiceResponseDto add(UUID dentalServiceId, AddClinicServiceRequestDto request) {
       Clinic clinic = ClinicContext.get();
 
@@ -78,6 +88,8 @@ public class ClinicServiceService {
 
       ClinicService saved = clinicServiceRepository.save(clinicService);
 
+      userAuditService.clinicServiceCreated(saved.getId());
+
       return clinicServiceMapper.toResponse(saved);
    }
 
@@ -89,7 +101,11 @@ public class ClinicServiceService {
                                                            .orElseThrow(() -> new ResourceNotFoundException(
                                                                    "Clinic Service is not found"));
 
+      List<String> changedFields = getChangedFields(clinicService, request);
+
       clinicServiceMapper.updateEntity(request, clinicService);
+
+      userAuditService.clinicServiceUpdated(clinicServiceId, changedFields);
 
       return clinicServiceMapper.toResponse(clinicService);
    }
@@ -118,6 +134,8 @@ public class ClinicServiceService {
                                                                                                             .getTitle() + "» больше не предоставляется в клинике «" + clinicService.getClinic()
                                                                                                                                                                                    .getTitle() + "». Пожалуйста, свяжитесь с клиникой для изменения записи."));
 
+      userAuditService.clinicServiceDeactivated(clinicServiceId);
+
       return clinicServiceMapper.toResponse(clinicService);
    }
 
@@ -130,6 +148,8 @@ public class ClinicServiceService {
                                                                    "Clinic Service not found"));
 
       clinicService.setActive(true);
+
+      userAuditService.clinicServiceActivated(clinicServiceId);
 
       return clinicServiceMapper.toResponse(clinicService);
    }
@@ -160,5 +180,20 @@ public class ClinicServiceService {
                                     .stream()
                                     .map(clinicServiceMapper::toResponse)
                                     .toList();
+   }
+
+   private static List<String> getChangedFields(ClinicService clinicService, UpdateClinicServiceRequestDto request) {
+      List<String> changedFields = new ArrayList<>();
+
+      if (request.durationMinutes() != null && !Objects.equals(clinicService.getDurationMinutes(),
+                                                               request.durationMinutes())) {
+         changedFields.add("durationMinutes");
+      }
+
+      if (request.price() != null && !Objects.equals(clinicService.getPrice(), request.price())) {
+         changedFields.add("price");
+      }
+
+      return changedFields;
    }
 }

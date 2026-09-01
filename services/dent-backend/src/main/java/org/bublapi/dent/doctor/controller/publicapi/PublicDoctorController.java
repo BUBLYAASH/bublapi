@@ -67,9 +67,4 @@ public class PublicDoctorController {
    public List<DoctorClinicServiceResponseDto> getServices(@PathVariable UUID doctorId) {
       return doctorClinicServiceService.findAllByDoctorId(doctorId);
    }
-
-   @GetMapping("/test-error")
-   public void testError() {
-      throw new RuntimeException("Test application error");
-   }
 }

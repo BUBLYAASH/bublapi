@@ -11,6 +11,8 @@ import org.bublapi.dent.doctor.dto.UpdateDoctorRequestDto;
 import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.mapper.DoctorMapper;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
+import org.bublapi.dent.logging.AdministrativeAuditService;
+import org.bublapi.dent.logging.UserAuditService;
 import org.bublapi.dent.role.entity.Role;
 import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.role.repository.RoleRepository;
@@ -19,8 +21,10 @@ import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -30,12 +34,18 @@ public class DoctorService {
    private final UserRepository userRepository;
    private final RoleRepository roleRepository;
    private final DoctorMapper doctorMapper;
+   private final UserAuditService userAuditService;
+   private final AdministrativeAuditService administrativeAuditService;
 
-   public DoctorService(DoctorRepository doctorRepository, UserRepository userRepository, RoleRepository roleRepository, DoctorMapper doctorMapper) {
+   public DoctorService(DoctorRepository doctorRepository, UserRepository userRepository, RoleRepository roleRepository,
+                        DoctorMapper doctorMapper, UserAuditService userAuditService,
+                        AdministrativeAuditService administrativeAuditService) {
       this.doctorRepository = doctorRepository;
       this.userRepository = userRepository;
       this.roleRepository = roleRepository;
       this.doctorMapper = doctorMapper;
+      this.userAuditService = userAuditService;
+      this.administrativeAuditService = administrativeAuditService;
    }
 
    @Transactional
@@ -43,8 +53,13 @@ public class DoctorService {
       Clinic clinic = ClinicContext.get();
 
       Doctor entity = doctorMapper.toEntity(request);
+
       entity.setClinic(clinic);
+
       Doctor saved = doctorRepository.save(entity);
+
+      userAuditService.doctorCreated(saved.getId());
+
       return doctorMapper.toResponse(saved);
    }
 
@@ -55,7 +70,11 @@ public class DoctorService {
       Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor in clinic not found"));
 
+      List<String> changedFields = getChangedFields(doctor, request);
+
       doctorMapper.updateEntity(request, doctor);
+
+      userAuditService.doctorUpdated(doctorId, changedFields);
 
       return doctorMapper.toResponse(doctor);
    }
@@ -70,6 +89,8 @@ public class DoctorService {
 
       doctor.setActive(false);
 
+      userAuditService.doctorDeactivated(doctorId);
+
       return doctorMapper.toResponse(doctor);
    }
 
@@ -82,6 +103,8 @@ public class DoctorService {
                                               () -> new ResourceNotFoundException("Doctor not found in this clinic"));
 
       doctor.setActive(true);
+
+      userAuditService.doctorActivated(doctorId);
 
       return doctorMapper.toResponse(doctor);
    }
@@ -121,8 +144,9 @@ public class DoctorService {
    @Transactional
    public DoctorResponseDto linkUser(UUID doctorId, LinkUserToDoctorRequestDto request) {
       UUID clinicId = ClinicContext.getClinicId();
-      String email = request.email().trim().toLowerCase(Locale.ROOT);
-      String phone = request.phone().trim();
+
+      String email = request.email() == null ? "" : request.email().trim().toLowerCase(Locale.ROOT);
+      String phone = request.phone() == null ? "" : request.phone().trim();
 
       if (email.isBlank() && phone.isBlank()) {
          throw new BadRequestException("Email and phone are empty");
@@ -149,6 +173,10 @@ public class DoctorService {
       doctor.setUser(user);
       user.getRoles().add(doctorRole);
 
+      userAuditService.doctorUpdated(doctor.getId(), List.of("userId"));
+
+      administrativeAuditService.roleGranted(user.getId(), clinicId, RoleName.DOCTOR.name());
+
       return doctorMapper.toResponse(doctor);
    }
 
@@ -169,6 +197,40 @@ public class DoctorService {
 
       user.getRoles().removeIf(role -> role.getName() == RoleName.DOCTOR);
 
+      userAuditService.doctorUpdated(doctor.getId(), List.of("userId"));
+
+      administrativeAuditService.roleRevoked(user.getId(), clinicId, RoleName.DOCTOR.name());
+
       return doctorMapper.toResponse(doctor);
+   }
+
+   private static List<String> getChangedFields(Doctor doctor, UpdateDoctorRequestDto request) {
+      List<String> changedFields = new ArrayList<>();
+
+      if (request.firstName() != null && !Objects.equals(doctor.getFirstName(), request.firstName())) {
+         changedFields.add("firstName");
+      }
+
+      if (request.lastName() != null && !Objects.equals(doctor.getLastName(), request.lastName())) {
+         changedFields.add("lastName");
+      }
+
+      if (request.middleName() != null && !Objects.equals(doctor.getMiddleName(), request.middleName())) {
+         changedFields.add("middleName");
+      }
+
+      if (request.specialty() != null && !Objects.equals(doctor.getSpecialty(), request.specialty())) {
+         changedFields.add("specialty");
+      }
+
+      if (request.avatarUrl() != null && !Objects.equals(doctor.getAvatarUrl(), request.avatarUrl())) {
+         changedFields.add("avatarUrl");
+      }
+
+      if (request.description() != null && !Objects.equals(doctor.getDescription(), request.description())) {
+         changedFields.add("description");
+      }
+
+      return changedFields;
    }
 }

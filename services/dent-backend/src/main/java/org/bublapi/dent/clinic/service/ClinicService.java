@@ -11,6 +11,7 @@ import org.bublapi.dent.clinic_service.repository.ClinicServiceRepository;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
+import org.bublapi.dent.logging.AdministrativeAuditService;
 import org.bublapi.dent.user.entity.User;
 import org.bublapi.dent.user.repository.UserRepository;
 import org.hibernate.Session;
@@ -29,20 +30,28 @@ public class ClinicService {
    private final ClinicServiceRepository clinicServiceRepository;
    private final ClinicMapper clinicMapper;
    private final EntityManager entityManager;
+   private final AdministrativeAuditService administrativeAuditService;
 
-   public ClinicService(ClinicRepository clinicRepository, UserRepository userRepository, DoctorRepository doctorRepository, ClinicServiceRepository clinicServiceRepository, ClinicMapper clinicMapper, EntityManager entityManager) {
+   public ClinicService(ClinicRepository clinicRepository, UserRepository userRepository,
+                        DoctorRepository doctorRepository, ClinicServiceRepository clinicServiceRepository,
+                        ClinicMapper clinicMapper, EntityManager entityManager,
+                        AdministrativeAuditService administrativeAuditService) {
       this.clinicRepository = clinicRepository;
       this.userRepository = userRepository;
       this.doctorRepository = doctorRepository;
       this.clinicServiceRepository = clinicServiceRepository;
       this.clinicMapper = clinicMapper;
       this.entityManager = entityManager;
+      this.administrativeAuditService = administrativeAuditService;
    }
 
+   @Transactional
    public ClinicResponseDto create(CreateClinicRequestDto request) {
       Clinic clinic = clinicMapper.toEntity(request);
 
       Clinic saved = clinicRepository.save(clinic);
+
+      administrativeAuditService.clinicCreated(saved.getId());
 
       return clinicMapper.toResponse(saved);
    }
@@ -53,6 +62,8 @@ public class ClinicService {
                                       .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
 
       clinicMapper.updateEntity(request, clinic);
+
+      administrativeAuditService.clinicUpdated(clinic.getId());
 
       return clinicMapper.toResponse(clinic);
    }
@@ -88,6 +99,8 @@ public class ClinicService {
          });
 
          clinic.setActive(false);
+
+         administrativeAuditService.clinicDeactivated(clinic.getId());
 
          return clinicMapper.toResponse(clinic);
       } finally {
@@ -126,6 +139,8 @@ public class ClinicService {
             clinicService.setDisabledByClinic(false);
             clinicService.setActive(true);
          });
+
+         administrativeAuditService.clinicActivated(clinic.getId());
 
          return clinicMapper.toResponse(clinic);
       } finally {

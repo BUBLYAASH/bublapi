@@ -1,11 +1,13 @@
 package org.bublapi.dent.auth.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.bublapi.dent.auth.service.JwtService;
+import org.bublapi.dent.logging.SecurityLogService;
 import org.slf4j.MDC;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,10 +26,12 @@ import java.util.UUID;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
    private final JwtService jwtService;
    private final CustomUserDetailsService userDetailsService;
+   private final SecurityLogService securityLogService;
 
-   public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService userDetailsService) {
+   public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService userDetailsService, SecurityLogService securityLogService) {
       this.jwtService = jwtService;
       this.userDetailsService = userDetailsService;
+      this.securityLogService = securityLogService;
    }
 
    @Override
@@ -44,12 +48,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       try {
          String token = authHeader.substring(7);
 
-         UUID userId = UUID.fromString(jwtService.extractUserId(token));
+         String userIdValue = jwtService.extractUserId(token);
+
+         UUID userId;
+
+         try {
+            userId = UUID.fromString(userIdValue);
+         } catch (IllegalArgumentException e) {
+            securityLogService.jwtAuthenticationFailed("INVALID_USER_ID");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+         }
 
          UserDetails userDetails = userDetailsService.loadUserByUserId(userId);
 
-         if (jwtService.isTokenValid(token, userId) && userDetails.isEnabled() && SecurityContextHolder.getContext()
-                                                                                                       .getAuthentication() == null) {
+         if (!jwtService.isTokenValid(token, userId)) {
+            securityLogService.jwtAuthenticationFailed("INVALID_TOKEN");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+         }
+
+         if (!userDetails.isEnabled()) {
+            securityLogService.jwtAuthenticationFailed("USER_DISABLED");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+         }
+
+         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities());
 
@@ -57,16 +82,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
+
             if (userDetails instanceof CustomUserDetails customUserDetails) {
                MDC.put("userId", customUserDetails.getId().toString());
 
                if (customUserDetails.getClinicId() != null) {
                   MDC.put("clinicId", customUserDetails.getClinicId().toString());
                }
+
+               securityLogService.jwtAuthenticationSuccess();
             }
          }
-      } catch (JwtException | IllegalArgumentException | UsernameNotFoundException ignored) {
-         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+      } catch (ExpiredJwtException e) {
+         securityLogService.jwtAuthenticationFailed("EXPIRED_TOKEN");
+
+         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+         return;
+      } catch (UsernameNotFoundException e) {
+         securityLogService.jwtAuthenticationFailed("USER_NOT_FOUND");
+
+         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+         return;
+      } catch (JwtException e) {
+         securityLogService.jwtAuthenticationFailed("INVALID_TOKEN");
+
+         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
          return;
       }
 

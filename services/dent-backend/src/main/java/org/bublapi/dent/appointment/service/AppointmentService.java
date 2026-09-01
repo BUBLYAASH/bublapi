@@ -24,6 +24,7 @@ import org.bublapi.dent.doctor_schedule_exception.repository.DoctorScheduleExcep
 import org.bublapi.dent.doctor_working_hours.entity.DayOfWeek;
 import org.bublapi.dent.doctor_working_hours.entity.DoctorWorkingHours;
 import org.bublapi.dent.doctor_working_hours.repository.DoctorWorkingHoursRepository;
+import org.bublapi.dent.logging.UserAuditService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationType;
@@ -44,7 +45,7 @@ import java.util.UUID;
 @Service
 public class AppointmentService {
    private static final DateTimeFormatter APPOINTMENT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
-           "dd-MM-yyyy HH:mm");
+           "dd.MM.yyyy HH:mm");
 
    private final AppointmentRepository appointmentRepository;
    private final AppointmentServiceRepository appointmentServiceRepository;
@@ -55,8 +56,16 @@ public class AppointmentService {
    private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
    private final AppointmentMapper appointmentMapper;
    private final NotificationPublisher notificationPublisher;
+   private final UserAuditService userAuditService;
 
-   public AppointmentService(AppointmentRepository appointmentRepository, AppointmentServiceRepository appointmentServiceRepository, ClinicServiceRepository clinicServiceRepository, PatientRepository patientRepository, DoctorRepository doctorRepository, DoctorWorkingHoursRepository doctorWorkingHoursRepository, DoctorScheduleExceptionRepository doctorScheduleExceptionRepository, AppointmentMapper appointmentMapper, NotificationPublisher notificationPublisher) {
+   public AppointmentService(AppointmentRepository appointmentRepository,
+                             AppointmentServiceRepository appointmentServiceRepository,
+                             ClinicServiceRepository clinicServiceRepository, PatientRepository patientRepository,
+                             DoctorRepository doctorRepository,
+                             DoctorWorkingHoursRepository doctorWorkingHoursRepository,
+                             DoctorScheduleExceptionRepository doctorScheduleExceptionRepository,
+                             AppointmentMapper appointmentMapper, NotificationPublisher notificationPublisher,
+                             UserAuditService userAuditService) {
       this.appointmentRepository = appointmentRepository;
       this.appointmentServiceRepository = appointmentServiceRepository;
       this.clinicServiceRepository = clinicServiceRepository;
@@ -66,9 +75,11 @@ public class AppointmentService {
       this.doctorScheduleExceptionRepository = doctorScheduleExceptionRepository;
       this.appointmentMapper = appointmentMapper;
       this.notificationPublisher = notificationPublisher;
+      this.userAuditService = userAuditService;
    }
 
-   private void validateInsideRegularWorkingHours(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
+   private void validateInsideRegularWorkingHours(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt,
+                                                  LocalDateTime endAt) {
       DayOfWeek dayOfWeek = DayOfWeek.valueOf(scheduledAt.getDayOfWeek().name());
 
       LocalTime appointmentStart = scheduledAt.toLocalTime();
@@ -87,7 +98,8 @@ public class AppointmentService {
       }
    }
 
-   private void validateInsideCustomWorkingHours(List<DoctorScheduleException> exceptions, LocalDateTime scheduledAt, LocalDateTime endAt) {
+   private void validateInsideCustomWorkingHours(List<DoctorScheduleException> exceptions, LocalDateTime scheduledAt,
+                                                 LocalDateTime endAt) {
       LocalTime appointmentStart = scheduledAt.toLocalTime();
       LocalTime appointmentEnd = endAt.toLocalTime();
 
@@ -102,7 +114,8 @@ public class AppointmentService {
       }
    }
 
-   private void validateNoAppointmentOverlap(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
+   private void validateNoAppointmentOverlap(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt,
+                                             LocalDateTime endAt) {
 
       boolean hasOverlap = appointmentRepository.existsOverlappingAppointment(clinicId, doctor.getId(), scheduledAt,
                                                                               endAt, AppointmentStatus.CANCELLED);
@@ -112,7 +125,8 @@ public class AppointmentService {
       }
    }
 
-   private void validateDoctorAvailability(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt, LocalDateTime endAt) {
+   private void validateDoctorAvailability(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt,
+                                           LocalDateTime endAt) {
       if (!scheduledAt.isAfter(LocalDateTime.now())) {
          throw new BadRequestException("Appointment time must be in the future");
       }
@@ -153,7 +167,8 @@ public class AppointmentService {
       }
    }
 
-   private void publishAppointmentNotifications(Appointment appointment, NotificationType type, String title, String message) {
+   private void publishAppointmentNotifications(Appointment appointment, NotificationType type, String title,
+                                                String message) {
       UUID patientUserId = appointment.getPatient().getUser() != null ? appointment.getPatient()
                                                                                    .getUser()
                                                                                    .getId() : null;
@@ -239,6 +254,8 @@ public class AppointmentService {
                                                                                                             .getFirstName() + " успешно создана на " + saved.getScheduledAt()
                                                                                                                                                             .format(APPOINTMENT_DATE_TIME_FORMATTER));
 
+      userAuditService.appointmentCreated(saved.getId());
+
       return appointmentMapper.toResponse(saved);
    }
 
@@ -264,6 +281,8 @@ public class AppointmentService {
       publishAppointmentNotifications(appointment, NotificationType.APPOINTMENT_CANCELLED, "Ваша запись отменена",
                                       "Ваша запись на " + appointment.getScheduledAt()
                                                                      .format(APPOINTMENT_DATE_TIME_FORMATTER) + " отменена");
+
+      userAuditService.appointmentCancelled(appointment.getId());
 
       return appointmentMapper.toResponse(appointment);
    }
@@ -327,6 +346,8 @@ public class AppointmentService {
       publishAppointmentNotifications(appointment, NotificationType.APPOINTMENT_STATUS_CHANGED,
                                       "Статус Вашей записи изменен",
                                       "Статус вашей записи изменен: " + oldStatus + " -> " + newStatus);
+
+      userAuditService.appointmentStatusChanged(appointment.getId());
 
       return appointmentMapper.toResponse(appointment);
    }

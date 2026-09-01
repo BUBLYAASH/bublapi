@@ -11,11 +11,14 @@ import org.bublapi.dent.doctor_working_hours.dto.UpdateDoctorWorkingHoursRequest
 import org.bublapi.dent.doctor_working_hours.entity.DoctorWorkingHours;
 import org.bublapi.dent.doctor_working_hours.mapper.DoctorWorkingHoursMapper;
 import org.bublapi.dent.doctor_working_hours.repository.DoctorWorkingHoursRepository;
+import org.bublapi.dent.logging.UserAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -23,11 +26,16 @@ public class DoctorWorkingHoursService {
    private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
    private final DoctorRepository doctorRepository;
    private final DoctorWorkingHoursMapper doctorWorkingHoursMapper;
+   private final UserAuditService userAuditService;
 
-   public DoctorWorkingHoursService(DoctorWorkingHoursRepository doctorWorkingHoursRepository, DoctorRepository doctorRepository, DoctorWorkingHoursMapper doctorWorkingHoursMapper) {
+   public DoctorWorkingHoursService(DoctorWorkingHoursRepository doctorWorkingHoursRepository,
+                                    DoctorRepository doctorRepository,
+                                    DoctorWorkingHoursMapper doctorWorkingHoursMapper,
+                                    UserAuditService userAuditService) {
       this.doctorWorkingHoursRepository = doctorWorkingHoursRepository;
       this.doctorRepository = doctorRepository;
       this.doctorWorkingHoursMapper = doctorWorkingHoursMapper;
+      this.userAuditService = userAuditService;
    }
 
    private void validateTimeRange(LocalTime start, LocalTime end) {
@@ -63,11 +71,14 @@ public class DoctorWorkingHoursService {
 
       DoctorWorkingHours saved = doctorWorkingHoursRepository.save(workingHours);
 
+      userAuditService.doctorWorkingHoursCreated(saved.getId());
+
       return doctorWorkingHoursMapper.toResponse(saved);
    }
 
    @Transactional
-   public DoctorWorkingHoursResponseDto updateSchedule(UUID doctorId, UUID scheduleId, UpdateDoctorWorkingHoursRequestDto request) {
+   public DoctorWorkingHoursResponseDto updateSchedule(UUID doctorId, UUID scheduleId,
+                                                       UpdateDoctorWorkingHoursRequestDto request) {
       UUID clinicId = ClinicContext.getClinicId();
 
       doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
@@ -90,7 +101,19 @@ public class DoctorWorkingHoursService {
          throw new BadRequestException("Overlaps an existing working interval");
       }
 
+      List<String> changedFields = new ArrayList<>();
+
+      if (!Objects.equals(workingHours.getStartTime(), request.startTime())) {
+         changedFields.add("startTime");
+      }
+
+      if (!Objects.equals(workingHours.getEndTime(), request.endTime())) {
+         changedFields.add("endTime");
+      }
+
       doctorWorkingHoursMapper.updateEntity(request, workingHours);
+
+      userAuditService.doctorWorkingHoursUpdated(workingHours.getId(), changedFields);
 
       return doctorWorkingHoursMapper.toResponse(workingHours);
    }
@@ -107,6 +130,7 @@ public class DoctorWorkingHoursService {
                                          .toList();
    }
 
+   @Transactional
    public void deleteSchedule(UUID doctorId, UUID scheduleId) {
       UUID clinicId = ClinicContext.getClinicId();
 
@@ -117,5 +141,7 @@ public class DoctorWorkingHoursService {
                                                                             "This schedule for doctor not found or unavailable"));
 
       doctorWorkingHoursRepository.delete(workingHours);
+
+      userAuditService.doctorWorkingHoursDeleted(workingHours.getId());
    }
 }

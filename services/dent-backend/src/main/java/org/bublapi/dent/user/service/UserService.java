@@ -4,6 +4,8 @@ import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.bublapi.dent.logging.AdministrativeAuditService;
+import org.bublapi.dent.logging.SecurityLogService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationType;
@@ -40,14 +42,21 @@ public class UserService {
    private final UserMapper userMapper;
    private final PasswordEncoder passwordEncoder;
    private final NotificationPublisher notificationPublisher;
+   private final SecurityLogService securityLogService;
+   private final AdministrativeAuditService administrativeAuditService;
 
-   public UserService(UserRepository userRepository, RoleRepository roleRepository, PatientRepository patientRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, NotificationPublisher notificationPublisher) {
+   public UserService(UserRepository userRepository, RoleRepository roleRepository, PatientRepository patientRepository,
+                      UserMapper userMapper, PasswordEncoder passwordEncoder,
+                      NotificationPublisher notificationPublisher, SecurityLogService securityLogService,
+                      AdministrativeAuditService administrativeAuditService) {
       this.userRepository = userRepository;
       this.roleRepository = roleRepository;
       this.patientRepository = patientRepository;
       this.userMapper = userMapper;
       this.passwordEncoder = passwordEncoder;
       this.notificationPublisher = notificationPublisher;
+      this.securityLogService = securityLogService;
+      this.administrativeAuditService = administrativeAuditService;
    }
 
    private void publishUserNotifications(User user, NotificationType type, String title, String message) {
@@ -167,6 +176,8 @@ public class UserService {
          throw new BadRequestException("User already has this role");
       }
 
+      administrativeAuditService.roleGranted(targetUser.getId(), clinicId, roleName.name());
+
       return new UserRoleResponseDto(targetUser.getId(), role.getId());
    }
 
@@ -202,6 +213,8 @@ public class UserService {
          throw new ResourceNotFoundException("User does not have this role");
       }
 
+      administrativeAuditService.roleRevoked(targetUser.getId(), clinicId, roleName.name());
+
       return new UserRoleResponseDto(targetUser.getId(), role.getId());
    }
 
@@ -212,11 +225,19 @@ public class UserService {
       User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+      if (!user.isEnabled()) {
+         throw new BadRequestException("User is already deactivated");
+      }
+
       user.setEnabled(false);
       user.setDisabledByClinic(false);
 
       publishUserNotifications(user, NotificationType.USER_DEACTIVATED, "Ваш аккаунт отключен",
                                "Ваш аккаунт успешно отключен");
+
+      securityLogService.userDeactivated(user.getId(), clinicId);
+
+      administrativeAuditService.userDeactivated(user.getId(), clinicId);
 
       return userMapper.toResponse(user);
    }
@@ -228,11 +249,19 @@ public class UserService {
       User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+      if (user.isEnabled()) {
+         throw new BadRequestException("User is already active");
+      }
+
       user.setEnabled(true);
       user.setDisabledByClinic(false);
 
       publishUserNotifications(user, NotificationType.USER_ACTIVATED, "Ваш аккаунт активирован",
                                "Ваш аккаунт снова активирован");
+
+      securityLogService.userActivated(user.getId(), clinicId);
+
+      administrativeAuditService.userActivated(user.getId(), clinicId);
 
       return userMapper.toResponse(user);
    }
@@ -240,7 +269,7 @@ public class UserService {
    public List<UserResponseDto> findAll() {
       UUID clinicId = ClinicContext.getClinicId();
 
-      return userRepository.findAllByClinic_IdAndEnabledTrue(clinicId).stream().map(userMapper::toResponse).toList();
+      return userRepository.findAllByClinic_Id(clinicId).stream().map(userMapper::toResponse).toList();
    }
 
    public UserResponseDto findById(UUID userId) {
