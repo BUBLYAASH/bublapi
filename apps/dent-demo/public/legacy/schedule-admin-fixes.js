@@ -164,18 +164,19 @@ import { api, escapeHtml, toast } from './api.js';
   }, true);
 
   // "Выходные и исключения" for a doctor's schedule.
-  let sessionExceptions = [];
+  let scheduleExceptions = [];
+  let exceptionLoadGeneration = 0;
 
-  function renderSessionExceptions() {
+  function renderScheduleExceptions() {
     const target = $('#doctorScheduleExceptionSessionList');
     if (!target) return;
 
-    if (!sessionExceptions.length) {
-      target.innerHTML = '<p class="muted" style="margin:0">Добавленные в этой сессии исключения появятся здесь.</p>';
+    if (!scheduleExceptions.length) {
+      target.innerHTML = '<p class="muted" style="margin:0">Для выбранного врача исключений расписания нет.</p>';
       return;
     }
 
-    target.innerHTML = sessionExceptions.map(item => {
+    target.innerHTML = scheduleExceptions.map(item => {
       const typeLabel = item.type === 'DAY_OFF' ? 'Выходной' : 'Особые часы';
       const hours = item.type === 'CUSTOM_WORKING_HOURS'
         ? ` · ${escapeHtml(time24(item.startTime))}–${escapeHtml(time24(item.endTime))}`
@@ -199,6 +200,50 @@ import { api, escapeHtml, toast } from './api.js';
         </div>
       `;
     }).join('');
+  }
+
+  async function loadScheduleExceptions(doctorId = currentScheduleDoctorId(), { silent = false } = {}) {
+    const generation = ++exceptionLoadGeneration;
+
+    if (!doctorId) {
+      scheduleExceptions = [];
+      renderScheduleExceptions();
+      return;
+    }
+
+    const target = $('#doctorScheduleExceptionSessionList');
+    if (target) {
+      target.innerHTML = '<p class="muted" style="margin:0">Загрузка исключений…</p>';
+    }
+
+    try {
+      const exceptions = await api(
+        `/api/doctors/${doctorId}/schedule-exceptions?_=${Date.now()}`,
+        { method: 'GET', cache: 'no-store' }
+      );
+
+      if (generation != exceptionLoadGeneration) return;
+
+      scheduleExceptions = (Array.isArray(exceptions) ? exceptions : [])
+        .slice()
+        .sort((a, b) => {
+          const byDate = String(a.date || '').localeCompare(String(b.date || ''));
+          if (byDate != 0) return byDate;
+          return String(a.startTime || '').localeCompare(String(b.startTime || ''));
+        });
+
+      renderScheduleExceptions();
+    } catch (error) {
+      if (generation != exceptionLoadGeneration) return;
+
+      scheduleExceptions = [];
+      if (target) {
+        target.innerHTML = '<p class="muted" style="margin:0">Не удалось загрузить исключения.</p>';
+      }
+      if (!silent) {
+        toast(error.message || 'Не удалось загрузить исключения расписания', 'error');
+      }
+    }
   }
 
   function syncExceptionDoctor() {
@@ -272,7 +317,7 @@ import { api, escapeHtml, toast } from './api.js';
     scheduleForm.insertAdjacentElement('afterend', card);
     syncExceptionDoctor();
     toggleExceptionTimes();
-    renderSessionExceptions();
+    renderScheduleExceptions();
 
     const date = card.querySelector('[name="date"]');
     if (date) {
@@ -287,8 +332,9 @@ import { api, escapeHtml, toast } from './api.js';
   document.addEventListener('change', event => {
     if (event.target.matches?.('#doctorScheduleForm [name="doctorId"]')) {
       syncExceptionDoctor();
-      sessionExceptions = [];
-      renderSessionExceptions();
+      scheduleExceptions = [];
+      renderScheduleExceptions();
+      loadScheduleExceptions(event.target.value, { silent: true });
     }
 
     if (event.target.matches?.('#doctorScheduleExceptionForm [name="type"]')) {
@@ -337,15 +383,12 @@ import { api, escapeHtml, toast } from './api.js';
         }
       );
 
-      sessionExceptions = [
-        ...sessionExceptions.filter(item => item.id !== created?.id),
-        created
-      ].filter(Boolean);
-
       toast(type === 'DAY_OFF' ? 'Выходной задан' : 'Особые часы добавлены', 'success');
       form.querySelector('[name="reason"]').value = '';
-      renderSessionExceptions();
+
+      await loadScheduleExceptions(doctorId, { silent: true });
       scheduleRefreshSoon(doctorId);
+      scheduleCalendarAvailabilityRefresh();
     } catch (error) {
       toast(error.message || 'Не удалось добавить исключение', 'error');
     } finally {
@@ -366,19 +409,144 @@ import { api, escapeHtml, toast } from './api.js';
         `/api/doctors/${doctorId}/schedule-exceptions/${exceptionId}`,
         { method: 'DELETE' }
       );
-      sessionExceptions = sessionExceptions.filter(item => String(item.id) !== String(exceptionId));
-      renderSessionExceptions();
+      await loadScheduleExceptions(doctorId, { silent: true });
       toast('Исключение удалено', 'success');
       scheduleRefreshSoon(doctorId);
+      scheduleCalendarAvailabilityRefresh();
     } catch (error) {
       toast(error.message || 'Не удалось удалить исключение', 'error');
       button.disabled = false;
     }
   });
 
+
+  // Keep the staff dashboard calendar aligned with backend availability.
+  // /availability already applies regular hours + schedule exceptions + appointments.
+  let calendarAvailabilityGeneration = 0;
+  let calendarRefreshTimer = null;
+
+  function localDateFromKey(value) {
+    const parts = String(value || '').split('-').map(Number);
+    if (parts.length !== 3 || parts.some(part => !Number.isFinite(part))) return null;
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+
+  function daysThroughDate(dateKey) {
+    const target = localDateFromKey(dateKey);
+    if (!target) return null;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diff = Math.floor((target.getTime() - today.getTime()) / 86400000);
+
+    if (diff < 0 || diff >= 90) return null;
+    return diff + 1;
+  }
+
+  async function applyCalendarBackendAvailability() {
+    const calendar = $('#staffDashboardCalendar');
+    if (!calendar) return;
+
+    const cells = $$('[data-calendar-slot][data-doctor-id][data-date][data-start]', calendar);
+    if (!cells.length) return;
+
+    const generation = ++calendarAvailabilityGeneration;
+    const groups = new Map();
+
+    cells.forEach(cell => {
+      const doctorId = String(cell.dataset.doctorId || '');
+      const date = String(cell.dataset.date || '');
+      if (!doctorId || !date) return;
+
+      const key = `${doctorId}|${date}`;
+      if (!groups.has(key)) groups.set(key, { doctorId, date, cells: [] });
+      groups.get(key).cells.push(cell);
+    });
+
+    await Promise.all([...groups.values()].map(async group => {
+      const days = daysThroughDate(group.date);
+      if (!days) return;
+
+      try {
+        const availability = await api(
+          `/api/public/doctors/${group.doctorId}/availability?durationMinutes=30&days=${days}&_=${Date.now()}`,
+          { method: 'GET', cache: 'no-store' }
+        );
+
+        if (generation !== calendarAvailabilityGeneration) return;
+
+        const dateAvailability = (Array.isArray(availability) ? availability : [])
+          .find(item => String(item.date) === group.date);
+
+        const freeStarts = new Set(
+          (dateAvailability?.slots || []).map(value => time24(value))
+        );
+
+        group.cells.forEach(cell => {
+          const start = time24(cell.dataset.start);
+          const available = freeStarts.has(start);
+
+          cell.disabled = !available;
+          cell.classList.toggle('is-free', available);
+          cell.classList.toggle('is-blocked', !available);
+          cell.setAttribute(
+            'aria-label',
+            available ? `Создать запись ${start}` : `Недоступно ${start}`
+          );
+        });
+      } catch {
+        // Keep the legacy calendar state when the authoritative availability
+        // endpoint is temporarily unavailable.
+      }
+    }));
+  }
+
+  function scheduleCalendarAvailabilityRefresh() {
+    clearTimeout(calendarRefreshTimer);
+    calendarRefreshTimer = setTimeout(applyCalendarBackendAvailability, 80);
+  }
+
+  function observeStaffCalendar() {
+    const bind = () => {
+      const calendar = $('#staffDashboardCalendar');
+      if (!calendar || calendar.dataset.exceptionAvailabilityObserved === 'true') return;
+
+      calendar.dataset.exceptionAvailabilityObserved = 'true';
+      new MutationObserver(scheduleCalendarAvailabilityRefresh).observe(calendar, {
+        childList: true,
+        subtree: true
+      });
+      scheduleCalendarAvailabilityRefresh();
+    };
+
+    bind();
+
+    new MutationObserver(bind).observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    document.addEventListener('change', event => {
+      if (event.target.matches?.('#staffCalendarDate')) {
+        scheduleCalendarAvailabilityRefresh();
+      }
+    });
+
+    document.addEventListener('click', event => {
+      if (event.target.closest?.(
+        '#staffCalendarPrev,#staffCalendarNext,#staffCalendarToday,#refreshStaffDashboard'
+      )) {
+        setTimeout(scheduleCalendarAvailabilityRefresh, 50);
+      }
+    }, true);
+  }
+
   function start() {
     installExceptionPanel();
     fixModalStacking();
+    loadScheduleExceptions(currentScheduleDoctorId(), { silent: true });
+    observeStaffCalendar();
+    scheduleCalendarAvailabilityRefresh();
 
     new MutationObserver(() => {
       installExceptionPanel();
