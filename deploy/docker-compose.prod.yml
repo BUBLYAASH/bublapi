@@ -95,6 +95,8 @@ services:
     networks:
       - bublapi
 
+    volumes:
+      - /opt/bublapi/repo/services/dent-backend/logs:/app/logs
 
   demo:
     build:
