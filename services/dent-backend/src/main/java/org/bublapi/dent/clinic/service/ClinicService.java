@@ -1,6 +1,5 @@
 package org.bublapi.dent.clinic.service;
 
-import jakarta.persistence.EntityManager;
 import org.bublapi.dent.clinic.dto.ClinicResponseDto;
 import org.bublapi.dent.clinic.dto.CreateClinicRequestDto;
 import org.bublapi.dent.clinic.dto.UpdateClinicRequestDto;
@@ -26,19 +25,16 @@ public class ClinicService {
    private final DoctorRepository doctorRepository;
    private final ClinicServiceRepository clinicServiceRepository;
    private final ClinicMapper clinicMapper;
-   private final EntityManager entityManager;
    private final AdministrativeAuditService administrativeAuditService;
 
    public ClinicService(ClinicRepository clinicRepository, UserRepository userRepository,
                         DoctorRepository doctorRepository, ClinicServiceRepository clinicServiceRepository,
-                        ClinicMapper clinicMapper, EntityManager entityManager,
-                        AdministrativeAuditService administrativeAuditService) {
+                        ClinicMapper clinicMapper, AdministrativeAuditService administrativeAuditService) {
       this.clinicRepository = clinicRepository;
       this.userRepository = userRepository;
       this.doctorRepository = doctorRepository;
       this.clinicServiceRepository = clinicServiceRepository;
       this.clinicMapper = clinicMapper;
-      this.entityManager = entityManager;
       this.administrativeAuditService = administrativeAuditService;
    }
 
