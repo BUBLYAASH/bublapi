@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title th:text="${subject}">BublAPI Dent</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f7fb;font-family:Inter,Arial,sans-serif;color:#172033;">
+<table border="0" cellpadding="0" cellspacing="0" role="presentation"
+       style="background:#f4f7fb;padding:32px 12px;" width="100%">
+    <tr>
+        <td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" role="presentation"
+                   style="max-width:620px;background:#ffffff;border:1px solid #e4eaf2;border-radius:20px;overflow:hidden;box-shadow:0 16px 45px rgba(26,45,77,.08);"
+                   width="100%">
+                <tr>
+                    <td style="padding:22px 28px;background:#155eef;color:#ffffff;">
+                        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.78;">
+                            BublAPI Dent
+                        </div>
+                        <div style="font-size:20px;font-weight:800;margin-top:4px;" th:text="${clinicTitle}">
+                            Стоматологическая клиника
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:32px 28px;">
+                        <div style="font-size:13px;color:#e18a12;font-weight:800;">Карта пациента</div>
+                        <h1 style="font-size:26px;line-height:1.2;margin:8px 0 12px;">Не удалось привязать карту пациента</h1>
+                        <p style="font-size:15px;line-height:1.65;margin:0;color:#526078;">Выбранная карта пациента уже связана с другим аккаунтом. Для уточнения информации свяжитесь с клиникой.</p>
+                        
+<div style="margin-top:22px;background:#f7f9fc;border:1px solid #e8edf4;border-radius:14px;padding:14px;">
+    <span style="color:#748097;font-size:12px;">Пользователь</span><br>
+    <strong style="font-size:13px;" th:text="${firstName}">Имя</strong>
+</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:20px 28px;border-top:1px solid #edf1f6;color:#748097;font-size:12px;line-height:1.55;">
+                        Это сервисное уведомление от <strong th:text="${clinicTitle}">клиники</strong>, отправленное
+                        через BublAPI Dent.<br>Если вы считаете, что получили письмо по ошибке, свяжитесь с клиникой.
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -17,6 +17,7 @@ import org.bublapi.dent.dental_service.entity.DentalService;
 import org.bublapi.dent.dental_service.repository.DentalServiceRepository;
 import org.bublapi.dent.logging.UserAuditService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
+import org.bublapi.dent.notification.command.EmailTemplateData;
 import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationType;
 import org.bublapi.dent.notification.publisher.NotificationPublisher;
@@ -66,7 +67,7 @@ public class ClinicServiceService {
    }
 
    private void publishClinicServiceNotifications(Appointment appointment, NotificationType type, String title,
-                                                  String message) {
+                                                  String message, EmailTemplateData emailData) {
       UUID patientUserId = appointment.getPatient().getUser() != null ? appointment.getPatient()
                                                                                    .getUser()
                                                                                    .getId() : null;
@@ -75,13 +76,18 @@ public class ClinicServiceService {
 
       notificationPublisher.publishAfterCommit(
               new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(), type,
-                                            NotificationChannel.IN_APP, patientEmail, title, message, null));
+                                            NotificationChannel.IN_APP, patientEmail, title, message, null, null));
 
       if (patientEmail != null && !patientEmail.isBlank()) {
          notificationPublisher.publishAfterCommit(
                  new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(),
-                                               type, NotificationChannel.EMAIL, patientEmail, title, message, null));
+                                               type, NotificationChannel.EMAIL, patientEmail, title, message, null,
+                                               emailData));
       }
+   }
+
+   private EmailTemplateData createEmailTemplateData(ClinicService clinicService) {
+      return new EmailTemplateData(clinicService.getClinic().getTitle(), null, null, null, null);
    }
 
    @Transactional
@@ -147,7 +153,9 @@ public class ClinicServiceService {
                                                                                   "Услуга приостановлена",
                                                                                   "Услуга «" + clinicService.getDentalService()
                                                                                                             .getTitle() + "» больше не предоставляется в клинике «" + clinicService.getClinic()
-                                                                                                                                                                                   .getTitle() + "». Пожалуйста, свяжитесь с клиникой для изменения записи."));
+                                                                                                                                                                                   .getTitle() + "». Пожалуйста, свяжитесь с клиникой для изменения записи.",
+                                                                                  createEmailTemplateData(
+                                                                                          clinicService)));
 
       userAuditService.clinicServiceDeactivated(clinicServiceId);
 

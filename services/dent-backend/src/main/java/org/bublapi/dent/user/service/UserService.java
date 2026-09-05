@@ -7,6 +7,7 @@ import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.logging.AdministrativeAuditService;
 import org.bublapi.dent.logging.SecurityLogService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
+import org.bublapi.dent.notification.command.EmailTemplateData;
 import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationType;
 import org.bublapi.dent.notification.publisher.NotificationPublisher;
@@ -59,18 +60,23 @@ public class UserService {
       this.administrativeAuditService = administrativeAuditService;
    }
 
-   private void publishUserNotifications(User user, NotificationType type, String title, String message) {
+   private void publishUserNotifications(User user, NotificationType type, String title, String message,
+                                         EmailTemplateData emailData) {
       String userEmail = user.getEmail();
 
       notificationPublisher.publishAfterCommit(
               new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
-                                            NotificationChannel.IN_APP, userEmail, title, message, null));
+                                            NotificationChannel.IN_APP, userEmail, title, message, null, null));
 
       if (userEmail != null && !userEmail.isBlank()) {
          notificationPublisher.publishAfterCommit(
                  new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
-                                               NotificationChannel.EMAIL, userEmail, title, message, null));
+                                               NotificationChannel.EMAIL, userEmail, title, message, null, emailData));
       }
+   }
+
+   private EmailTemplateData createEmailTemplateData(User user) {
+      return new EmailTemplateData(user.getClinic().getTitle(), user.getFirstName(), null, null, null);
    }
 
    @Transactional
@@ -93,7 +99,7 @@ public class UserService {
       User saved = userRepository.save(user);
 
       publishUserNotifications(saved, NotificationType.USER_REGISTERED, "Вы успешно зарегистрировались",
-                               "Ваш аккаунт успешно создан!");
+                               "Ваш аккаунт успешно создан!", createEmailTemplateData(saved));
 
       PatientCardLinkStatus cardStatus = PatientCardLinkStatus.NOT_FOUND;
       String cardMessage = "Карточка пациента не найдена.";
@@ -110,13 +116,15 @@ public class UserService {
             cardMessage = "Мы обнаружили карточку пациента по некоторым Вашим данным и успешно привязали ее к аккаунту!";
 
             publishUserNotifications(saved, NotificationType.PATIENT_CARD_LINKED, "Мы обнаружили карточку пациента",
-                                     "Мы обнаружили карточку пациента по некоторым Вашим данным и уже привязали ее к Вашему аккаунту!");
+                                     "Мы обнаружили карточку пациента по некоторым Вашим данным и уже привязали ее к Вашему аккаунту!",
+                                     createEmailTemplateData(saved));
          } else {
             cardStatus = PatientCardLinkStatus.ALREADY_LINKED_TO_ANOTHER_USER;
             cardMessage = "Мы обнаружили карточку пациента по некоторым Вашим данным, но по каким-то причинам она уже привязана к другому аккаунту. Для решения этой проблемы обратитесь к администратору клиники.";
 
             publishUserNotifications(saved, NotificationType.PATIENT_CARD_IS_BUSY, "Карточка пациента занята...",
-                                     "Мы обнаружили карточку пациента по некоторым Вашим данным, но по каким-то причинам она уже привязана к другому аккаунту. Для решения этой проблемы обратитесь к администратору клиники.");
+                                     "Мы обнаружили карточку пациента по некоторым Вашим данным, но по каким-то причинам она уже привязана к другому аккаунту. Для решения этой проблемы обратитесь к администратору клиники.",
+                                     createEmailTemplateData(saved));
          }
       }
 
@@ -233,7 +241,7 @@ public class UserService {
       user.setDisabledByClinic(false);
 
       publishUserNotifications(user, NotificationType.USER_DEACTIVATED, "Ваш аккаунт отключен",
-                               "Ваш аккаунт успешно отключен");
+                               "Ваш аккаунт успешно отключен", createEmailTemplateData(user));
 
       securityLogService.userDeactivated(user.getId(), clinicId);
 
@@ -257,7 +265,7 @@ public class UserService {
       user.setDisabledByClinic(false);
 
       publishUserNotifications(user, NotificationType.USER_ACTIVATED, "Ваш аккаунт активирован",
-                               "Ваш аккаунт снова активирован");
+                               "Ваш аккаунт снова активирован", createEmailTemplateData(user));
 
       securityLogService.userActivated(user.getId(), clinicId);
 

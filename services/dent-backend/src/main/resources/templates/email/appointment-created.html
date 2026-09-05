@@ -3,57 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title th:text="${subject}">BublAPI Dent</title></head>
+    <title th:text="${subject}">BublAPI Dent</title>
+</head>
 <body style="margin:0;padding:0;background:#f4f7fb;font-family:Inter,Arial,sans-serif;color:#172033;">
-<table border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#f4f7fb;padding:32px 12px;"
-       width="100%">
+<table border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#f4f7fb;padding:32px 12px;" width="100%">
     <tr>
         <td align="center">
             <table border="0" cellpadding="0" cellspacing="0" role="presentation"
-                   style="max-width:620px;background:#ffffff;border:1px solid #e4eaf2;border-radius:20px;overflow:hidden;box-shadow:0 16px 45px rgba(26,45,77,.08);"
-                   width="100%">
+                   style="max-width:620px;background:#ffffff;border:1px solid #e4eaf2;border-radius:20px;overflow:hidden;box-shadow:0 16px 45px rgba(26,45,77,.08);" width="100%">
                 <tr>
                     <td style="padding:22px 28px;background:#155eef;color:#ffffff;">
-                        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.78;">
-                            BublAPI Dent
-                        </div>
-                        <div style="font-size:20px;font-weight:800;margin-top:4px;" th:text="${clinicTitle}">
-                            Стоматологическая клиника
-                        </div>
+                        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.78;">BublAPI Dent</div>
+                        <div style="font-size:20px;font-weight:800;margin-top:4px;" th:text="${clinicTitle}">Стоматологическая клиника</div>
                     </td>
                 </tr>
                 <tr>
                     <td style="padding:32px 28px;">
                         <div style="font-size:13px;color:#155eef;font-weight:800;">Новая запись</div>
                         <h1 style="font-size:26px;line-height:1.2;margin:8px 0 12px;">Мы получили вашу запись</h1>
-                        <p style="font-size:15px;line-height:1.65;margin:0;color:#526078;">Запись создана и ожидает
-                            подтверждения клиникой.</p>
+                        <p style="font-size:15px;line-height:1.65;margin:0;color:#526078;">Запись создана и ожидает подтверждения клиникой.</p>
                         <table cellpadding="0" cellspacing="0" role="presentation"
-                               style="margin:22px 0;background:#f7f9fc;border:1px solid #e8edf4;border-radius:14px;"
-                               width="100%">
+                               style="margin:22px 0;background:#f7f9fc;border:1px solid #e8edf4;border-radius:14px;" width="100%">
                             <tr>
                                 <td style="padding:10px 14px;color:#748097;font-size:12px;width:36%;">Дата и время</td>
-                                <td style="padding:10px 14px;font-size:13px;font-weight:700;" th:text="${scheduledAt}">
-                                    21 августа, 16:30
-                                </td>
+                                <td style="padding:10px 14px;font-size:13px;font-weight:700;" th:text="${scheduledAt}">21 августа, 16:30</td>
                             </tr>
                             <tr>
                                 <td style="padding:10px 14px;color:#748097;font-size:12px;width:36%;">Врач</td>
-                                <td style="padding:10px 14px;font-size:13px;font-weight:700;" th:text="${doctorName}">
-                                    Иванов Иван
-                                </td>
+                                <td style="padding:10px 14px;font-size:13px;font-weight:700;" th:text="${doctorName}">Иванов Иван</td>
                             </tr>
                             <tr>
-                                <td style="padding:10px 14px;color:#748097;font-size:12px;width:36%;">Услуга</td>
-                                <td style="padding:10px 14px;font-size:13px;font-weight:700;" th:text="${serviceTitle}">
-                                    Приём стоматолога
+                                <td style="padding:10px 14px;color:#748097;font-size:12px;width:36%;">Услуги</td>
+                                <td style="padding:10px 14px;font-size:13px;font-weight:700;">
+                                    <div th:each="serviceTitle : ${serviceTitles}" th:text="${serviceTitle}">Приём стоматолога</div>
                                 </td>
                             </tr>
                         </table>
-                        <div style="margin-top:24px;"><a href="#"
-                                                         style="display:inline-block;padding:12px 18px;background:#155eef;color:#fff;text-decoration:none;border-radius:10px;font-size:13px;font-weight:800;"
-                                                         th:href="${actionUrl}">Посмотреть
-                            запись</a></div>
                     </td>
                 </tr>
                 <tr>

@@ -8,11 +8,12 @@ import java.util.UUID;
 
 public record CreateNotificationCommand(
         UUID requestId, UUID clinicId, UUID userId, UUID appointmentId, NotificationType type,
-        NotificationChannel channel, String recipientEmail, String title, String message, LocalDateTime scheduledAt) {
+        NotificationChannel channel, String recipientEmail, String title, String message, LocalDateTime scheduledAt,
+        EmailTemplateData emailData) {
    public CreateNotificationCommand(UUID clinicId, UUID userId, UUID appointmentId, NotificationType type,
                                     NotificationChannel channel, String recipientEmail, String title, String message,
-                                    LocalDateTime scheduledAt) {
+                                    LocalDateTime scheduledAt, EmailTemplateData emailData) {
       this(UUID.randomUUID(), clinicId, userId, appointmentId, type, channel, recipientEmail, title, message,
-           scheduledAt);
+           scheduledAt, emailData);
    }
 }
