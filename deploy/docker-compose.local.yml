@@ -70,6 +70,7 @@ services:
 
     environment:
       SERVER_PORT: 8080
+      LOGGING_FILE_PATH: /app/logs
 
       DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bublapi_dent}
       DB_USERNAME: ${POSTGRES_USER:-postgres}
