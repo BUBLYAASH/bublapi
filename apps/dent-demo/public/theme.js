@@ -82,6 +82,17 @@
   const initial = stored || root.dataset.theme || systemTheme();
   applyImmediately(initial, { persist: Boolean(stored) });
 
+  // Client-side navigation can replace the controls without reloading this script.
+  const buttonObserver = new MutationObserver(records => {
+    const hasNewButton = records.some(record => [...record.addedNodes].some(node =>
+      node instanceof Element && (
+        node.matches('[data-theme-toggle]') || node.querySelector('[data-theme-toggle]')
+      )
+    ));
+    if (hasNewButton) syncButtons(currentTheme());
+  });
+  buttonObserver.observe(document.body, { childList: true, subtree: true });
+
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-theme-toggle]');
     if (!button) return;

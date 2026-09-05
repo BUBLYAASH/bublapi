@@ -9,6 +9,12 @@
             source="spring.application.name"
             defaultValue="dent-backend"/>
 
+    <springProperty
+            scope="context"
+            name="LOG_DIR"
+            source="logging.file.path"
+            defaultValue="./logs"/>
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">
             <format>logstash</format>
@@ -16,27 +22,27 @@
     </appender>
 
     <appender name="SECURITY_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/app/logs/security.log</file>
+        <file>${LOG_DIR}/security.log</file>
 
         <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">
             <format>logstash</format>
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/app/logs/security.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_DIR}/security.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
     </appender>
 
     <appender name="USER_AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/app/logs/user-audit.log</file>
+        <file>${LOG_DIR}/user-audit.log</file>
 
         <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">
             <format>logstash</format>
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/app/logs/user-audit.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_DIR}/user-audit.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
     </appender>
@@ -44,14 +50,14 @@
     <appender name="ADMIN_AUDIT_FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
 
-        <file>/app/logs/admin-audit.log</file>
+        <file>${LOG_DIR}/admin-audit.log</file>
 
         <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">
             <format>logstash</format>
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/app/logs/admin-audit.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_DIR}/admin-audit.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
     </appender>

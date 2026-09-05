@@ -2,9 +2,10 @@ import Script from 'next/script';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { adminShell } from '../../lib/shells';
-import { themeToggleMarkup, withThemeToggle } from '../../lib/theme-toggle';
+import { withThemeToggle } from '../../lib/theme-toggle';
 import { sessionCookieName } from '../../lib/session';
 import { hasValidAdminSession } from '../../lib/admin-session';
+import ThemeToggle from '../theme-toggle';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,13 +51,9 @@ export async function generateMetadata({ params }) {
   };
 }
 
-function ThemeToggle({ id = 'themeToggle' }) {
-  const markup = themeToggleMarkup.replace('id="themeToggle"', `id="${id}"`);
-  return <span dangerouslySetInnerHTML={{ __html: markup }} />;
-}
-
 function LoginPage() {
   return <>
+    <ThemeToggle floating />
     <main className="admin-login-shell">
       <form aria-labelledby="loginTitle" className="admin-login-form" id="adminStandaloneLoginForm" noValidate>
         <h1 id="loginTitle">Вход в BublAPI</h1>
