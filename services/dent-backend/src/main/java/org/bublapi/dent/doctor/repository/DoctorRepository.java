@@ -30,7 +30,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
            SET d.active = false, d.disabledByClinic = true
            WHERE d.clinic.id = :clinicId AND d.active = true
            """)
-   int disableAllByClinicId(@Param("clinicId") UUID clinicId);
+   void disableAllByClinicId(@Param("clinicId") UUID clinicId);
 
    @Modifying
    @Query("""
@@ -38,5 +38,5 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
            SET d.active = true, d.disabledByClinic = false
            WHERE d.clinic.id = :clinicId AND d.disabledByClinic = true
            """)
-   int enableAllDisabledByClinic(@Param("clinicId") UUID clinicId);
+   void enableAllDisabledByClinic(@Param("clinicId") UUID clinicId);
 }

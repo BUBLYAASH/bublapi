@@ -30,7 +30,7 @@ public interface ClinicServiceRepository extends JpaRepository<ClinicService, UU
            SET cs.active = false, cs.disabledByClinic = true
            WHERE cs.clinic.id = :clinicId AND cs.active = true
            """)
-   int disableAllByClinicId(@Param("clinicId") UUID clinicId);
+   void disableAllByClinicId(@Param("clinicId") UUID clinicId);
 
    @Modifying
    @Query("""
@@ -38,5 +38,5 @@ public interface ClinicServiceRepository extends JpaRepository<ClinicService, UU
            SET cs.active = true, cs.disabledByClinic = false
            WHERE cs.clinic.id = :clinicId AND cs.disabledByClinic = true
            """)
-   int enableAllDisabledByClinic(@Param("clinicId") UUID clinicId);
+   void enableAllDisabledByClinic(@Param("clinicId") UUID clinicId);
 }
