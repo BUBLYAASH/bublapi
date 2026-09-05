@@ -2,6 +2,7 @@ package org.bublapi.dent.user.repository;
 
 import org.bublapi.dent.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -45,4 +46,20 @@ public interface UserRepository extends JpaRepository<User, UUID> {
            AND r.name = org.bublapi.dent.role.entity.RoleName.ADMIN
            """)
    Optional<User> findAdminByEmailWithRoles(@Param("email") String email);
+
+   @Modifying
+   @Query("""
+           UPDATE User AS u
+           SET u.enabled = false, u.disabledByClinic = true
+           WHERE u.clinic.id = :clinicId AND u.enabled = true
+           """)
+   int disableAllByClinicId(@Param("clinicId") UUID clinicId);
+
+   @Modifying
+   @Query("""
+           UPDATE User AS u
+           SET u.enabled = true, u.disabledByClinic = false
+           WHERE u.clinic.id = :clinicId AND u.disabledByClinic = true
+           """)
+   int enableAllDisabledByClinic(@Param("clinicId") UUID clinicId);
 }

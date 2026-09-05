@@ -9,12 +9,9 @@ import org.bublapi.dent.clinic.mapper.ClinicMapper;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
 import org.bublapi.dent.clinic_service.repository.ClinicServiceRepository;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
 import org.bublapi.dent.logging.AdministrativeAuditService;
-import org.bublapi.dent.user.entity.User;
 import org.bublapi.dent.user.repository.UserRepository;
-import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,82 +67,34 @@ public class ClinicService {
 
    @Transactional
    public ClinicResponseDto deactivate(UUID id) {
-      Session session = entityManager.unwrap(Session.class);
+      Clinic clinic = clinicRepository.findById(id)
+                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
 
-      session.disableFilter("clinicFilter");
+      userRepository.disableAllByClinicId(clinic.getId());
+      doctorRepository.disableAllByClinicId(clinic.getId());
+      clinicServiceRepository.disableAllByClinicId(clinic.getId());
 
-      try {
-         Clinic clinic = clinicRepository.findById(id)
-                                         .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+      clinic.setActive(false);
 
-         List<User> users = userRepository.findAllByClinic_IdAndEnabledTrue(clinic.getId());
-         List<Doctor> doctors = doctorRepository.findAllByClinic_IdAndActiveTrue(clinic.getId());
-         List<org.bublapi.dent.clinic_service.entity.ClinicService> clinicServices = clinicServiceRepository.findAllByClinic_IdAndActiveTrue(
-                 clinic.getId());
+      administrativeAuditService.clinicDeactivated(clinic.getId());
 
-         users.forEach(user -> {
-            user.setEnabled(false);
-            user.setDisabledByClinic(true);
-         });
-
-         doctors.forEach(doctor -> {
-            doctor.setActive(false);
-            doctor.setDisabledByClinic(true);
-         });
-
-         clinicServices.forEach(clinicService -> {
-            clinicService.setActive(false);
-            clinicService.setDisabledByClinic(true);
-         });
-
-         clinic.setActive(false);
-
-         administrativeAuditService.clinicDeactivated(clinic.getId());
-
-         return clinicMapper.toResponse(clinic);
-      } finally {
-         session.enableFilter("clinicFilter");
-      }
+      return clinicMapper.toResponse(clinic);
    }
 
    @Transactional
    public ClinicResponseDto activate(UUID id) {
-      Session session = entityManager.unwrap(Session.class);
+      Clinic clinic = clinicRepository.findById(id)
+                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
 
-      session.disableFilter("clinicFilter");
+      clinic.setActive(true);
 
-      try {
-         Clinic clinic = clinicRepository.findById(id)
-                                         .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+      userRepository.enableAllDisabledByClinic(clinic.getId());
+      doctorRepository.enableAllDisabledByClinic(clinic.getId());
+      clinicServiceRepository.enableAllDisabledByClinic(clinic.getId());
 
-         clinic.setActive(true);
+      administrativeAuditService.clinicActivated(clinic.getId());
 
-         List<User> users = userRepository.findAllByClinic_IdAndDisabledByClinicTrue(clinic.getId());
-         List<Doctor> doctors = doctorRepository.findAllByClinic_IdAndDisabledByClinicTrue(clinic.getId());
-         List<org.bublapi.dent.clinic_service.entity.ClinicService> clinicServices = clinicServiceRepository.findAllByClinic_IdAndDisabledByClinicTrue(
-                 clinic.getId());
-
-         users.forEach(user -> {
-            user.setDisabledByClinic(false);
-            user.setEnabled(true);
-         });
-
-         doctors.forEach(doctor -> {
-            doctor.setDisabledByClinic(false);
-            doctor.setActive(true);
-         });
-
-         clinicServices.forEach(clinicService -> {
-            clinicService.setDisabledByClinic(false);
-            clinicService.setActive(true);
-         });
-
-         administrativeAuditService.clinicActivated(clinic.getId());
-
-         return clinicMapper.toResponse(clinic);
-      } finally {
-         session.enableFilter("clinicFilter");
-      }
+      return clinicMapper.toResponse(clinic);
    }
 
    public List<ClinicResponseDto> findAll() {

@@ -2,6 +2,9 @@ package org.bublapi.dent.clinic_service.repository;
 
 import org.bublapi.dent.clinic_service.entity.ClinicService;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +23,20 @@ public interface ClinicServiceRepository extends JpaRepository<ClinicService, UU
    List<ClinicService> findAllByClinic_Id(UUID clinicId);
 
    List<ClinicService> findAllByClinic_IdAndDisabledByClinicTrue(UUID clinicId);
+
+   @Modifying
+   @Query("""
+           UPDATE ClinicService AS cs
+           SET cs.active = false, cs.disabledByClinic = true
+           WHERE cs.clinic.id = :clinicId AND cs.active = true
+           """)
+   int disableAllByClinicId(@Param("clinicId") UUID clinicId);
+
+   @Modifying
+   @Query("""
+           UPDATE ClinicService AS cs
+           SET cs.active = true, cs.disabledByClinic = false
+           WHERE cs.clinic.id = :clinicId AND cs.disabledByClinic = true
+           """)
+   int enableAllDisabledByClinic(@Param("clinicId") UUID clinicId);
 }
