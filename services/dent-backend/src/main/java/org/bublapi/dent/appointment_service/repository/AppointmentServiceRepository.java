@@ -17,7 +17,7 @@ public interface AppointmentServiceRepository extends JpaRepository<AppointmentS
    @Query("""
            SELECT DISTINCT aps FROM AppointmentServiceItem aps
            WHERE aps.clinicService.id = :clinicServiceId
-           AND aps.appointment.scheduledAt > :now 
+           AND aps.appointment.scheduledAt > :now
            AND aps.appointment.status NOT IN :excludedStatuses
            """)
    List<AppointmentServiceItem> findAllAffectedByServiceDeactivation(@Param("clinicServiceId") UUID clinicServiceId,
