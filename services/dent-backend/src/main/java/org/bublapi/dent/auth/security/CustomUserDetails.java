@@ -9,8 +9,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 public class CustomUserDetails implements UserDetails {
-   private final User user;
-
    public CustomUserDetails(User user) {
       this.user = user;
    }
@@ -42,4 +40,6 @@ public class CustomUserDetails implements UserDetails {
    public Collection<? extends GrantedAuthority> getAuthorities() {
       return user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName())).toList();
    }
+
+   private final User user;
 }

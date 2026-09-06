@@ -17,11 +17,6 @@ import java.io.UnsupportedEncodingException;
 
 @Component
 public class EmailNotificationSender implements NotificationSender {
-   private final JavaMailSender mailSender;
-   private final EmailNotificationRenderer renderer;
-   private final String fromEmail;
-   private final String replyTo;
-
    public EmailNotificationSender(JavaMailSender mailSender, EmailNotificationRenderer renderer,
                                   @Value("${spring.mail.from}") String fromEmail,
                                   @Value("${spring.mail.reply-to}") String replyTo) {
@@ -60,4 +55,9 @@ public class EmailNotificationSender implements NotificationSender {
          throw new IllegalStateException("Failed to create email message", e);
       }
    }
+
+   private final JavaMailSender mailSender;
+   private final EmailNotificationRenderer renderer;
+   private final String fromEmail;
+   private final String replyTo;
 }

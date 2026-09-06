@@ -23,6 +23,20 @@ class DoctorScheduleExceptionIntegrationTest extends IntegrationTestSupport {
 
    private static final String DOCTOR_URL = "/api/doctors";
 
+   private UUID createDayOff(AppointmentContext context, Doctor doctor, LocalDate date) throws Exception {
+      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date,
+                                                                                              ScheduleExceptionType.DAY_OFF,
+                                                                                              null, null, "Day off");
+      MvcResult result = mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/schedule-exceptions", doctor.getId())
+                                                 .header("Authorization", jwtHelper.token(context.user().getId()))
+                                                 .header("X-API-KEY", context.apiKey().rawKey())
+                                                 .contentType(MediaType.APPLICATION_JSON)
+                                                 .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isOk())
+                                .andReturn();
+      return extractId(result);
+   }
+
    @Test
    void shouldCreateDayOffException() throws Exception {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
@@ -129,19 +143,5 @@ class DoctorScheduleExceptionIntegrationTest extends IntegrationTestSupport {
                               .header("Authorization", jwtHelper.token(clinicA.user().getId()))
                               .header("X-API-KEY", clinicA.apiKey().rawKey()))
              .andExpect(status().isNotFound());
-   }
-
-   private UUID createDayOff(AppointmentContext context, Doctor doctor, LocalDate date) throws Exception {
-      SetDoctorScheduleExceptionRequestDto request = new SetDoctorScheduleExceptionRequestDto(date,
-                                                                                              ScheduleExceptionType.DAY_OFF,
-                                                                                              null, null, "Day off");
-      MvcResult result = mockMvc.perform(post(DOCTOR_URL + "/{doctorId}/schedule-exceptions", doctor.getId())
-                                                 .header("Authorization", jwtHelper.token(context.user().getId()))
-                                                 .header("X-API-KEY", context.apiKey().rawKey())
-                                                 .contentType(MediaType.APPLICATION_JSON)
-                                                 .content(objectMapper.writeValueAsString(request)))
-                                .andExpect(status().isOk())
-                                .andReturn();
-      return extractId(result);
    }
 }

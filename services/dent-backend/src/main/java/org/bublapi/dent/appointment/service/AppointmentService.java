@@ -44,19 +44,12 @@ import java.util.UUID;
 
 @Service
 public class AppointmentService {
+   private record ResolvedAppointmentService(
+           ClinicService clinicService, int quantity) {
+   }
+
    private static final DateTimeFormatter APPOINTMENT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
            "dd.MM.yyyy HH:mm");
-
-   private final AppointmentRepository appointmentRepository;
-   private final AppointmentServiceRepository appointmentServiceRepository;
-   private final ClinicServiceRepository clinicServiceRepository;
-   private final PatientRepository patientRepository;
-   private final DoctorRepository doctorRepository;
-   private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
-   private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
-   private final AppointmentMapper appointmentMapper;
-   private final NotificationPublisher notificationPublisher;
-   private final UserAuditService userAuditService;
 
    public AppointmentService(AppointmentRepository appointmentRepository,
                              AppointmentServiceRepository appointmentServiceRepository,
@@ -76,122 +69,6 @@ public class AppointmentService {
       this.appointmentMapper = appointmentMapper;
       this.notificationPublisher = notificationPublisher;
       this.userAuditService = userAuditService;
-   }
-
-   private void validateInsideRegularWorkingHours(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt,
-                                                  LocalDateTime endAt) {
-      DayOfWeek dayOfWeek = DayOfWeek.valueOf(scheduledAt.getDayOfWeek().name());
-
-      LocalTime appointmentStart = scheduledAt.toLocalTime();
-      LocalTime appointmentEnd = endAt.toLocalTime();
-
-      List<DoctorWorkingHours> workingHours = doctorWorkingHoursRepository.findAllByDoctor_Clinic_IdAndDoctor_IdAndDayOfWeek(
-              clinicId, doctor.getId(), dayOfWeek);
-
-      boolean fitsWorkingHours = workingHours.stream()
-                                             .anyMatch(hours -> !appointmentStart.isBefore(
-                                                     hours.getStartTime()) && !appointmentEnd.isAfter(
-                                                     hours.getEndTime()));
-
-      if (!fitsWorkingHours) {
-         throw new BadRequestException("Selected time is outside the doctor's working hours");
-      }
-   }
-
-   private void validateInsideCustomWorkingHours(List<DoctorScheduleException> exceptions, LocalDateTime scheduledAt,
-                                                 LocalDateTime endAt) {
-      LocalTime appointmentStart = scheduledAt.toLocalTime();
-      LocalTime appointmentEnd = endAt.toLocalTime();
-
-      boolean fitsCustomWorkingHours = exceptions.stream()
-                                                 .filter(type -> type.getType() == ScheduleExceptionType.CUSTOM_WORKING_HOURS)
-                                                 .anyMatch(exception -> !appointmentStart.isBefore(
-                                                         exception.getStartTime()) && !appointmentEnd.isAfter(
-                                                         exception.getEndTime()));
-
-      if (!fitsCustomWorkingHours) {
-         throw new BadRequestException("Selected time is outside the doctor's custom working hours");
-      }
-   }
-
-   private void validateNoAppointmentOverlap(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt,
-                                             LocalDateTime endAt) {
-
-      boolean hasOverlap = appointmentRepository.existsOverlappingAppointment(clinicId, doctor.getId(), scheduledAt,
-                                                                              endAt, AppointmentStatus.CANCELLED);
-
-      if (hasOverlap) {
-         throw new BadRequestException("Doctor already has an appointment during the selected time");
-      }
-   }
-
-   private void validateDoctorAvailability(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt,
-                                           LocalDateTime endAt) {
-      if (!scheduledAt.isAfter(LocalDateTime.now())) {
-         throw new BadRequestException("Appointment time must be in the future");
-      }
-
-      if (!scheduledAt.toLocalDate().equals(endAt.toLocalDate())) {
-         throw new BadRequestException("Appointment cannot continue into the next day");
-      }
-
-      LocalDate appointmentDate = scheduledAt.toLocalDate();
-
-      List<DoctorScheduleException> scheduleExceptions = doctorScheduleExceptionRepository.findAllByDoctor_Clinic_IdAndDoctor_IdAndDate(
-              clinicId, doctor.getId(), appointmentDate);
-
-      boolean hasDayOff = scheduleExceptions.stream().anyMatch(type -> type.getType() == ScheduleExceptionType.DAY_OFF);
-
-      if (hasDayOff) {
-         throw new BadRequestException("Doctor is unavailable on the selected date");
-      }
-
-      boolean hasCustomWorkingHours = scheduleExceptions.stream()
-                                                        .anyMatch(
-                                                                type -> type.getType() == ScheduleExceptionType.CUSTOM_WORKING_HOURS);
-
-      if (hasCustomWorkingHours) {
-         validateInsideCustomWorkingHours(scheduleExceptions, scheduledAt, endAt);
-         return;
-      }
-      validateInsideRegularWorkingHours(clinicId, doctor, scheduledAt, endAt);
-   }
-
-   private void validateTransition(AppointmentStatus from, AppointmentStatus to) {
-      if (from == to) {
-         throw new BadRequestException("Appointment already has this status");
-      }
-
-      if (!from.canTransitionTo(to)) {
-         throw new BadRequestException("Cannot change appointment status from " + from + " to " + to);
-      }
-   }
-
-   private void publishAppointmentNotification(Appointment appointment, NotificationType type) {
-      notificationPublisher.publishAfterCommit(
-              new CreateNotificationCommand(UUID.randomUUID(), appointment.getClinic().getId(),
-                                            appointment.getPatient().getUser().getId(), appointment.getId(), type,
-                                            createNotificationData(appointment), LocalDateTime.now()));
-   }
-
-   private AppointmentNotificationData createNotificationData(Appointment appointment) {
-      return new AppointmentNotificationData(appointment.getClinic().getTitle(),
-                                             appointment.getPatient().getFirstName(),
-                                             appointment.getScheduledAt().format(APPOINTMENT_DATE_TIME_FORMATTER),
-                                             appointment.getDoctor().getFirstName() + " " + appointment.getDoctor()
-                                                                                                       .getLastName(),
-                                             appointment.getServices()
-                                                        .stream()
-                                                        .map(AppointmentServiceItem::getTitle)
-                                                        .toList());
-   }
-
-   private NotificationType resolveStatusNotificationType(AppointmentStatus status) {
-      return switch (status) {
-         case CONFIRMED -> NotificationType.APPOINTMENT_CONFIRMED;
-         case COMPLETED -> NotificationType.APPOINTMENT_COMPLETED;
-         default -> NotificationType.APPOINTMENT_STATUS_CHANGED;
-      };
    }
 
    @Transactional
@@ -423,9 +300,132 @@ public class AppointmentService {
                                   .toList();
    }
 
-   private record ResolvedAppointmentService(
-           ClinicService clinicService, int quantity) {
+   private void validateInsideRegularWorkingHours(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt,
+                                                  LocalDateTime endAt) {
+      DayOfWeek dayOfWeek = DayOfWeek.valueOf(scheduledAt.getDayOfWeek().name());
+
+      LocalTime appointmentStart = scheduledAt.toLocalTime();
+      LocalTime appointmentEnd = endAt.toLocalTime();
+
+      List<DoctorWorkingHours> workingHours = doctorWorkingHoursRepository.findAllByDoctor_Clinic_IdAndDoctor_IdAndDayOfWeek(
+              clinicId, doctor.getId(), dayOfWeek);
+
+      boolean fitsWorkingHours = workingHours.stream()
+                                             .anyMatch(hours -> !appointmentStart.isBefore(
+                                                     hours.getStartTime()) && !appointmentEnd.isAfter(
+                                                     hours.getEndTime()));
+
+      if (!fitsWorkingHours) {
+         throw new BadRequestException("Selected time is outside the doctor's working hours");
+      }
    }
+
+   private void validateInsideCustomWorkingHours(List<DoctorScheduleException> exceptions, LocalDateTime scheduledAt,
+                                                 LocalDateTime endAt) {
+      LocalTime appointmentStart = scheduledAt.toLocalTime();
+      LocalTime appointmentEnd = endAt.toLocalTime();
+
+      boolean fitsCustomWorkingHours = exceptions.stream()
+                                                 .filter(type -> type.getType() == ScheduleExceptionType.CUSTOM_WORKING_HOURS)
+                                                 .anyMatch(exception -> !appointmentStart.isBefore(
+                                                         exception.getStartTime()) && !appointmentEnd.isAfter(
+                                                         exception.getEndTime()));
+
+      if (!fitsCustomWorkingHours) {
+         throw new BadRequestException("Selected time is outside the doctor's custom working hours");
+      }
+   }
+
+   private void validateNoAppointmentOverlap(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt,
+                                             LocalDateTime endAt) {
+
+      boolean hasOverlap = appointmentRepository.existsOverlappingAppointment(clinicId, doctor.getId(), scheduledAt,
+                                                                              endAt, AppointmentStatus.CANCELLED);
+
+      if (hasOverlap) {
+         throw new BadRequestException("Doctor already has an appointment during the selected time");
+      }
+   }
+
+   private void validateDoctorAvailability(UUID clinicId, Doctor doctor, LocalDateTime scheduledAt,
+                                           LocalDateTime endAt) {
+      if (!scheduledAt.isAfter(LocalDateTime.now())) {
+         throw new BadRequestException("Appointment time must be in the future");
+      }
+
+      if (!scheduledAt.toLocalDate().equals(endAt.toLocalDate())) {
+         throw new BadRequestException("Appointment cannot continue into the next day");
+      }
+
+      LocalDate appointmentDate = scheduledAt.toLocalDate();
+
+      List<DoctorScheduleException> scheduleExceptions = doctorScheduleExceptionRepository.findAllByDoctor_Clinic_IdAndDoctor_IdAndDate(
+              clinicId, doctor.getId(), appointmentDate);
+
+      boolean hasDayOff = scheduleExceptions.stream().anyMatch(type -> type.getType() == ScheduleExceptionType.DAY_OFF);
+
+      if (hasDayOff) {
+         throw new BadRequestException("Doctor is unavailable on the selected date");
+      }
+
+      boolean hasCustomWorkingHours = scheduleExceptions.stream()
+                                                        .anyMatch(
+                                                                type -> type.getType() == ScheduleExceptionType.CUSTOM_WORKING_HOURS);
+
+      if (hasCustomWorkingHours) {
+         validateInsideCustomWorkingHours(scheduleExceptions, scheduledAt, endAt);
+         return;
+      }
+      validateInsideRegularWorkingHours(clinicId, doctor, scheduledAt, endAt);
+   }
+
+   private void validateTransition(AppointmentStatus from, AppointmentStatus to) {
+      if (from == to) {
+         throw new BadRequestException("Appointment already has this status");
+      }
+
+      if (!from.canTransitionTo(to)) {
+         throw new BadRequestException("Cannot change appointment status from " + from + " to " + to);
+      }
+   }
+
+   private void publishAppointmentNotification(Appointment appointment, NotificationType type) {
+      notificationPublisher.publishAfterCommit(
+              new CreateNotificationCommand(UUID.randomUUID(), appointment.getClinic().getId(),
+                                            appointment.getPatient().getUser().getId(), appointment.getId(), type,
+                                            createNotificationData(appointment), LocalDateTime.now()));
+   }
+
+   private AppointmentNotificationData createNotificationData(Appointment appointment) {
+      return new AppointmentNotificationData(appointment.getClinic().getTitle(),
+                                             appointment.getPatient().getFirstName(),
+                                             appointment.getScheduledAt().format(APPOINTMENT_DATE_TIME_FORMATTER),
+                                             appointment.getDoctor().getFirstName() + " " + appointment.getDoctor()
+                                                                                                       .getLastName(),
+                                             appointment.getServices()
+                                                        .stream()
+                                                        .map(AppointmentServiceItem::getTitle)
+                                                        .toList());
+   }
+
+   private NotificationType resolveStatusNotificationType(AppointmentStatus status) {
+      return switch (status) {
+         case CONFIRMED -> NotificationType.APPOINTMENT_CONFIRMED;
+         case COMPLETED -> NotificationType.APPOINTMENT_COMPLETED;
+         default -> NotificationType.APPOINTMENT_STATUS_CHANGED;
+      };
+   }
+
+   private final AppointmentRepository appointmentRepository;
+   private final AppointmentServiceRepository appointmentServiceRepository;
+   private final ClinicServiceRepository clinicServiceRepository;
+   private final PatientRepository patientRepository;
+   private final DoctorRepository doctorRepository;
+   private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
+   private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
+   private final AppointmentMapper appointmentMapper;
+   private final NotificationPublisher notificationPublisher;
+   private final UserAuditService userAuditService;
 
    // TODO:
    //  - reschedule appointment

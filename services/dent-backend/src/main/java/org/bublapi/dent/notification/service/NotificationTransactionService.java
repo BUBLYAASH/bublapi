@@ -22,11 +22,6 @@ import java.util.UUID;
 
 @Service
 public class NotificationTransactionService {
-   private final NotificationRepository notificationRepository;
-   private final AppointmentRepository appointmentRepository;
-   private final ClinicRepository clinicRepository;
-   private final UserRepository userRepository;
-
    public NotificationTransactionService(NotificationRepository notificationRepository,
                                          AppointmentRepository appointmentRepository, ClinicRepository clinicRepository,
                                          UserRepository userRepository) {
@@ -115,4 +110,9 @@ public class NotificationTransactionService {
          return errorMessage;
       }
    }
+
+   private final NotificationRepository notificationRepository;
+   private final AppointmentRepository appointmentRepository;
+   private final ClinicRepository clinicRepository;
+   private final UserRepository userRepository;
 }

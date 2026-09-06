@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationPublisher {
-   private final ApplicationEventPublisher eventPublisher;
-
    public NotificationPublisher(ApplicationEventPublisher eventPublisher) {
       this.eventPublisher = eventPublisher;
    }
@@ -15,4 +13,6 @@ public class NotificationPublisher {
    public void publishAfterCommit(CreateNotificationCommand command) {
       eventPublisher.publishEvent(command);
    }
+
+   private final ApplicationEventPublisher eventPublisher;
 }

@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class RestAccessDeniedHandler implements AccessDeniedHandler {
 
-   private final SecurityLogService securityLogService;
-
    public RestAccessDeniedHandler(SecurityLogService securityLogService) {
       this.securityLogService = securityLogService;
    }
@@ -23,4 +21,6 @@ public class RestAccessDeniedHandler implements AccessDeniedHandler {
 
       response.setStatus(HttpServletResponse.SC_FORBIDDEN);
    }
+
+   private final SecurityLogService securityLogService;
 }

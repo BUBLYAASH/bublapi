@@ -31,8 +31,6 @@ import java.util.UUID;
         and @clinicSecurity.hasAccess(authentication)
         """)
 public class StaffPatientController {
-   private final PatientService patientService;
-
    public StaffPatientController(PatientService patientService) {
       this.patientService = patientService;
    }
@@ -73,4 +71,6 @@ public class StaffPatientController {
    public List<PatientResponseDto> findAll() {
       return patientService.findAll();
    }
+
+   private final PatientService patientService;
 }

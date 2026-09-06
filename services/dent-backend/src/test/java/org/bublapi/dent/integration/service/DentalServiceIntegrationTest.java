@@ -23,19 +23,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DentalServiceIntegrationTest extends IntegrationTestBase {
 
-   @Autowired
-   private TestDataFactory dataFactory;
-
-   @Autowired
-   private TestJwtHelper jwtHelper;
-
-   @Autowired
-   private DentalServiceRepository dentalServiceRepository;
-
    private CreateDentalServiceRequestDto createRequest() {
       return new CreateDentalServiceRequestDto("Лечение кариеса", "Терапевтическое лечение зубов",
                                                ServiceCategory.THERAPY, 30);
    }
+
+   @Autowired
+   private TestDataFactory dataFactory;
+   @Autowired
+   private TestJwtHelper jwtHelper;
+   @Autowired
+   private DentalServiceRepository dentalServiceRepository;
 
    @Test
    void shouldCreateDentalService() throws Exception {

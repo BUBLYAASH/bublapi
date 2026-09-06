@@ -17,10 +17,6 @@ import java.util.UUID;
 
 @Service
 public class DentalServiceService {
-   private final DentalServiceRepository dentalServiceRepository;
-   private final DentalServiceMapper dentalServiceMapper;
-   private final AdministrativeAuditService administrativeAuditService;
-
    public DentalServiceService(DentalServiceRepository dentalServiceRepository, DentalServiceMapper dentalServiceMapper,
                                AdministrativeAuditService administrativeAuditService) {
       this.dentalServiceRepository = dentalServiceRepository;
@@ -99,4 +95,8 @@ public class DentalServiceService {
 
       return dentalServiceMapper.toResponse(dentalService);
    }
+
+   private final DentalServiceRepository dentalServiceRepository;
+   private final DentalServiceMapper dentalServiceMapper;
+   private final AdministrativeAuditService administrativeAuditService;
 }

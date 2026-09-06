@@ -26,8 +26,6 @@ import java.util.UUID;
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminDentalServiceController {
-   private final DentalServiceService dentalServiceService;
-
    public AdminDentalServiceController(DentalServiceService dentalServiceService) {
       this.dentalServiceService = dentalServiceService;
    }
@@ -68,4 +66,6 @@ public class AdminDentalServiceController {
    public DentalServiceResponseDto activate(@PathVariable UUID dentalServiceId) {
       return dentalServiceService.activate(dentalServiceId);
    }
+
+   private final DentalServiceService dentalServiceService;
 }

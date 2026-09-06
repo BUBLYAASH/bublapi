@@ -15,12 +15,6 @@ import java.util.UUID;
 @Component
 public class TestJwtHelper {
 
-   @Autowired
-   private JwtService jwtService;
-
-   @Value("${jwt.secret}")
-   private String secret;
-
    public String token(UUID userId) {
       return "Bearer " + jwtService.generateToken(userId);
    }
@@ -39,4 +33,9 @@ public class TestJwtHelper {
    public String invalidToken() {
       return "Bearer totally.invalid.token";
    }
+
+   @Autowired
+   private JwtService jwtService;
+   @Value("${jwt.secret}")
+   private String secret;
 }

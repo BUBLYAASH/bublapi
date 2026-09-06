@@ -30,8 +30,6 @@ import java.util.UUID;
         and @clinicSecurity.hasAccess(authentication)
         """)
 public class StaffClinicServiceController {
-   private final ClinicServiceService clinicServiceService;
-
    public StaffClinicServiceController(ClinicServiceService clinicServiceService) {
       this.clinicServiceService = clinicServiceService;
    }
@@ -67,4 +65,6 @@ public class StaffClinicServiceController {
    public List<ClinicServiceResponseDto> findAll() {
       return clinicServiceService.findAllForStaff();
    }
+
+   private final ClinicServiceService clinicServiceService;
 }

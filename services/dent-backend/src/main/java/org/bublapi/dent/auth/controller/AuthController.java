@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 @SecurityRequirement(name = "apiKey")
 public class AuthController {
-   private final AuthService authService;
-
    public AuthController(AuthService authService) {
       this.authService = authService;
    }
@@ -36,4 +34,6 @@ public class AuthController {
    public CreateUserResponseDto register(@Valid @RequestBody RegisterRequestDto request) {
       return authService.register(request);
    }
+
+   private final AuthService authService;
 }

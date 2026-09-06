@@ -34,20 +34,9 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
    private static final String STAFF_SERVICES_URL = "/api/services";
    private static final String PUBLIC_SERVICES_URL = "/api/public/services";
 
-   @Autowired
-   private TestDataFactory dataFactory;
-
-   @Autowired
-   private TestJwtHelper jwtHelper;
-
-   @Autowired
-   private ClinicServiceRepository clinicServiceRepository;
-
-
    private AddClinicServiceRequestDto createRequest() {
       return new AddClinicServiceRequestDto(1_500, 45);
    }
-
 
    private <T> T inClinicContext(Clinic clinic, Supplier<T> action) {
       ClinicContext.set(clinic);
@@ -57,6 +46,13 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
          ClinicContext.clear();
       }
    }
+
+   @Autowired
+   private TestDataFactory dataFactory;
+   @Autowired
+   private TestJwtHelper jwtHelper;
+   @Autowired
+   private ClinicServiceRepository clinicServiceRepository;
 
    @Test
    void shouldCreateClinicService() throws Exception {

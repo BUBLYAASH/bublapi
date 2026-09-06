@@ -22,12 +22,6 @@ import java.util.UUID;
 
 @Service
 public class NotificationService {
-   private final NotificationRepository notificationRepository;
-   private final NotificationMapper notificationMapper;
-   private final NotificationTransactionService transactionService;
-   private final NotificationDispatcher notificationDispatcher;
-   private final NotificationContentRenderer contentRenderer;
-
    public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper,
                               NotificationTransactionService transactionService,
                               NotificationDispatcher notificationDispatcher,
@@ -54,7 +48,6 @@ public class NotificationService {
                                    .map(notificationMapper::toUserResponse)
                                    .toList();
    }
-
 
    public List<NotificationResponseDto> findAllForAdmin() {
       return notificationRepository.findAllByOrderByCreatedAtDesc()
@@ -143,6 +136,12 @@ public class NotificationService {
          throw e;
       }
    }
+
+   private final NotificationRepository notificationRepository;
+   private final NotificationMapper notificationMapper;
+   private final NotificationTransactionService transactionService;
+   private final NotificationDispatcher notificationDispatcher;
+   private final NotificationContentRenderer contentRenderer;
 
    // TODO:
    //  - POST /api/admin/notifications/{notificationId}/retry

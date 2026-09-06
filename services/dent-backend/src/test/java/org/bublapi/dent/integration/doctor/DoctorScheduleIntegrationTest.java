@@ -26,6 +26,24 @@ class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
 
    private static final String DOCTOR_URL = "/api/doctors";
 
+   private UUID createSchedule(Doctor doctor, AppointmentContext context, DayOfWeek dayOfWeek, LocalTime start,
+                               LocalTime end) throws
+           Exception {
+      SetDoctorWorkingHoursRequestDto request = new SetDoctorWorkingHoursRequestDto(dayOfWeek, start, end);
+      MvcResult result = mockMvc.perform(
+                                        post(DOCTOR_URL + "/{doctorId}/working-hours", doctor.getId()).header("Authorization",
+                                                                                                              jwtHelper.token(context.user()
+                                                                                                                                     .getId()))
+                                                                                                      .header("X-API-KEY", context.apiKey()
+                                                                                                                                  .rawKey())
+                                                                                                      .contentType(MediaType.APPLICATION_JSON)
+                                                                                                      .content(objectMapper.writeValueAsString(
+                                                                                                              request)))
+                                .andExpect(status().isOk())
+                                .andReturn();
+      return extractId(result);
+   }
+
    @Test
    void shouldCreateDoctorWorkingHours() throws Exception {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
@@ -171,22 +189,5 @@ class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
                                                                                                                        objectMapper.writeValueAsString(
                                                                                                                                request)))
              .andExpect(status().isNotFound());
-   }
-
-   private UUID createSchedule(Doctor doctor, AppointmentContext context, DayOfWeek dayOfWeek, LocalTime start, LocalTime end) throws
-           Exception {
-      SetDoctorWorkingHoursRequestDto request = new SetDoctorWorkingHoursRequestDto(dayOfWeek, start, end);
-      MvcResult result = mockMvc.perform(
-                                        post(DOCTOR_URL + "/{doctorId}/working-hours", doctor.getId()).header("Authorization",
-                                                                                                              jwtHelper.token(context.user()
-                                                                                                                                     .getId()))
-                                                                                                      .header("X-API-KEY", context.apiKey()
-                                                                                                                                  .rawKey())
-                                                                                                      .contentType(MediaType.APPLICATION_JSON)
-                                                                                                      .content(objectMapper.writeValueAsString(
-                                                                                                              request)))
-                                .andExpect(status().isOk())
-                                .andReturn();
-      return extractId(result);
    }
 }

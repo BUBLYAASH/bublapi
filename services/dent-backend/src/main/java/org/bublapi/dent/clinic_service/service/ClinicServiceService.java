@@ -31,13 +31,6 @@ import java.util.UUID;
 
 @Service
 public class ClinicServiceService {
-   private final ClinicServiceRepository clinicServiceRepository;
-   private final DentalServiceRepository dentalServiceRepository;
-   private final ClinicServiceMapper clinicServiceMapper;
-   private final AppointmentServiceRepository appointmentServiceRepository;
-   private final NotificationPublisher notificationPublisher;
-   private final UserAuditService userAuditService;
-
    public ClinicServiceService(ClinicServiceRepository clinicServiceRepository,
                                DentalServiceRepository dentalServiceRepository, ClinicServiceMapper clinicServiceMapper,
                                AppointmentServiceRepository appointmentServiceRepository,
@@ -48,33 +41,6 @@ public class ClinicServiceService {
       this.appointmentServiceRepository = appointmentServiceRepository;
       this.notificationPublisher = notificationPublisher;
       this.userAuditService = userAuditService;
-   }
-
-   private static List<String> getChangedFields(ClinicService clinicService, UpdateClinicServiceRequestDto request) {
-      List<String> changedFields = new ArrayList<>();
-
-      if (request.durationMinutes() != null && !Objects.equals(clinicService.getDurationMinutes(),
-                                                               request.durationMinutes())) {
-         changedFields.add("durationMinutes");
-      }
-
-      if (request.price() != null && !Objects.equals(clinicService.getPrice(), request.price())) {
-         changedFields.add("price");
-      }
-
-      return changedFields;
-   }
-
-   private void publishClinicServiceDeactivatedNotification(Appointment appointment, UUID patientUserId,
-                                                            ClinicService clinicService) {
-      notificationPublisher.publishAfterCommit(
-              new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(),
-                                            NotificationType.CLINIC_SERVICE_DEACTIVATED,
-                                            new ClinicServiceNotificationData(appointment.getClinic().getTitle(),
-                                                                              appointment.getPatient().getFirstName(),
-                                                                              clinicService.getDentalService()
-                                                                                           .getTitle()),
-                                            LocalDateTime.now()));
    }
 
    @Transactional
@@ -188,4 +154,38 @@ public class ClinicServiceService {
                                     .map(clinicServiceMapper::toResponse)
                                     .toList();
    }
+
+   private static List<String> getChangedFields(ClinicService clinicService, UpdateClinicServiceRequestDto request) {
+      List<String> changedFields = new ArrayList<>();
+
+      if (request.durationMinutes() != null && !Objects.equals(clinicService.getDurationMinutes(),
+                                                               request.durationMinutes())) {
+         changedFields.add("durationMinutes");
+      }
+
+      if (request.price() != null && !Objects.equals(clinicService.getPrice(), request.price())) {
+         changedFields.add("price");
+      }
+
+      return changedFields;
+   }
+
+   private void publishClinicServiceDeactivatedNotification(Appointment appointment, UUID patientUserId,
+                                                            ClinicService clinicService) {
+      notificationPublisher.publishAfterCommit(
+              new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(),
+                                            NotificationType.CLINIC_SERVICE_DEACTIVATED,
+                                            new ClinicServiceNotificationData(appointment.getClinic().getTitle(),
+                                                                              appointment.getPatient().getFirstName(),
+                                                                              clinicService.getDentalService()
+                                                                                           .getTitle()),
+                                            LocalDateTime.now()));
+   }
+
+   private final ClinicServiceRepository clinicServiceRepository;
+   private final DentalServiceRepository dentalServiceRepository;
+   private final ClinicServiceMapper clinicServiceMapper;
+   private final AppointmentServiceRepository appointmentServiceRepository;
+   private final NotificationPublisher notificationPublisher;
+   private final UserAuditService userAuditService;
 }

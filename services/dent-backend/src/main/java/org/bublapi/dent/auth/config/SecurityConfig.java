@@ -26,11 +26,6 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-   private final JwtAuthenticationFilter jwtAuthenticationFilter;
-   private final ApiKeyFilter apiKeyFilter;
-   private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
-   private final RestAccessDeniedHandler restAccessDeniedHandler;
-
    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, ApiKeyFilter apiKeyFilter,
                          RestAuthenticationEntryPoint restAuthenticationEntryPoint,
                          RestAccessDeniedHandler restAccessDeniedHandler) {
@@ -87,4 +82,9 @@ public class SecurityConfig {
 
       return source;
    }
+
+   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+   private final ApiKeyFilter apiKeyFilter;
+   private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+   private final RestAccessDeniedHandler restAccessDeniedHandler;
 }

@@ -21,18 +21,6 @@ public class GlobalExceptionHandler {
 
    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-   private static String getErrorLocation(Exception e) {
-      StackTraceElement[] stackTrace = e.getStackTrace();
-
-      if (stackTrace.length == 0) {
-         return "unknown";
-      }
-
-      StackTraceElement element = stackTrace[0];
-
-      return element.getClassName() + "." + element.getMethodName() + ":" + element.getLineNumber();
-   }
-
    @ExceptionHandler(ResourceNotFoundException.class)
    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException e) {
       Map<String, Object> response = new HashMap<>();
@@ -126,5 +114,17 @@ public class GlobalExceptionHandler {
       response.put("timestamp", LocalDateTime.now());
 
       return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+   }
+
+   private static String getErrorLocation(Exception e) {
+      StackTraceElement[] stackTrace = e.getStackTrace();
+
+      if (stackTrace.length == 0) {
+         return "unknown";
+      }
+
+      StackTraceElement element = stackTrace[0];
+
+      return element.getClassName() + "." + element.getMethodName() + ":" + element.getLineNumber();
    }
 }

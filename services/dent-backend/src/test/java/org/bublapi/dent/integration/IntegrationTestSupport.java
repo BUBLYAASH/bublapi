@@ -32,20 +32,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 public abstract class IntegrationTestSupport extends IntegrationTestBase {
 
+   public record AppointmentContext(
+           Clinic clinic, User user, Patient patient, Doctor doctor, ClinicService clinicService,
+           CreateApiKeyResponseDto apiKey) {
+   }
+
+   protected record TestClinicData(Clinic clinic, User user, CreateApiKeyResponseDto apiKey) {
+   }
+
    protected static final String STAFF_APPOINTMENTS_URL = "/api/appointments";
    protected static final String STAFF_PATIENT_APPOINTMENTS_URL = STAFF_APPOINTMENTS_URL + "/patients/{patientId}";
    protected static final String PATIENT_APPOINTMENTS_URL = "/api/patient/appointments";
    protected static final DateTimeFormatter RESPONSE_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern(
            "yyyy-MM-dd'T'HH:mm:ss");
-
-   @Autowired
-   protected TestDataFactory dataFactory;
-
-   @Autowired
-   protected TestJwtHelper jwtHelper;
-
-   @Autowired
-   protected DoctorWorkingHoursRepository doctorWorkingHoursRepository;
 
    protected TestClinicData createClinicData(RoleName... roleNames) {
       Clinic clinic = dataFactory.createClinic();
@@ -90,7 +89,8 @@ public abstract class IntegrationTestSupport extends IntegrationTestBase {
                                                                                     .getId(), 1)));
    }
 
-   protected ResultActions createStaffAppointment(AppointmentContext context, LocalDateTime scheduledAt, List<AppointmentServiceRequestDto> services) throws
+   protected ResultActions createStaffAppointment(AppointmentContext context, LocalDateTime scheduledAt,
+                                                  List<AppointmentServiceRequestDto> services) throws
            Exception {
       CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(context.doctor()
                                                                                    .getId(), scheduledAt, services,
@@ -142,11 +142,10 @@ public abstract class IntegrationTestSupport extends IntegrationTestBase {
       return LocalDate.now().plusDays(14).atTime(hour, minute);
    }
 
-   protected record TestClinicData(Clinic clinic, User user, CreateApiKeyResponseDto apiKey) {
-   }
-
-   public record AppointmentContext(
-           Clinic clinic, User user, Patient patient, Doctor doctor, ClinicService clinicService,
-           CreateApiKeyResponseDto apiKey) {
-   }
+   @Autowired
+   protected TestDataFactory dataFactory;
+   @Autowired
+   protected TestJwtHelper jwtHelper;
+   @Autowired
+   protected DoctorWorkingHoursRepository doctorWorkingHoursRepository;
 }

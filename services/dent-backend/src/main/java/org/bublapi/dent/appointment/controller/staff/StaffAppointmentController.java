@@ -30,8 +30,6 @@ import java.util.UUID;
         and @clinicSecurity.hasAccess(authentication)
         """)
 public class StaffAppointmentController {
-   private final AppointmentService appointmentService;
-
    public StaffAppointmentController(AppointmentService appointmentService) {
       this.appointmentService = appointmentService;
    }
@@ -79,4 +77,6 @@ public class StaffAppointmentController {
    public List<AppointmentResponseDto> findAllByDoctor(@PathVariable UUID doctorId) {
       return appointmentService.findAllForDoctor(doctorId);
    }
+
+   private final AppointmentService appointmentService;
 }

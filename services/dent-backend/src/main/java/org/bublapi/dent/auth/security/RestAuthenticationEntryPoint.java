@@ -9,8 +9,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
-   private final SecurityLogService securityLogService;
-
    public RestAuthenticationEntryPoint(SecurityLogService securityLogService) {
       this.securityLogService = securityLogService;
    }
@@ -22,4 +20,6 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
    }
+
+   private final SecurityLogService securityLogService;
 }

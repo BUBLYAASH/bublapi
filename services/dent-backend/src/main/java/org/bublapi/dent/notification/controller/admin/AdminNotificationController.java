@@ -20,8 +20,6 @@ import java.util.UUID;
 @PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/api/admin/notifications")
 public class AdminNotificationController {
-   private final NotificationService notificationService;
-
    public AdminNotificationController(NotificationService notificationService) {
       this.notificationService = notificationService;
    }
@@ -37,4 +35,6 @@ public class AdminNotificationController {
    public NotificationResponseDto findById(@PathVariable UUID notificationId) {
       return notificationService.findByIdForAdmin(notificationId);
    }
+
+   private final NotificationService notificationService;
 }

@@ -29,8 +29,6 @@ import java.util.UUID;
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminApiKeyController {
-   private final ApiKeyService apiKeyService;
-
    public AdminApiKeyController(ApiKeyService apiKeyService) {
       this.apiKeyService = apiKeyService;
    }
@@ -66,4 +64,6 @@ public class AdminApiKeyController {
    public List<ApiKeyResponseDto> getAll() {
       return apiKeyService.findAll();
    }
+
+   private final ApiKeyService apiKeyService;
 }

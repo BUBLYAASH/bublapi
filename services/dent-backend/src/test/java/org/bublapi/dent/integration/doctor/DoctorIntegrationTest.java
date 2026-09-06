@@ -21,12 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 class DoctorIntegrationTest extends IntegrationTestBase {
-   @Autowired
-   private TestDataFactory dataFactory;
-
-   @Autowired
-   private TestJwtHelper jwtHelper;
-
    private CreateDoctorRequestDto createDoctorRequest() {
       return new CreateDoctorRequestDto("Gregory", "House", "Michael", "Dentist", null, "Experienced dentist");
    }
@@ -45,6 +39,11 @@ class DoctorIntegrationTest extends IntegrationTestBase {
 
       return objectMapper.readTree(response).get("id").asText();
    }
+
+   @Autowired
+   private TestDataFactory dataFactory;
+   @Autowired
+   private TestJwtHelper jwtHelper;
 
    @Test
    void shouldCreateActiveDoctor() throws Exception {

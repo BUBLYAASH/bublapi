@@ -26,11 +26,6 @@ import java.util.UUID;
 @SecurityRequirement(name = "apiKey")
 public class PublicDoctorController {
 
-   private final DoctorService doctorService;
-   private final DoctorWorkingHoursService doctorWorkingHoursService;
-   private final DoctorAvailabilityService doctorAvailabilityService;
-   private final DoctorClinicServiceService doctorClinicServiceService;
-
    public PublicDoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService,
                                  DoctorAvailabilityService doctorAvailabilityService,
                                  DoctorClinicServiceService doctorClinicServiceService) {
@@ -71,4 +66,9 @@ public class PublicDoctorController {
    public List<DoctorClinicServiceResponseDto> getServices(@PathVariable UUID doctorId) {
       return doctorClinicServiceService.findAllByDoctorId(doctorId);
    }
+
+   private final DoctorService doctorService;
+   private final DoctorWorkingHoursService doctorWorkingHoursService;
+   private final DoctorAvailabilityService doctorAvailabilityService;
+   private final DoctorClinicServiceService doctorClinicServiceService;
 }

@@ -23,11 +23,6 @@ import java.util.UUID;
 
 @Service
 public class DoctorWorkingHoursService {
-   private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
-   private final DoctorRepository doctorRepository;
-   private final DoctorWorkingHoursMapper doctorWorkingHoursMapper;
-   private final UserAuditService userAuditService;
-
    public DoctorWorkingHoursService(DoctorWorkingHoursRepository doctorWorkingHoursRepository,
                                     DoctorRepository doctorRepository,
                                     DoctorWorkingHoursMapper doctorWorkingHoursMapper,
@@ -36,16 +31,6 @@ public class DoctorWorkingHoursService {
       this.doctorRepository = doctorRepository;
       this.doctorWorkingHoursMapper = doctorWorkingHoursMapper;
       this.userAuditService = userAuditService;
-   }
-
-   private void validateTimeRange(LocalTime start, LocalTime end) {
-      if (start == null || end == null) {
-         throw new BadRequestException("Start time and end time are required");
-      }
-
-      if (!start.isBefore(end)) {
-         throw new BadRequestException("Start time must be before end time");
-      }
    }
 
    @Transactional
@@ -144,4 +129,19 @@ public class DoctorWorkingHoursService {
 
       userAuditService.doctorWorkingHoursDeleted(workingHours.getId());
    }
+
+   private void validateTimeRange(LocalTime start, LocalTime end) {
+      if (start == null || end == null) {
+         throw new BadRequestException("Start time and end time are required");
+      }
+
+      if (!start.isBefore(end)) {
+         throw new BadRequestException("Start time must be before end time");
+      }
+   }
+
+   private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
+   private final DoctorRepository doctorRepository;
+   private final DoctorWorkingHoursMapper doctorWorkingHoursMapper;
+   private final UserAuditService userAuditService;
 }

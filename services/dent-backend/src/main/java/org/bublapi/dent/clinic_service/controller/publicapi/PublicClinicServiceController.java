@@ -20,9 +20,6 @@ import java.util.UUID;
 @RequestMapping("/api/public/services")
 @SecurityRequirement(name = "apiKey")
 public class PublicClinicServiceController {
-   private final ClinicServiceService clinicServiceService;
-   private final DoctorClinicServiceService doctorClinicServiceService;
-
    public PublicClinicServiceController(ClinicServiceService clinicServiceService,
                                         DoctorClinicServiceService doctorClinicServiceService) {
       this.clinicServiceService = clinicServiceService;
@@ -46,4 +43,7 @@ public class PublicClinicServiceController {
    public List<DoctorClinicServiceResponseDto> getDoctors(@PathVariable UUID clinicServiceId) {
       return doctorClinicServiceService.findAllByClinicServiceId(clinicServiceId);
    }
+
+   private final ClinicServiceService clinicServiceService;
+   private final DoctorClinicServiceService doctorClinicServiceService;
 }

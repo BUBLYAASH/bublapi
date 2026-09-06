@@ -13,8 +13,6 @@ import org.thymeleaf.context.Context;
 
 @Component
 public class EmailNotificationRenderer {
-   private final TemplateEngine templateEngine;
-
    public EmailNotificationRenderer(TemplateEngine templateEngine) {
       this.templateEngine = templateEngine;
    }
@@ -96,4 +94,6 @@ public class EmailNotificationRenderer {
          case CLINIC_SERVICE_DEACTIVATED -> "Услуга клиники недоступна";
       };
    }
+
+   private final TemplateEngine templateEngine;
 }

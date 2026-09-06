@@ -18,6 +18,38 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
 
+   private AppointmentContext createAppointmentWithRegularHours() {
+      AppointmentContext context = createAppointmentContext(RoleName.OWNER);
+      LocalDateTime scheduledAt = futureDateAt(10, 0);
+      addRegularWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
+      return context;
+   }
+
+   private UUID createAppointmentId(AppointmentContext context, LocalDateTime scheduledAt) throws Exception {
+      MvcResult result = createStaffAppointment(context, scheduledAt).andExpect(status().isOk()).andReturn();
+      return extractId(result);
+   }
+
+   private org.springframework.test.web.servlet.ResultActions changeStatus(AppointmentContext context,
+                                                                           UUID appointmentId,
+                                                                           AppointmentStatus status) throws
+           Exception {
+      ChangeAppointmentStatusRequestDto request = new ChangeAppointmentStatusRequestDto(status);
+
+      return mockMvc.perform(
+              patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/change", appointmentId).header("Authorization",
+                                                                                              jwtHelper.token(
+                                                                                                      context.user()
+                                                                                                             .getId()))
+                                                                                      .header("X-API-KEY",
+                                                                                              context.apiKey().rawKey())
+                                                                                      .contentType(
+                                                                                              MediaType.APPLICATION_JSON)
+                                                                                      .content(
+                                                                                              objectMapper.writeValueAsString(
+                                                                                                      request)));
+   }
+
    @Test
    void shouldConfirmCreatedAppointment() throws Exception {
       AppointmentContext context = createAppointmentWithRegularHours();
@@ -102,35 +134,5 @@ class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
                                                                                                       objectMapper.writeValueAsString(
                                                                                                               request)))
              .andExpect(status().isForbidden());
-   }
-
-   private AppointmentContext createAppointmentWithRegularHours() {
-      AppointmentContext context = createAppointmentContext(RoleName.OWNER);
-      LocalDateTime scheduledAt = futureDateAt(10, 0);
-      addRegularWorkingHours(context.doctor(), scheduledAt.toLocalDate(), LocalTime.of(9, 0), LocalTime.of(18, 0));
-      return context;
-   }
-
-   private UUID createAppointmentId(AppointmentContext context, LocalDateTime scheduledAt) throws Exception {
-      MvcResult result = createStaffAppointment(context, scheduledAt).andExpect(status().isOk()).andReturn();
-      return extractId(result);
-   }
-
-   private org.springframework.test.web.servlet.ResultActions changeStatus(AppointmentContext context, UUID appointmentId, AppointmentStatus status) throws
-           Exception {
-      ChangeAppointmentStatusRequestDto request = new ChangeAppointmentStatusRequestDto(status);
-
-      return mockMvc.perform(
-              patch(STAFF_APPOINTMENTS_URL + "/{appointmentId}/change", appointmentId).header("Authorization",
-                                                                                              jwtHelper.token(
-                                                                                                      context.user()
-                                                                                                             .getId()))
-                                                                                      .header("X-API-KEY",
-                                                                                              context.apiKey().rawKey())
-                                                                                      .contentType(
-                                                                                              MediaType.APPLICATION_JSON)
-                                                                                      .content(
-                                                                                              objectMapper.writeValueAsString(
-                                                                                                      request)));
    }
 }

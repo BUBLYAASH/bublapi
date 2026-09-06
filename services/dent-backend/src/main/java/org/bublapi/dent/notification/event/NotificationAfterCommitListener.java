@@ -8,8 +8,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 public class NotificationAfterCommitListener {
-   private final NotificationProducer notificationProducer;
-
    public NotificationAfterCommitListener(NotificationProducer notificationProducer) {
       this.notificationProducer = notificationProducer;
    }
@@ -18,4 +16,6 @@ public class NotificationAfterCommitListener {
    public void handleAfterCommit(CreateNotificationCommand command) {
       notificationProducer.publish(command);
    }
+
+   private final NotificationProducer notificationProducer;
 }

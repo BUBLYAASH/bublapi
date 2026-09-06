@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/auth")
 public class AdminAuthController {
-   private final AuthService authService;
-
    public AdminAuthController(AuthService authService) {
       this.authService = authService;
    }
@@ -26,4 +24,6 @@ public class AdminAuthController {
    public LoginResponseDto login(@Valid @RequestBody LoginRequestDto request) {
       return authService.loginAdmin(request);
    }
+
+   private final AuthService authService;
 }

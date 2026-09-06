@@ -20,9 +20,11 @@ import java.util.UUID;
 @Service
 public class ApiKeyService {
 
-   private final ApiKeyRepository apiKeyRepository;
-   private final ClinicRepository clinicRepository;
-   private final AdministrativeAuditService administrativeAuditService;
+   private record ParsedKey(String prefix, String secret) {
+   }
+
+   private record ApiKeyCreationResult(UUID apiKeyId, String rawKey) {
+   }
 
    public ApiKeyService(ApiKeyRepository apiKeyRepository, ClinicRepository clinicRepository,
                         AdministrativeAuditService administrativeAuditService) {
@@ -186,11 +188,9 @@ public class ApiKeyService {
       return new ParsedKey(prefix, secret);
    }
 
-   private record ParsedKey(String prefix, String secret) {
-   }
-
-   private record ApiKeyCreationResult(UUID apiKeyId, String rawKey) {
-   }
+   private final ApiKeyRepository apiKeyRepository;
+   private final ClinicRepository clinicRepository;
+   private final AdministrativeAuditService administrativeAuditService;
 
 // TODO:
 //  - auto-deactivate after grace period and auto-activate when renewed

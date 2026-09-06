@@ -29,9 +29,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
 
+   private <T> T inClinicContext(Clinic clinic, Supplier<T> action) {
+      ClinicContext.set(clinic);
+      try {
+         return action.get();
+      } finally {
+         ClinicContext.clear();
+      }
+   }
+
    @Autowired
    private AppointmentServiceRepository appointmentServiceRepository;
-
    @Autowired
    private ClinicServiceRepository clinicServiceRepository;
 
@@ -104,15 +112,6 @@ class AppointmentLifecycleIntegrationTest extends IntegrationTestSupport {
       assertThat(items).hasSize(1);
       assertThat(items.getFirst().getPrice()).isEqualTo(1_000);
       assertThat(items.getFirst().getDurationMinutes()).isEqualTo(30);
-   }
-
-   private <T> T inClinicContext(Clinic clinic, Supplier<T> action) {
-      ClinicContext.set(clinic);
-      try {
-         return action.get();
-      } finally {
-         ClinicContext.clear();
-      }
    }
 
    @Test

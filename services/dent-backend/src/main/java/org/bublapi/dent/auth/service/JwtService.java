@@ -15,9 +15,6 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-   private final String secret;
-   private final long expirationMs;
-
    public JwtService(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration-ms}") long expirationMs) {
       this.secret = secret;
       this.expirationMs = expirationMs;
@@ -25,20 +22,6 @@ public class JwtService {
 
    public String generateToken(UUID userId) {
       return generateToken(Map.of(), userId.toString());
-   }
-
-   private String generateToken(Map<String, Object> claims, String userId) {
-      return Jwts.builder()
-                 .claims(claims)
-                 .subject(userId)
-                 .issuedAt(new Date())
-                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
-                 .signWith(getSignKey())
-                 .compact();
-   }
-
-   private SecretKey getSignKey() {
-      return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
    }
 
    public String extractUserId(String token) {
@@ -55,6 +38,26 @@ public class JwtService {
       return claimsResolver.apply(claims);
    }
 
+   public boolean isTokenValid(String token, UUID userId) {
+      String tokenUserId = extractUserId(token);
+
+      return tokenUserId.equals(userId.toString()) && !isTokenExpired(token);
+   }
+
+   private String generateToken(Map<String, Object> claims, String userId) {
+      return Jwts.builder()
+                 .claims(claims)
+                 .subject(userId)
+                 .issuedAt(new Date())
+                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                 .signWith(getSignKey())
+                 .compact();
+   }
+
+   private SecretKey getSignKey() {
+      return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+   }
+
    private Claims extractAllClaims(String token) {
       return Jwts.parser().verifyWith(getSignKey()).build().parseSignedClaims(token).getPayload();
    }
@@ -65,11 +68,8 @@ public class JwtService {
       return expiration.before(new Date());
    }
 
-   public boolean isTokenValid(String token, UUID userId) {
-      String tokenUserId = extractUserId(token);
-
-      return tokenUserId.equals(userId.toString()) && !isTokenExpired(token);
-   }
+   private final String secret;
+   private final long expirationMs;
 
    //TODO:
    // - use refreshToken

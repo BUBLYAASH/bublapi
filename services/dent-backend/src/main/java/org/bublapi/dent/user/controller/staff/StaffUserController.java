@@ -31,8 +31,6 @@ import java.util.UUID;
         """)
 public class StaffUserController {
 
-   private final UserService userService;
-
    public StaffUserController(UserService userService) {
       this.userService = userService;
    }
@@ -74,4 +72,6 @@ public class StaffUserController {
    public UserResponseDto findById(@PathVariable UUID userId) {
       return userService.findById(userId);
    }
+
+   private final UserService userService;
 }

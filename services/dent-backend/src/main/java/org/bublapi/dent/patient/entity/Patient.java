@@ -21,51 +21,6 @@ import java.util.UUID;
 @Filter(name = "clinicFilter")
 public class Patient {
 
-   @Id
-   @GeneratedValue(strategy = GenerationType.UUID)
-   private UUID id;
-
-   @ManyToOne
-   @JoinColumn(name = "clinic_id", nullable = false)
-   private Clinic clinic;
-
-   @OneToOne
-   @JoinColumn(name = "user_id", unique = true)
-   private User user;
-
-   @Column(name = "first_name", length = 50, nullable = false)
-   private String firstName;
-
-   @Column(name = "last_name", length = 50, nullable = false)
-   private String lastName;
-
-   @Column(name = "middle_name", length = 50)
-   private String middleName;
-
-   @Column(length = 15, nullable = false)
-   private String phone;
-
-   private String email;
-
-   @Column(name = "birth_date")
-   private LocalDate birthDate;
-
-   private String notes;
-
-   private String allergies;
-
-   @Column(name = "chronic_diseases")
-   private String chronicDiseases;
-
-   @Column(name = "created_at", nullable = false)
-   private LocalDateTime createdAt;
-
-   @Column(name = "updated_at")
-   private LocalDateTime updatedAt;
-
-   @Column(nullable = false)
-   private boolean active = true;
-
    @PrePersist
    private void prePersist() {
       this.createdAt = LocalDateTime.now();
@@ -76,4 +31,35 @@ public class Patient {
    private void preUpdate() {
       this.updatedAt = LocalDateTime.now();
    }
+
+   @Id
+   @GeneratedValue(strategy = GenerationType.UUID)
+   private UUID id;
+   @ManyToOne
+   @JoinColumn(name = "clinic_id", nullable = false)
+   private Clinic clinic;
+   @OneToOne
+   @JoinColumn(name = "user_id", unique = true)
+   private User user;
+   @Column(name = "first_name", length = 50, nullable = false)
+   private String firstName;
+   @Column(name = "last_name", length = 50, nullable = false)
+   private String lastName;
+   @Column(name = "middle_name", length = 50)
+   private String middleName;
+   @Column(length = 15, nullable = false)
+   private String phone;
+   private String email;
+   @Column(name = "birth_date")
+   private LocalDate birthDate;
+   private String notes;
+   private String allergies;
+   @Column(name = "chronic_diseases")
+   private String chronicDiseases;
+   @Column(name = "created_at", nullable = false)
+   private LocalDateTime createdAt;
+   @Column(name = "updated_at")
+   private LocalDateTime updatedAt;
+   @Column(nullable = false)
+   private boolean active = true;
 }

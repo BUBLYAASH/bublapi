@@ -20,11 +20,6 @@ import java.util.UUID;
 @Service
 public class AdminUserService {
 
-   private final UserRepository userRepository;
-   private final RoleRepository roleRepository;
-   private final UserMapper userMapper;
-   private final AdministrativeAuditService administrativeAuditService;
-
    public AdminUserService(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper,
                            AdministrativeAuditService administrativeAuditService) {
       this.userRepository = userRepository;
@@ -87,4 +82,9 @@ public class AdminUserService {
 
       return user;
    }
+
+   private final UserRepository userRepository;
+   private final RoleRepository roleRepository;
+   private final UserMapper userMapper;
+   private final AdministrativeAuditService administrativeAuditService;
 }

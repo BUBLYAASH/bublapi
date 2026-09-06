@@ -37,15 +37,6 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-   private final UserRepository userRepository;
-   private final RoleRepository roleRepository;
-   private final PatientRepository patientRepository;
-   private final UserMapper userMapper;
-   private final PasswordEncoder passwordEncoder;
-   private final NotificationPublisher notificationPublisher;
-   private final SecurityLogService securityLogService;
-   private final AdministrativeAuditService administrativeAuditService;
-
    public UserService(UserRepository userRepository, RoleRepository roleRepository, PatientRepository patientRepository,
                       UserMapper userMapper, PasswordEncoder passwordEncoder,
                       NotificationPublisher notificationPublisher, SecurityLogService securityLogService,
@@ -58,13 +49,6 @@ public class UserService {
       this.notificationPublisher = notificationPublisher;
       this.securityLogService = securityLogService;
       this.administrativeAuditService = administrativeAuditService;
-   }
-
-   private void publishUserNotification(User user, NotificationType type) {
-      notificationPublisher.publishAfterCommit(
-              new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
-                                            new UserNotificationData(user.getClinic().getTitle(), user.getFirstName()),
-                                            LocalDateTime.now()));
    }
 
    @Transactional
@@ -269,4 +253,20 @@ public class UserService {
 
       return userMapper.toResponse(user);
    }
+
+   private void publishUserNotification(User user, NotificationType type) {
+      notificationPublisher.publishAfterCommit(
+              new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
+                                            new UserNotificationData(user.getClinic().getTitle(), user.getFirstName()),
+                                            LocalDateTime.now()));
+   }
+
+   private final UserRepository userRepository;
+   private final RoleRepository roleRepository;
+   private final PatientRepository patientRepository;
+   private final UserMapper userMapper;
+   private final PasswordEncoder passwordEncoder;
+   private final NotificationPublisher notificationPublisher;
+   private final SecurityLogService securityLogService;
+   private final AdministrativeAuditService administrativeAuditService;
 }

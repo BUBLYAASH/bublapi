@@ -20,13 +20,6 @@ import java.util.UUID;
 @Service
 public class ClinicService {
 
-   private final ClinicRepository clinicRepository;
-   private final UserRepository userRepository;
-   private final DoctorRepository doctorRepository;
-   private final ClinicServiceRepository clinicServiceRepository;
-   private final ClinicMapper clinicMapper;
-   private final AdministrativeAuditService administrativeAuditService;
-
    public ClinicService(ClinicRepository clinicRepository, UserRepository userRepository,
                         DoctorRepository doctorRepository, ClinicServiceRepository clinicServiceRepository,
                         ClinicMapper clinicMapper, AdministrativeAuditService administrativeAuditService) {
@@ -96,4 +89,11 @@ public class ClinicService {
    public List<ClinicResponseDto> findAll() {
       return clinicRepository.findAll().stream().map(clinicMapper::toResponse).toList();
    }
+
+   private final ClinicRepository clinicRepository;
+   private final UserRepository userRepository;
+   private final DoctorRepository doctorRepository;
+   private final ClinicServiceRepository clinicServiceRepository;
+   private final ClinicMapper clinicMapper;
+   private final AdministrativeAuditService administrativeAuditService;
 }

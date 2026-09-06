@@ -19,12 +19,6 @@ import java.util.UUID;
 
 @Service
 public class AuthService {
-   private final UserRepository userRepository;
-   private final PasswordEncoder passwordEncoder;
-   private final JwtService jwtService;
-   private final UserService userService;
-   private final SecurityLogService securityLogService;
-
    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
                       UserService userService, SecurityLogService securityLogService) {
       this.userRepository = userRepository;
@@ -98,4 +92,10 @@ public class AuthService {
               new CreateUserRequestDto(request.email(), request.phone(), request.firstName(), request.lastName(),
                                        request.middleName(), request.password()));
    }
+
+   private final UserRepository userRepository;
+   private final PasswordEncoder passwordEncoder;
+   private final JwtService jwtService;
+   private final UserService userService;
+   private final SecurityLogService securityLogService;
 }

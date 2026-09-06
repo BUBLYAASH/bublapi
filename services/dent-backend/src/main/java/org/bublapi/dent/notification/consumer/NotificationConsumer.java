@@ -16,9 +16,6 @@ import org.springframework.stereotype.Component;
 public class NotificationConsumer {
    private static final Logger log = LoggerFactory.getLogger(NotificationConsumer.class);
 
-   private final NotificationService notificationService;
-   private final ClinicRepository clinicRepository;
-
    public NotificationConsumer(NotificationService notificationService, ClinicRepository clinicRepository) {
       this.notificationService = notificationService;
       this.clinicRepository = clinicRepository;
@@ -45,4 +42,7 @@ public class NotificationConsumer {
          ClinicContext.clear();
       }
    }
+
+   private final NotificationService notificationService;
+   private final ClinicRepository clinicRepository;
 }

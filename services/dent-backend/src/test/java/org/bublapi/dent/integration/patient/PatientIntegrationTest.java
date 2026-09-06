@@ -20,15 +20,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 class PatientIntegrationTest extends IntegrationTestBase {
-   @Autowired
-   private TestDataFactory dataFactory;
-
-   @Autowired
-   private TestJwtHelper jwtHelper;
-
    private CreatePatientRequestDto createPatientRequest(String phone) {
       return new CreatePatientRequestDto("John", "Smith", "Middle", phone, "patient@mail.com", null, null, null, null);
    }
+
+   @Autowired
+   private TestDataFactory dataFactory;
+   @Autowired
+   private TestJwtHelper jwtHelper;
 
    @Test
    void shouldCreatePatient() throws Exception {
