@@ -7,7 +7,9 @@ import org.bublapi.dent.clinic.repository.ClinicRepository;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.entity.Notification;
+import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationStatus;
+import org.bublapi.dent.notification.message.NotificationContent;
 import org.bublapi.dent.notification.repository.NotificationRepository;
 import org.bublapi.dent.user.entity.User;
 import org.bublapi.dent.user.repository.UserRepository;
@@ -35,8 +37,10 @@ public class NotificationTransactionService {
    }
 
    @Transactional(propagation = Propagation.REQUIRES_NEW)
-   public Notification prepare(CreateNotificationCommand command) {
-      Notification existing = notificationRepository.findByRequestId(command.requestId()).orElse(null);
+   public Notification prepare(CreateNotificationCommand command, NotificationChannel channel,
+                               NotificationContent content) {
+      Notification existing = notificationRepository.findByRequestIdAndChannel(command.requestId(), channel)
+                                                    .orElse(null);
 
       if (existing != null) {
          if (existing.getStatus() == NotificationStatus.SENT) {
@@ -56,9 +60,9 @@ public class NotificationTransactionService {
       notification.setRequestId(command.requestId());
       notification.setClinic(clinic);
       notification.setType(command.type());
-      notification.setChannel(command.channel());
-      notification.setTitle(command.title());
-      notification.setMessage(command.message());
+      notification.setChannel(channel);
+      notification.setTitle(content.title());
+      notification.setMessage(content.message());
       notification.setScheduledAt(command.scheduledAt());
       notification.setStatus(NotificationStatus.PENDING);
 
@@ -70,12 +74,10 @@ public class NotificationTransactionService {
          notification.setAppointment(appointment);
       }
 
-      if (command.userId() != null) {
-         User user = userRepository.findById(command.userId())
-                                   .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+      User user = userRepository.findById(command.userId())
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-         notification.setUser(user);
-      }
+      notification.setUser(user);
 
       return notificationRepository.save(notification);
    }

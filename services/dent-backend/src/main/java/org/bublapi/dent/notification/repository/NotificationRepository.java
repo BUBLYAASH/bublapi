@@ -3,6 +3,7 @@ package org.bublapi.dent.notification.repository;
 import org.bublapi.dent.notification.entity.Notification;
 import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationStatus;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,7 +15,8 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
                                                                                NotificationChannel channel,
                                                                                NotificationStatus status);
 
-   Optional<Notification> findByRequestId(UUID requestId);
+   @EntityGraph(attributePaths = "user")
+   Optional<Notification> findByRequestIdAndChannel(UUID requestId, NotificationChannel channel);
 
    List<Notification> findAllByUser_IdAndChannelAndStatusAndReadFalseAndDeletedFalse(UUID userId,
                                                                                      NotificationChannel channel,

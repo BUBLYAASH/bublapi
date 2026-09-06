@@ -10,6 +10,8 @@ import org.bublapi.dent.notification.entity.Notification;
 import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationStatus;
 import org.bublapi.dent.notification.mapper.NotificationMapper;
+import org.bublapi.dent.notification.message.NotificationContent;
+import org.bublapi.dent.notification.renderer.NotificationContentRenderer;
 import org.bublapi.dent.notification.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,32 +26,24 @@ public class NotificationService {
    private final NotificationMapper notificationMapper;
    private final NotificationTransactionService transactionService;
    private final NotificationDispatcher notificationDispatcher;
+   private final NotificationContentRenderer contentRenderer;
 
    public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper,
                               NotificationTransactionService transactionService,
-                              NotificationDispatcher notificationDispatcher) {
+                              NotificationDispatcher notificationDispatcher,
+                              NotificationContentRenderer contentRenderer) {
       this.notificationRepository = notificationRepository;
       this.notificationMapper = notificationMapper;
       this.transactionService = transactionService;
       this.notificationDispatcher = notificationDispatcher;
+      this.contentRenderer = contentRenderer;
    }
 
    public void create(CreateNotificationCommand command) {
-      Notification notification = transactionService.prepare(command);
+      NotificationContent content = contentRenderer.render(command.type(), command.data());
 
-      if (notification.getStatus() == NotificationStatus.SENT) {
-         return;
-      }
-
-      try {
-         notificationDispatcher.dispatch(notification, command);
-
-         transactionService.markAsSent(notification.getId());
-      } catch (Exception e) {
-         transactionService.markAsFailed(notification.getId(), e.getMessage());
-
-         throw e;
-      }
+      send(command, NotificationChannel.IN_APP, content);
+      send(command, NotificationChannel.EMAIL, content);
    }
 
    public List<UserNotificationResponseDto> findAllSent(UUID userId) {
@@ -60,6 +54,7 @@ public class NotificationService {
                                    .map(notificationMapper::toUserResponse)
                                    .toList();
    }
+
 
    public List<NotificationResponseDto> findAllForAdmin() {
       return notificationRepository.findAllByOrderByCreatedAtDesc()
@@ -128,6 +123,24 @@ public class NotificationService {
       if (!notification.isDeleted()) {
          notification.setDeleted(true);
          notification.setDeletedAt(LocalDateTime.now());
+      }
+   }
+
+   private void send(CreateNotificationCommand command, NotificationChannel channel, NotificationContent content) {
+      Notification notification = transactionService.prepare(command, channel, content);
+
+      if (notification.getStatus() == NotificationStatus.SENT) {
+         return;
+      }
+
+      try {
+         notificationDispatcher.dispatch(notification, command);
+
+         transactionService.markAsSent(notification.getId());
+      } catch (Exception e) {
+         transactionService.markAsFailed(notification.getId(), e.getMessage());
+
+         throw e;
       }
    }
 

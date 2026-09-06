@@ -13,7 +13,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "notifications")
+@Table(name = "notifications", uniqueConstraints = @UniqueConstraint(name = "uk_notifications_request_channel", columnNames = {
+        "request_id", "channel"}))
 public class Notification {
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)
@@ -67,7 +68,7 @@ public class Notification {
    @Column(name = "deleted_at")
    private LocalDateTime deletedAt;
 
-   @Column(name = "request_id", nullable = false, unique = true)
+   @Column(name = "request_id", nullable = false)
    private UUID requestId;
 
    @Column(name = "error_message", length = 1000)

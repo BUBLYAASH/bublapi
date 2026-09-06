@@ -7,8 +7,7 @@ import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.logging.AdministrativeAuditService;
 import org.bublapi.dent.logging.SecurityLogService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
-import org.bublapi.dent.notification.command.EmailTemplateData;
-import org.bublapi.dent.notification.entity.NotificationChannel;
+import org.bublapi.dent.notification.command.UserNotificationData;
 import org.bublapi.dent.notification.entity.NotificationType;
 import org.bublapi.dent.notification.publisher.NotificationPublisher;
 import org.bublapi.dent.patient.repository.PatientRepository;
@@ -29,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -60,23 +60,11 @@ public class UserService {
       this.administrativeAuditService = administrativeAuditService;
    }
 
-   private void publishUserNotifications(User user, NotificationType type, String title, String message,
-                                         EmailTemplateData emailData) {
-      String userEmail = user.getEmail();
-
+   private void publishUserNotification(User user, NotificationType type) {
       notificationPublisher.publishAfterCommit(
               new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
-                                            NotificationChannel.IN_APP, userEmail, title, message, null, null));
-
-      if (userEmail != null && !userEmail.isBlank()) {
-         notificationPublisher.publishAfterCommit(
-                 new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
-                                               NotificationChannel.EMAIL, userEmail, title, message, null, emailData));
-      }
-   }
-
-   private EmailTemplateData createEmailTemplateData(User user) {
-      return new EmailTemplateData(user.getClinic().getTitle(), user.getFirstName(), null, null, null);
+                                            new UserNotificationData(user.getClinic().getTitle(), user.getFirstName()),
+                                            LocalDateTime.now()));
    }
 
    @Transactional
@@ -98,8 +86,7 @@ public class UserService {
 
       User saved = userRepository.save(user);
 
-      publishUserNotifications(saved, NotificationType.USER_REGISTERED, "Вы успешно зарегистрировались",
-                               "Ваш аккаунт успешно создан!", createEmailTemplateData(saved));
+      publishUserNotification(saved, NotificationType.USER_REGISTERED);
 
       PatientCardLinkStatus cardStatus = PatientCardLinkStatus.NOT_FOUND;
       String cardMessage = "Карточка пациента не найдена.";
@@ -115,16 +102,12 @@ public class UserService {
             cardStatus = PatientCardLinkStatus.LINKED;
             cardMessage = "Мы обнаружили карточку пациента по некоторым Вашим данным и успешно привязали ее к аккаунту!";
 
-            publishUserNotifications(saved, NotificationType.PATIENT_CARD_LINKED, "Мы обнаружили карточку пациента",
-                                     "Мы обнаружили карточку пациента по некоторым Вашим данным и уже привязали ее к Вашему аккаунту!",
-                                     createEmailTemplateData(saved));
+            publishUserNotification(saved, NotificationType.PATIENT_CARD_LINKED);
          } else {
             cardStatus = PatientCardLinkStatus.ALREADY_LINKED_TO_ANOTHER_USER;
             cardMessage = "Мы обнаружили карточку пациента по некоторым Вашим данным, но по каким-то причинам она уже привязана к другому аккаунту. Для решения этой проблемы обратитесь к администратору клиники.";
 
-            publishUserNotifications(saved, NotificationType.PATIENT_CARD_IS_BUSY, "Карточка пациента занята...",
-                                     "Мы обнаружили карточку пациента по некоторым Вашим данным, но по каким-то причинам она уже привязана к другому аккаунту. Для решения этой проблемы обратитесь к администратору клиники.",
-                                     createEmailTemplateData(saved));
+            publishUserNotification(saved, NotificationType.PATIENT_CARD_IS_BUSY);
          }
       }
 
@@ -240,8 +223,7 @@ public class UserService {
       user.setEnabled(false);
       user.setDisabledByClinic(false);
 
-      publishUserNotifications(user, NotificationType.USER_DEACTIVATED, "Ваш аккаунт отключен",
-                               "Ваш аккаунт успешно отключен", createEmailTemplateData(user));
+      publishUserNotification(user, NotificationType.USER_DEACTIVATED);
 
       securityLogService.userDeactivated(user.getId(), clinicId);
 
@@ -264,8 +246,7 @@ public class UserService {
       user.setEnabled(true);
       user.setDisabledByClinic(false);
 
-      publishUserNotifications(user, NotificationType.USER_ACTIVATED, "Ваш аккаунт активирован",
-                               "Ваш аккаунт снова активирован", createEmailTemplateData(user));
+      publishUserNotification(user, NotificationType.USER_ACTIVATED);
 
       securityLogService.userActivated(user.getId(), clinicId);
 

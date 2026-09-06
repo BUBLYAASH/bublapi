@@ -26,10 +26,10 @@ public class NotificationConsumer {
 
    @RabbitListener(queues = RabbitMqConfig.NOTIFICATION_REQUESTED_QUEUE)
    public void handle(CreateNotificationCommand command) {
-      log.info("Notification requested: type={}, channel={}, clinicId={}, userId={}", command.type(), command.channel(),
-               command.clinicId(), command.userId());
+      log.info("Notification requested: type={}, clinicId={}, userId={}", command.type(), command.clinicId(),
+               command.userId());
 
-      Clinic clinic = clinicRepository.findByIdAndActiveTrue(command.clinicId())
+      Clinic clinic = clinicRepository.findById(command.clinicId())
                                       .orElseThrow(() -> new RuntimeException("Clinic not found"));
 
       ClinicContext.set(clinic);
@@ -37,8 +37,8 @@ public class NotificationConsumer {
       try {
          notificationService.create(command);
       } catch (Exception e) {
-         log.error("Failed to handle notification: type={}, channel={}, clinicId={}, appointmentId={}", command.type(),
-                   command.channel(), command.clinicId(), command.appointmentId(), e);
+         log.error("Failed to handle notification: type={}, clinicId={}, appointmentId={}", command.type(),
+                   command.clinicId(), command.appointmentId(), e);
 
          throw e;
       } finally {

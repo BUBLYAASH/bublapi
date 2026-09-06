@@ -23,10 +23,10 @@ public class NotificationDispatcher {
    }
 
    public void dispatch(Notification notification, CreateNotificationCommand command) {
-      NotificationSender sender = this.senders.get(command.channel());
+      NotificationSender sender = this.senders.get(notification.getChannel());
 
       if (sender == null) {
-         throw new IllegalArgumentException("Unsupported notification channel: " + command.channel());
+         throw new IllegalArgumentException("Unsupported notification channel: " + notification.getChannel());
       }
 
       sender.send(notification, command);

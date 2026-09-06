@@ -25,9 +25,8 @@ import org.bublapi.dent.doctor_working_hours.entity.DayOfWeek;
 import org.bublapi.dent.doctor_working_hours.entity.DoctorWorkingHours;
 import org.bublapi.dent.doctor_working_hours.repository.DoctorWorkingHoursRepository;
 import org.bublapi.dent.logging.UserAuditService;
+import org.bublapi.dent.notification.command.AppointmentNotificationData;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
-import org.bublapi.dent.notification.command.EmailTemplateData;
-import org.bublapi.dent.notification.entity.NotificationChannel;
 import org.bublapi.dent.notification.entity.NotificationType;
 import org.bublapi.dent.notification.publisher.NotificationPublisher;
 import org.bublapi.dent.patient.entity.Patient;
@@ -168,31 +167,31 @@ public class AppointmentService {
       }
    }
 
-   private void publishAppointmentNotifications(Appointment appointment, NotificationType type, String title,
-                                                String message, EmailTemplateData emailData) {
-      UUID patientUserId = appointment.getPatient().getUser() != null ? appointment.getPatient()
-                                                                                   .getUser()
-                                                                                   .getId() : null;
-
-      String patientEmail = appointment.getPatient().getEmail();
-
+   private void publishAppointmentNotification(Appointment appointment, NotificationType type) {
       notificationPublisher.publishAfterCommit(
-              new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(), type,
-                                            NotificationChannel.IN_APP, patientEmail, title, message, null, null));
-
-      if (patientEmail != null && !patientEmail.isBlank()) {
-         notificationPublisher.publishAfterCommit(
-                 new CreateNotificationCommand(appointment.getClinic().getId(), patientUserId, appointment.getId(),
-                                               type, NotificationChannel.EMAIL, patientEmail, title, message, null,
-                                               emailData));
-      }
+              new CreateNotificationCommand(UUID.randomUUID(), appointment.getClinic().getId(),
+                                            appointment.getPatient().getUser().getId(), appointment.getId(), type,
+                                            createNotificationData(appointment), LocalDateTime.now()));
    }
 
-   private EmailTemplateData createEmailTemplateData(Appointment appointment) {
-      return new EmailTemplateData(appointment.getClinic().getTitle(), appointment.getPatient().getFirstName(),
-                                   appointment.getScheduledAt().format(APPOINTMENT_DATE_TIME_FORMATTER),
-                                   appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName(),
-                                   appointment.getServices().stream().map(AppointmentServiceItem::getTitle).toList());
+   private AppointmentNotificationData createNotificationData(Appointment appointment) {
+      return new AppointmentNotificationData(appointment.getClinic().getTitle(),
+                                             appointment.getPatient().getFirstName(),
+                                             appointment.getScheduledAt().format(APPOINTMENT_DATE_TIME_FORMATTER),
+                                             appointment.getDoctor().getFirstName() + " " + appointment.getDoctor()
+                                                                                                       .getLastName(),
+                                             appointment.getServices()
+                                                        .stream()
+                                                        .map(AppointmentServiceItem::getTitle)
+                                                        .toList());
+   }
+
+   private NotificationType resolveStatusNotificationType(AppointmentStatus status) {
+      return switch (status) {
+         case CONFIRMED -> NotificationType.APPOINTMENT_CONFIRMED;
+         case COMPLETED -> NotificationType.APPOINTMENT_COMPLETED;
+         default -> NotificationType.APPOINTMENT_STATUS_CHANGED;
+      };
    }
 
    @Transactional
@@ -258,11 +257,7 @@ public class AppointmentService {
          appointmentServiceRepository.save(item);
       }
 
-      publishAppointmentNotifications(saved, NotificationType.APPOINTMENT_CREATED, "Вы успешно записались",
-                                      "Ваша запись к врачу " + saved.getDoctor().getLastName() + " " + saved.getDoctor()
-                                                                                                            .getFirstName() + " успешно создана на " + saved.getScheduledAt()
-                                                                                                                                                            .format(APPOINTMENT_DATE_TIME_FORMATTER),
-                                      createEmailTemplateData(saved));
+      publishAppointmentNotification(saved, NotificationType.APPOINTMENT_CREATED);
 
       userAuditService.appointmentCreated(saved.getId());
 
@@ -288,10 +283,7 @@ public class AppointmentService {
 
       appointment.setStatus(AppointmentStatus.CANCELLED);
 
-      publishAppointmentNotifications(appointment, NotificationType.APPOINTMENT_CANCELLED, "Ваша запись отменена",
-                                      "Ваша запись на " + appointment.getScheduledAt()
-                                                                     .format(APPOINTMENT_DATE_TIME_FORMATTER) + " отменена",
-                                      createEmailTemplateData(appointment));
+      publishAppointmentNotification(appointment, NotificationType.APPOINTMENT_CANCELLED);
 
       userAuditService.appointmentCancelled(appointment.getId());
 
@@ -352,12 +344,9 @@ public class AppointmentService {
 
       validateTransition(oldStatus, newStatus);
 
-      appointment.setStatus(request.status());
+      appointment.setStatus(newStatus);
 
-      publishAppointmentNotifications(appointment, NotificationType.APPOINTMENT_STATUS_CHANGED,
-                                      "Статус Вашей записи изменен",
-                                      "Статус вашей записи изменен: " + oldStatus + " -> " + newStatus,
-                                      createEmailTemplateData(appointment));
+      publishAppointmentNotification(appointment, resolveStatusNotificationType(newStatus));
 
       userAuditService.appointmentStatusChanged(appointment.getId());
 
