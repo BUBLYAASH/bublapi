@@ -60,7 +60,7 @@ public class NotificationService {
    }
 
    public List<NotificationResponseDto> findAllForAdmin() {
-      return notificationRepository.findAllByOrderByCreatedAtDesc()
+      return notificationRepository.findAllByDeletedFalseOrderByCreatedAtDesc()
                                    .stream()
                                    .map(notificationMapper::toResponse)
                                    .toList();
@@ -120,6 +120,18 @@ public class NotificationService {
    public void deleteNotification(UUID userId, UUID notificationId) {
       Notification notification = notificationRepository.findByIdAndUser_IdAndChannelAndStatusAndDeletedFalse(
                                                                 notificationId, userId, NotificationChannel.IN_APP, NotificationStatus.SENT)
+                                                        .orElseThrow(() -> new ResourceNotFoundException(
+                                                                "Notification not found"));
+
+      if (!notification.isDeleted()) {
+         notification.setDeleted(true);
+         notification.setDeletedAt(LocalDateTime.now());
+      }
+   }
+
+   @Transactional
+   public void deleteNotificationForAdmin(UUID notificationId) {
+      Notification notification = notificationRepository.findById(notificationId)
                                                         .orElseThrow(() -> new ResourceNotFoundException(
                                                                 "Notification not found"));
 

@@ -7,6 +7,7 @@ import org.bublapi.dent.notification.dto.NotificationResponseDto;
 import org.bublapi.dent.notification.service.NotificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,5 +47,12 @@ public class AdminNotificationController {
    @PostMapping("/{notificationId}/retry")
    public void retry(@PathVariable UUID notificationId) {
       notificationService.retry(notificationId);
+   }
+
+   @Operation(summary = "Delete a notification", description = "Soft deletes a notification from admin history")
+   @ResponseStatus(HttpStatus.NO_CONTENT)
+   @DeleteMapping("/{notificationId}")
+   public void delete(@PathVariable UUID notificationId) {
+      notificationService.deleteNotificationForAdmin(notificationId);
    }
 }

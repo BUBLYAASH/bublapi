@@ -29,5 +29,5 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
                                                                                           NotificationChannel channel,
                                                                                           NotificationStatus status);
 
-   List<Notification> findAllByOrderByCreatedAtDesc();
+   List<Notification> findAllByDeletedFalseOrderByCreatedAtDesc();
 }

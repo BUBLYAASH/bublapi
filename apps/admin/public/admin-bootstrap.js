@@ -5,6 +5,7 @@
   let raf = 0;
   let observedTopbar = null;
   let resizeObserver = null;
+  let notificationsObserver = null;
 
   function rewriteAdminUsersUrl(value) {
     try {
@@ -41,7 +42,8 @@
     const freshTargets = [
       '/api/admin/clinics',
       '/api/admin/catalog/dental-services',
-      '/api/admin/users'
+      '/api/admin/users',
+      '/api/admin/notifications'
     ];
 
     if (!freshTargets.some(prefix => path === prefix || path.startsWith(`${prefix}/`))) {
@@ -91,6 +93,39 @@
     setTimeout(() => note.remove(), 3200);
   }
 
+  function showError(message) {
+    let host = document.querySelector('#adminRuntimeErrorHost');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'adminRuntimeErrorHost';
+      Object.assign(host.style, {
+        position: 'fixed',
+        right: '18px',
+        top: 'calc(var(--admin-topbar-height, 72px) + 18px)',
+        zIndex: '20001',
+        display: 'grid',
+        gap: '8px',
+        maxWidth: '420px',
+        pointerEvents: 'none'
+      });
+      document.body.append(host);
+    }
+
+    const note = document.createElement('div');
+    note.textContent = message;
+    note.setAttribute('role', 'alert');
+    Object.assign(note.style, {
+      padding: '12px 14px',
+      borderRadius: '12px',
+      background: 'var(--surface, #fff)',
+      color: 'var(--text, #111)',
+      boxShadow: '0 10px 30px rgba(0,0,0,.18)',
+      border: '1px solid rgba(220, 53, 69, .55)'
+    });
+    host.append(note);
+    setTimeout(() => note.remove(), 4200);
+  }
+
   function clickRefresh(selector) {
     const button = document.querySelector(selector);
     if (button && !button.disabled) button.click();
@@ -132,6 +167,25 @@
       path.startsWith('/api/admin/users/')
     ) {
       if (method !== 'GET') setTimeout(() => clickRefresh('#loadAdminUsers'), 80);
+      return;
+    }
+
+    if (
+      method === 'POST' &&
+      /^\/api\/admin\/notifications\/[^/]+\/retry$/.test(path)
+    ) {
+      showSuccess('Повторная отправка уведомления запущена');
+      setTimeout(() => clickRefresh('#loadAdminNotifications'), 120);
+      setTimeout(() => clickRefresh('#loadAdminNotifications'), 1200);
+      return;
+    }
+
+    if (
+      method === 'DELETE' &&
+      /^\/api\/admin\/notifications\/[^/]+$/.test(path)
+    ) {
+      showSuccess('Уведомление удалено');
+      setTimeout(() => clickRefresh('#loadAdminNotifications'), 80);
     }
   }
 
@@ -161,6 +215,157 @@
     return response;
   };
 
+  async function runAdminMutation(path, method) {
+    const response = await window.fetch(path, {
+      method,
+      credentials: 'same-origin'
+    });
+
+    if (response.ok) return;
+
+    if (response.status === 401 || response.status === 403) {
+      window.dispatchEvent(new CustomEvent('admin:unauthorized'));
+    }
+
+    const text = await response.text();
+    let message = text;
+
+    if (text) {
+      try {
+        const data = JSON.parse(text);
+        message = data?.message || data?.error || data?.details || text;
+      } catch {}
+    }
+
+    throw new Error(message || `Ошибка HTTP ${response.status}`);
+  }
+
+  function enhanceNotificationsTable() {
+    const container = document.querySelector('#adminNotifications');
+    const table = container?.querySelector('table');
+
+    if (!table || table.dataset.notificationActionsReady === 'true') {
+      return;
+    }
+
+    const headerRow = table.tHead?.rows?.[0];
+    const bodyRows = table.tBodies?.[0]?.rows;
+
+    if (!headerRow || !bodyRows) {
+      return;
+    }
+
+    const header = document.createElement('th');
+    header.scope = 'col';
+    header.textContent = 'Действия';
+    headerRow.append(header);
+
+    Array.from(bodyRows).forEach(row => {
+      const details = row.querySelector('.notification-details');
+      const notificationId = details?.dataset.id;
+
+      if (!notificationId) {
+        return;
+      }
+
+      const status = row.querySelector('.badge')?.textContent?.trim();
+      const cell = document.createElement('td');
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+
+      if (status === 'FAILED') {
+        const retry = document.createElement('button');
+        retry.className = 'btn btn-secondary btn-sm notification-retry';
+        retry.type = 'button';
+        retry.dataset.id = notificationId;
+        retry.textContent = 'Повторить';
+        actions.append(retry);
+      }
+
+      const remove = document.createElement('button');
+      remove.className = 'btn btn-danger btn-sm notification-delete';
+      remove.type = 'button';
+      remove.dataset.id = notificationId;
+      remove.textContent = 'Удалить';
+      actions.append(remove);
+
+      cell.append(actions);
+      row.append(cell);
+    });
+
+    table.dataset.notificationActionsReady = 'true';
+  }
+
+  async function handleNotificationAction(event) {
+    const retry = event.target.closest?.('.notification-retry');
+    const remove = event.target.closest?.('.notification-delete');
+
+    if (!retry && !remove) {
+      return;
+    }
+
+    const button = retry || remove;
+    const notificationId = button.dataset.id;
+
+    if (!notificationId || button.disabled) {
+      return;
+    }
+
+    if (remove) {
+      const confirmed = window.confirm(
+        'Удалить уведомление? Оно исчезнет из системной админ-панели.'
+      );
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    const idleLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = retry ? 'Повторяем…' : 'Удаляем…';
+    button.setAttribute('aria-busy', 'true');
+
+    try {
+      if (retry) {
+        await runAdminMutation(
+          `/api/admin/notifications/${notificationId}/retry`,
+          'POST'
+        );
+      } else {
+        await runAdminMutation(
+          `/api/admin/notifications/${notificationId}`,
+          'DELETE'
+        );
+      }
+    } catch (error) {
+      showError(error instanceof Error ? error.message : String(error));
+      button.disabled = false;
+      button.textContent = idleLabel;
+      button.removeAttribute('aria-busy');
+    }
+  }
+
+  function observeNotificationsTable() {
+    const container = document.querySelector('#adminNotifications');
+
+    if (!container) {
+      return;
+    }
+
+    notificationsObserver?.disconnect();
+    notificationsObserver = new MutationObserver(() => {
+      queueMicrotask(enhanceNotificationsTable);
+    });
+    notificationsObserver.observe(container, {
+      childList: true,
+      subtree: true
+    });
+
+    enhanceNotificationsTable();
+    container.addEventListener('click', handleNotificationAction);
+  }
+
   function updateTopbarHeight() {
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(() => {
@@ -187,6 +392,7 @@
 
   function start() {
     updateTopbarHeight();
+    observeNotificationsTable();
 
     window.addEventListener('resize', updateTopbarHeight, { passive: true });
     window.addEventListener('orientationchange', updateTopbarHeight, { passive: true });
