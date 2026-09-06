@@ -58,6 +58,7 @@ public class ApiKeyService {
       administrativeAuditService.apiKeyRenewed(apiKey.getId(), clinicId);
    }
 
+   @Transactional(readOnly = true)
    public ApiKey validate(String rawKey) {
       ParsedKey parsed = parse(rawKey);
 

@@ -1,6 +1,7 @@
 package org.bublapi.dent.apikey.repository;
 
 import org.bublapi.dent.apikey.entity.ApiKey;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -10,6 +11,7 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, UUID> {
 
    Optional<ApiKey> findByClinic_IdAndActiveTrue(UUID clinicId);
 
+   @EntityGraph(attributePaths = "clinic")
    Optional<ApiKey> findByPrefix(String prefix);
 
    boolean existsByClinic_IdAndActiveTrue(UUID clinicId);
