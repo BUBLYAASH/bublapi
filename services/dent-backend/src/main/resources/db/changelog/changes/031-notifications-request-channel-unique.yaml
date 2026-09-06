@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 031-notifications-request-channel-unique
+      author: Gleb Kovalev
+
+      changes:
+        - dropUniqueConstraint:
+            tableName: notifications
+            constraintName: uq_notifications_request_id
+
+        - addUniqueConstraint:
+            tableName: notifications
+            columnNames: request_id, channel
+            constraintName: uk_notifications_request_channel
