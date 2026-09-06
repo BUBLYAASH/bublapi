@@ -61,6 +61,7 @@ public class NotificationTransactionService {
       notification.setClinic(clinic);
       notification.setType(command.type());
       notification.setChannel(channel);
+      notification.setData(command.data());
       notification.setTitle(content.title());
       notification.setMessage(content.message());
       notification.setScheduledAt(command.scheduledAt());

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "dataType")
 @JsonSubTypes({@JsonSubTypes.Type(value = AppointmentNotificationData.class, name = "appointment"),
                @JsonSubTypes.Type(value = UserNotificationData.class, name = "user"),
-               @JsonSubTypes.Type(value = PatientCardNotificationData.class, name = "patientCard"),
                @JsonSubTypes.Type(value = ClinicServiceNotificationData.class, name = "clinicService")})
-public sealed interface NotificationData permits AppointmentNotificationData, UserNotificationData, PatientCardNotificationData, ClinicServiceNotificationData {
+public sealed interface NotificationData permits AppointmentNotificationData, UserNotificationData, ClinicServiceNotificationData {
 }

@@ -416,8 +416,11 @@ public class AppointmentService {
 
    private NotificationType resolveStatusNotificationType(AppointmentStatus status) {
       return switch (status) {
+         case CANCELLED -> NotificationType.APPOINTMENT_CANCELLED;
          case CONFIRMED -> NotificationType.APPOINTMENT_CONFIRMED;
          case COMPLETED -> NotificationType.APPOINTMENT_COMPLETED;
+         case CREATED -> NotificationType.APPOINTMENT_CREATED;
+         
          default -> NotificationType.APPOINTMENT_STATUS_CHANGED;
       };
    }

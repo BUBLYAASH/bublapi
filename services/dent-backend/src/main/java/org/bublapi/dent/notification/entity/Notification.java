@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bublapi.dent.appointment.entity.Appointment;
 import org.bublapi.dent.clinic.entity.Clinic;
+import org.bublapi.dent.notification.command.NotificationData;
 import org.bublapi.dent.user.entity.User;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -45,6 +48,10 @@ public class Notification {
 
    @Column(nullable = false)
    private String message;
+
+   @JdbcTypeCode(SqlTypes.JSON)
+   @Column(name = "data", columnDefinition = "jsonb")
+   private NotificationData data;
 
    @Enumerated(EnumType.STRING)
    @Column(nullable = false, length = 50)

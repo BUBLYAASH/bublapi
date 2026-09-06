@@ -3,7 +3,6 @@ package org.bublapi.dent.notification.renderer;
 import org.bublapi.dent.notification.command.AppointmentNotificationData;
 import org.bublapi.dent.notification.command.ClinicServiceNotificationData;
 import org.bublapi.dent.notification.command.NotificationData;
-import org.bublapi.dent.notification.command.PatientCardNotificationData;
 import org.bublapi.dent.notification.command.UserNotificationData;
 import org.bublapi.dent.notification.entity.NotificationType;
 import org.bublapi.dent.notification.message.EmailMessage;
@@ -52,11 +51,6 @@ public class EmailNotificationRenderer {
             context.setVariable("clinicTitle", clinicService.clinicTitle());
             context.setVariable("firstName", clinicService.firstName());
             context.setVariable("serviceTitle", clinicService.serviceTitle());
-         }
-
-         case PatientCardNotificationData patientCard -> {
-            context.setVariable("clinicTitle", patientCard.clinicTitle());
-            context.setVariable("firstName", patientCard.firstName());
          }
       }
 

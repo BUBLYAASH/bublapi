@@ -1,0 +1,10 @@
+- changeSet:
+    id: 032-add-notifications-data-column
+    author: Gleb Kovalev
+    changes:
+      - addColumn:
+          tableName: notifications
+          columns:
+            - column:
+                name: data
+                type: jsonb
