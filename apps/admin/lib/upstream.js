@@ -1,7 +1,20 @@
 import { sessionCookieName } from './session';
 
 export const API_BASE = String(process.env.SPRING_API_URL || 'http://localhost:8080').replace(/\/$/, '');
-const HOP_BY_HOP = new Set(['host', 'cookie', 'content-length', 'connection', 'transfer-encoding', 'keep-alive', 'upgrade', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers']);
+const HOP_BY_HOP = new Set([
+  'host',
+  'cookie',
+  'content-length',
+  'connection',
+  'transfer-encoding',
+  'keep-alive',
+  'upgrade',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'te',
+  'trailers',
+  'origin'
+]);
 
 function firstForwardedValue(value) {
   return value?.split(',')[0]?.trim() || '';

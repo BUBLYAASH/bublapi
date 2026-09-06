@@ -84,7 +84,7 @@ export async function api(path, options = {}, kind = 'user') {
   }
 
   if (!response.ok) {
-    if (kind === 'admin' && (response.status === 401 || response.status === 403)) {
+    if (kind === 'admin' && response.status === 401) {
       window.dispatchEvent(new CustomEvent('admin:unauthorized'));
     }
 

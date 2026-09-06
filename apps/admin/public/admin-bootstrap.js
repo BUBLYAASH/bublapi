@@ -223,7 +223,7 @@
 
     if (response.ok) return;
 
-    if (response.status === 401 || response.status === 403) {
+    if (response.status === 401) {
       window.dispatchEvent(new CustomEvent('admin:unauthorized'));
     }
 
