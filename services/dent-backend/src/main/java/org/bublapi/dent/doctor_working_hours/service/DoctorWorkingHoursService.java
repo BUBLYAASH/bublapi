@@ -23,6 +23,11 @@ import java.util.UUID;
 
 @Service
 public class DoctorWorkingHoursService {
+   private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
+   private final DoctorRepository doctorRepository;
+   private final DoctorWorkingHoursMapper doctorWorkingHoursMapper;
+   private final UserAuditService userAuditService;
+
    public DoctorWorkingHoursService(DoctorWorkingHoursRepository doctorWorkingHoursRepository,
                                     DoctorRepository doctorRepository,
                                     DoctorWorkingHoursMapper doctorWorkingHoursMapper,
@@ -139,9 +144,4 @@ public class DoctorWorkingHoursService {
          throw new BadRequestException("Start time must be before end time");
       }
    }
-
-   private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
-   private final DoctorRepository doctorRepository;
-   private final DoctorWorkingHoursMapper doctorWorkingHoursMapper;
-   private final UserAuditService userAuditService;
 }

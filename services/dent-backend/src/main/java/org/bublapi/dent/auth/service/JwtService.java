@@ -15,6 +15,9 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
+   private final String secret;
+   private final long expirationMs;
+
    public JwtService(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration-ms}") long expirationMs) {
       this.secret = secret;
       this.expirationMs = expirationMs;
@@ -67,9 +70,6 @@ public class JwtService {
 
       return expiration.before(new Date());
    }
-
-   private final String secret;
-   private final long expirationMs;
 
    //TODO:
    // - use refreshToken

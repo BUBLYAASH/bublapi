@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "apiKey")
 public class UserUserController {
 
+   private final UserService userService;
+
    public UserUserController(UserService userService) {
       this.userService = userService;
    }
@@ -44,6 +46,4 @@ public class UserUserController {
    public UserResponseDto deactivate(@AuthenticationPrincipal CustomUserDetails userDetails) {
       return userService.deactivate(userDetails.getId());
    }
-
-   private final UserService userService;
 }

@@ -44,6 +44,11 @@ import java.util.UUID;
         """)
 public class StaffDoctorController {
 
+   private final DoctorService doctorService;
+   private final DoctorWorkingHoursService doctorWorkingHoursService;
+   private final DoctorScheduleExceptionService doctorScheduleExceptionService;
+   private final DoctorClinicServiceService doctorClinicServiceService;
+
    public StaffDoctorController(DoctorService doctorService, DoctorWorkingHoursService doctorWorkingHoursService,
                                 DoctorScheduleExceptionService doctorScheduleExceptionService,
                                 DoctorClinicServiceService doctorClinicServiceService) {
@@ -157,9 +162,4 @@ public class StaffDoctorController {
    public void removeService(@PathVariable UUID doctorId, @PathVariable UUID clinicServiceId) {
       doctorClinicServiceService.removeService(doctorId, clinicServiceId);
    }
-
-   private final DoctorService doctorService;
-   private final DoctorWorkingHoursService doctorWorkingHoursService;
-   private final DoctorScheduleExceptionService doctorScheduleExceptionService;
-   private final DoctorClinicServiceService doctorClinicServiceService;
 }

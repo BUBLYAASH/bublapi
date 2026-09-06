@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.UUID;
 
 public class CustomUserDetails implements UserDetails {
+   private final User user;
+
    public CustomUserDetails(User user) {
       this.user = user;
    }
@@ -22,8 +24,8 @@ public class CustomUserDetails implements UserDetails {
    }
 
    @Override
-   public String getUsername() {
-      return user.getEmail();
+   public Collection<? extends GrantedAuthority> getAuthorities() {
+      return user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName())).toList();
    }
 
    @Override
@@ -32,14 +34,12 @@ public class CustomUserDetails implements UserDetails {
    }
 
    @Override
-   public boolean isEnabled() {
-      return user.isEnabled();
+   public String getUsername() {
+      return user.getEmail();
    }
 
    @Override
-   public Collection<? extends GrantedAuthority> getAuthorities() {
-      return user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName())).toList();
+   public boolean isEnabled() {
+      return user.isEnabled();
    }
-
-   private final User user;
 }

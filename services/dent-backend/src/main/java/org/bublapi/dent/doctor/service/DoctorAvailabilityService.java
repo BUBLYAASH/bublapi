@@ -26,13 +26,13 @@ import java.util.UUID;
 @Service
 public class DoctorAvailabilityService {
 
-   private record TimeInterval(
-           LocalTime start, LocalTime end) {
-   }
-
    private static final int SLOT_STEP_MINUTES = 30;
    private static final int MAX_DAYS = 90;
    private static final int MAX_DURATION_MINUTES = 480;
+   private final DoctorService doctorService;
+   private final DoctorWorkingHoursRepository workingHoursRepository;
+   private final DoctorScheduleExceptionRepository scheduleExceptionRepository;
+   private final AppointmentRepository appointmentRepository;
 
    public DoctorAvailabilityService(DoctorService doctorService, DoctorWorkingHoursRepository workingHoursRepository,
                                     DoctorScheduleExceptionRepository scheduleExceptionRepository,
@@ -175,8 +175,7 @@ public class DoctorAvailabilityService {
       }
    }
 
-   private final DoctorService doctorService;
-   private final DoctorWorkingHoursRepository workingHoursRepository;
-   private final DoctorScheduleExceptionRepository scheduleExceptionRepository;
-   private final AppointmentRepository appointmentRepository;
+   private record TimeInterval(
+           LocalTime start, LocalTime end) {
+   }
 }

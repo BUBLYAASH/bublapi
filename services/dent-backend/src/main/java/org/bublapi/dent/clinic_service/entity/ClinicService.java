@@ -16,11 +16,6 @@ import java.util.UUID;
 @Table(name = "clinic_services", uniqueConstraints = @UniqueConstraint(columnNames = {"clinic_id", "service_id"}))
 @Filter(name = "clinicFilter")
 public class ClinicService {
-   @PrePersist
-   public void prePersist() {
-      this.createdAt = LocalDateTime.now();
-   }
-
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)
    private UUID id;
@@ -40,4 +35,9 @@ public class ClinicService {
    private boolean active = true;
    @Column(name = "disabled_by_clinic", nullable = false)
    private boolean disabledByClinic = false;
+
+   @PrePersist
+   public void prePersist() {
+      this.createdAt = LocalDateTime.now();
+   }
 }

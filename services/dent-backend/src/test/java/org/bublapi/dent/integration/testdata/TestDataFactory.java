@@ -34,6 +34,15 @@ import java.util.stream.Collectors;
 public class TestDataFactory {
 
    public static final String DEFAULT_PASSWORD = "password123";
+   private final UserRepository userRepository;
+   private final PasswordEncoder passwordEncoder;
+   private final ClinicRepository clinicRepository;
+   private final RoleRepository roleRepository;
+   private final DoctorRepository doctorRepository;
+   private final PatientRepository patientRepository;
+   private final DentalServiceRepository dentalServiceRepository;
+   private final ClinicServiceRepository clinicServiceRepository;
+   private final ApiKeyService apiKeyService;
 
    public User createUser(Clinic clinic, String email) {
       return createUserWithRoles(clinic, email, RoleName.PATIENT);
@@ -188,14 +197,4 @@ public class TestDataFactory {
    public User saveUser(User user) {
       return userRepository.save(user);
    }
-
-   private final UserRepository userRepository;
-   private final PasswordEncoder passwordEncoder;
-   private final ClinicRepository clinicRepository;
-   private final RoleRepository roleRepository;
-   private final DoctorRepository doctorRepository;
-   private final PatientRepository patientRepository;
-   private final DentalServiceRepository dentalServiceRepository;
-   private final ClinicServiceRepository clinicServiceRepository;
-   private final ApiKeyService apiKeyService;
 }

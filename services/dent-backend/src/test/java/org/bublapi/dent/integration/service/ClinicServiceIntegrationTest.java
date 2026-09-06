@@ -33,20 +33,6 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
 
    private static final String STAFF_SERVICES_URL = "/api/services";
    private static final String PUBLIC_SERVICES_URL = "/api/public/services";
-
-   private AddClinicServiceRequestDto createRequest() {
-      return new AddClinicServiceRequestDto(1_500, 45);
-   }
-
-   private <T> T inClinicContext(Clinic clinic, Supplier<T> action) {
-      ClinicContext.set(clinic);
-      try {
-         return action.get();
-      } finally {
-         ClinicContext.clear();
-      }
-   }
-
    @Autowired
    private TestDataFactory dataFactory;
    @Autowired
@@ -85,7 +71,6 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
       assertThat(savedServices).hasSize(1);
    }
 
-
    @Test
    void shouldCreateInactiveClinicService() {
       Clinic clinic = dataFactory.createClinic();
@@ -96,7 +81,6 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
       assertThat(clinicService.getClinic().getId()).isEqualTo(clinic.getId());
       assertThat(clinicService.isActive()).isFalse();
    }
-
 
    @Test
    void shouldLinkClinicAndDentalService() throws Exception {
@@ -125,7 +109,6 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
       assertThat(savedClinicService.getDentalService().getId()).isEqualTo(dentalService.getId());
    }
 
-
    @Test
    void shouldHaveCorrectPriceAndDuration() throws Exception {
       Clinic clinic = dataFactory.createClinic();
@@ -152,7 +135,6 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
              .andExpect(jsonPath("$.price").value(2_750))
              .andExpect(jsonPath("$.durationMinutes").value(75));
    }
-
 
    @Test
    void shouldNotAllowDuplicateClinicService() throws Exception {
@@ -190,7 +172,6 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
              .andExpect(jsonPath("$.message").value("Dental Service is already in this clinic"));
    }
 
-
    @Test
    void shouldDeactivateClinicService() throws Exception {
       Clinic clinic = dataFactory.createClinic();
@@ -214,7 +195,6 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
       assertThat(updatedService.isActive()).isFalse();
    }
 
-
    @Test
    void shouldNotReturnInactiveServiceForPublic() throws Exception {
       Clinic clinic = dataFactory.createClinic();
@@ -233,5 +213,18 @@ class ClinicServiceIntegrationTest extends IntegrationTestBase {
       mockMvc.perform(get(PUBLIC_SERVICES_URL + "/{clinicServiceId}", inactiveService.getId()).header("X-API-KEY",
                                                                                                       apiKey.rawKey()))
              .andExpect(status().isNotFound());
+   }
+
+   private AddClinicServiceRequestDto createRequest() {
+      return new AddClinicServiceRequestDto(1_500, 45);
+   }
+
+   private <T> T inClinicContext(Clinic clinic, Supplier<T> action) {
+      ClinicContext.set(clinic);
+      try {
+         return action.get();
+      } finally {
+         ClinicContext.clear();
+      }
    }
 }

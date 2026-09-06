@@ -27,6 +27,8 @@ import java.util.UUID;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminClinicController {
 
+   private final ClinicService clinicService;
+
    public AdminClinicController(ClinicService clinicService) {
       this.clinicService = clinicService;
    }
@@ -61,6 +63,4 @@ public class AdminClinicController {
    public List<ClinicResponseDto> findAll() {
       return clinicService.findAll();
    }
-
-   private final ClinicService clinicService;
 }

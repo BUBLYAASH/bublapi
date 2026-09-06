@@ -44,12 +44,18 @@ import java.util.UUID;
 
 @Service
 public class AppointmentService {
-   private record ResolvedAppointmentService(
-           ClinicService clinicService, int quantity) {
-   }
-
    private static final DateTimeFormatter APPOINTMENT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
            "dd.MM.yyyy HH:mm");
+   private final AppointmentRepository appointmentRepository;
+   private final AppointmentServiceRepository appointmentServiceRepository;
+   private final ClinicServiceRepository clinicServiceRepository;
+   private final PatientRepository patientRepository;
+   private final DoctorRepository doctorRepository;
+   private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
+   private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
+   private final AppointmentMapper appointmentMapper;
+   private final NotificationPublisher notificationPublisher;
+   private final UserAuditService userAuditService;
 
    public AppointmentService(AppointmentRepository appointmentRepository,
                              AppointmentServiceRepository appointmentServiceRepository,
@@ -416,16 +422,9 @@ public class AppointmentService {
       };
    }
 
-   private final AppointmentRepository appointmentRepository;
-   private final AppointmentServiceRepository appointmentServiceRepository;
-   private final ClinicServiceRepository clinicServiceRepository;
-   private final PatientRepository patientRepository;
-   private final DoctorRepository doctorRepository;
-   private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
-   private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
-   private final AppointmentMapper appointmentMapper;
-   private final NotificationPublisher notificationPublisher;
-   private final UserAuditService userAuditService;
+   private record ResolvedAppointmentService(
+           ClinicService clinicService, int quantity) {
+   }
 
    // TODO:
    //  - reschedule appointment

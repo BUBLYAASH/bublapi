@@ -23,11 +23,6 @@ public abstract class IntegrationTestBase {
    @Container
    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine").withDatabaseName(
            "dent_test").withUsername("test").withPassword("test").withReuse(true);
-
-   static {
-      postgres.start();
-   }
-
    @MockitoBean
    protected NotificationPublisher notificationPublisher;
    @Autowired
@@ -45,5 +40,9 @@ public abstract class IntegrationTestBase {
       registry.add("spring.datasource.hikari.initialization-fail-timeout", () -> 60000);
 
       registry.add("spring.liquibase.enabled", () -> true);
+   }
+
+   static {
+      postgres.start();
    }
 }

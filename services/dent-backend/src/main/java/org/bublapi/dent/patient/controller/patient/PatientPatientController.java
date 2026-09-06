@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
         and @clinicSecurity.hasAccess(authentication)
         """)
 public class PatientPatientController {
+   private final PatientService patientService;
+
    public PatientPatientController(PatientService patientService) {
       this.patientService = patientService;
    }
@@ -51,6 +53,4 @@ public class PatientPatientController {
    public PatientResponseDto getPatientByUserId(@AuthenticationPrincipal CustomUserDetails userDetails) {
       return patientService.getByUserId(userDetails.getId());
    }
-
-   private final PatientService patientService;
 }

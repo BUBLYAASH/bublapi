@@ -37,6 +37,15 @@ import java.util.UUID;
 @Service
 public class UserService {
 
+   private final UserRepository userRepository;
+   private final RoleRepository roleRepository;
+   private final PatientRepository patientRepository;
+   private final UserMapper userMapper;
+   private final PasswordEncoder passwordEncoder;
+   private final NotificationPublisher notificationPublisher;
+   private final SecurityLogService securityLogService;
+   private final AdministrativeAuditService administrativeAuditService;
+
    public UserService(UserRepository userRepository, RoleRepository roleRepository, PatientRepository patientRepository,
                       UserMapper userMapper, PasswordEncoder passwordEncoder,
                       NotificationPublisher notificationPublisher, SecurityLogService securityLogService,
@@ -260,13 +269,4 @@ public class UserService {
                                             new UserNotificationData(user.getClinic().getTitle(), user.getFirstName()),
                                             LocalDateTime.now()));
    }
-
-   private final UserRepository userRepository;
-   private final RoleRepository roleRepository;
-   private final PatientRepository patientRepository;
-   private final UserMapper userMapper;
-   private final PasswordEncoder passwordEncoder;
-   private final NotificationPublisher notificationPublisher;
-   private final SecurityLogService securityLogService;
-   private final AdministrativeAuditService administrativeAuditService;
 }

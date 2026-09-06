@@ -18,6 +18,9 @@ import java.io.IOException;
 @Component
 @Order(1)
 public class ApiKeyFilter extends OncePerRequestFilter {
+   private final ApiKeyService apiKeyService;
+   private final SecurityLogService securityLogService;
+
    public ApiKeyFilter(ApiKeyService apiKeyService, SecurityLogService securityLogService) {
       this.apiKeyService = apiKeyService;
       this.securityLogService = securityLogService;
@@ -61,7 +64,4 @@ public class ApiKeyFilter extends OncePerRequestFilter {
          ClinicContext.clear();
       }
    }
-
-   private final ApiKeyService apiKeyService;
-   private final SecurityLogService securityLogService;
 }

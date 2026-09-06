@@ -20,10 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 class PatientIntegrationTest extends IntegrationTestBase {
-   private CreatePatientRequestDto createPatientRequest(String phone) {
-      return new CreatePatientRequestDto("John", "Smith", "Middle", phone, "patient@mail.com", null, null, null, null);
-   }
-
    @Autowired
    private TestDataFactory dataFactory;
    @Autowired
@@ -50,7 +46,6 @@ class PatientIntegrationTest extends IntegrationTestBase {
              .andExpect(jsonPath("$.phone").value("79991111111"));
    }
 
-
    @Test
    void shouldCreatePatientLinkedToUser() throws Exception {
       Clinic clinic = dataFactory.createClinic();
@@ -74,7 +69,6 @@ class PatientIntegrationTest extends IntegrationTestBase {
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.userId").value(user.getId().toString()));
    }
-
 
    @Test
    void shouldNotAllowDuplicatePatientPhoneInClinic() throws Exception {
@@ -101,7 +95,6 @@ class PatientIntegrationTest extends IntegrationTestBase {
                                            .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isConflict());
    }
-
 
    @Test
    void shouldFindPatientByClinic() throws Exception {
@@ -138,5 +131,9 @@ class PatientIntegrationTest extends IntegrationTestBase {
 
       mockMvc.perform(get("/api/patients").header("Authorization", token).header("X-API-KEY", apiKeyB))
              .andExpect(status().isForbidden());
+   }
+
+   private CreatePatientRequestDto createPatientRequest(String phone) {
+      return new CreatePatientRequestDto("John", "Smith", "Middle", phone, "patient@mail.com", null, null, null, null);
    }
 }

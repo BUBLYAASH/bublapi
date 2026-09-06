@@ -21,6 +21,11 @@ import java.util.UUID;
 
 @Service
 public class DoctorScheduleExceptionService {
+   private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
+   private final DoctorRepository doctorRepository;
+   private final DoctorScheduleExceptionMapper doctorScheduleExceptionMapper;
+   private final UserAuditService userAuditService;
+
    public DoctorScheduleExceptionService(DoctorScheduleExceptionRepository doctorScheduleExceptionRepository,
                                          DoctorRepository doctorRepository,
                                          DoctorScheduleExceptionMapper doctorScheduleExceptionMapper,
@@ -90,9 +95,4 @@ public class DoctorScheduleExceptionService {
                                               .map(doctorScheduleExceptionMapper::toResponse)
                                               .toList();
    }
-
-   private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
-   private final DoctorRepository doctorRepository;
-   private final DoctorScheduleExceptionMapper doctorScheduleExceptionMapper;
-   private final UserAuditService userAuditService;
 }

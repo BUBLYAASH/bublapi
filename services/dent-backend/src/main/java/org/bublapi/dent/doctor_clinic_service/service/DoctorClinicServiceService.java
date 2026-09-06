@@ -20,6 +20,12 @@ import java.util.UUID;
 
 @Service
 public class DoctorClinicServiceService {
+   private final DoctorClinicServiceRepository doctorClinicServiceRepository;
+   private final DoctorRepository doctorRepository;
+   private final ClinicServiceRepository clinicServiceRepository;
+   private final DoctorClinicServiceMapper doctorClinicServiceMapper;
+   private final UserAuditService userAuditService;
+
    public DoctorClinicServiceService(DoctorClinicServiceRepository doctorClinicServiceRepository,
                                      DoctorRepository doctorRepository, ClinicServiceRepository clinicServiceRepository,
                                      DoctorClinicServiceMapper doctorClinicServiceMapper,
@@ -108,10 +114,4 @@ public class DoctorClinicServiceService {
 
       userAuditService.doctorClinicServiceDeleted(doctorClinicService.getId());
    }
-
-   private final DoctorClinicServiceRepository doctorClinicServiceRepository;
-   private final DoctorRepository doctorRepository;
-   private final ClinicServiceRepository clinicServiceRepository;
-   private final DoctorClinicServiceMapper doctorClinicServiceMapper;
-   private final UserAuditService userAuditService;
 }

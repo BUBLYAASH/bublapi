@@ -27,6 +27,11 @@ import java.util.UUID;
 @Service
 public class PatientService {
 
+   private final PatientRepository patientRepository;
+   private final UserRepository userRepository;
+   private final PatientMapper patientMapper;
+   private final UserAuditService userAuditService;
+
    public PatientService(PatientRepository patientRepository, UserRepository userRepository,
                          PatientMapper patientMapper, UserAuditService userAuditService) {
       this.patientRepository = patientRepository;
@@ -216,9 +221,4 @@ public class PatientService {
 
       return changedFields;
    }
-
-   private final PatientRepository patientRepository;
-   private final UserRepository userRepository;
-   private final PatientMapper patientMapper;
-   private final UserAuditService userAuditService;
 }

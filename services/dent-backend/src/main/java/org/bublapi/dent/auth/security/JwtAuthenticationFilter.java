@@ -24,6 +24,10 @@ import java.util.UUID;
 @Component
 @Order(2)
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+   private final JwtService jwtService;
+   private final CustomUserDetailsService userDetailsService;
+   private final SecurityLogService securityLogService;
+
    public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService userDetailsService,
                                   SecurityLogService securityLogService) {
       this.jwtService = jwtService;
@@ -115,8 +119,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
          MDC.remove("clinicId");
       }
    }
-
-   private final JwtService jwtService;
-   private final CustomUserDetailsService userDetailsService;
-   private final SecurityLogService securityLogService;
 }

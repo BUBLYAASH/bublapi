@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationProducer {
+   private final RabbitTemplate rabbitTemplate;
+
    public NotificationProducer(RabbitTemplate rabbitTemplate) {
       this.rabbitTemplate = rabbitTemplate;
    }
@@ -15,6 +17,4 @@ public class NotificationProducer {
       rabbitTemplate.convertAndSend(RabbitMqConfig.NOTIFICATION_EXCHANGE,
                                     RabbitMqConfig.NOTIFICATION_REQUESTED_ROUTING_KEY, command);
    }
-
-   private final RabbitTemplate rabbitTemplate;
 }

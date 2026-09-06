@@ -12,6 +12,8 @@ import java.util.UUID;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
+   private final UserRepository userRepository;
+
    public CustomUserDetailsService(UserRepository userRepository) {
       this.userRepository = userRepository;
    }
@@ -32,6 +34,4 @@ public class CustomUserDetailsService implements UserDetailsService {
 
       return new CustomUserDetails(user);
    }
-
-   private final UserRepository userRepository;
 }

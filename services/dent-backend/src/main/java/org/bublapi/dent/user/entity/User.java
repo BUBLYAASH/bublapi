@@ -19,17 +19,6 @@ import java.util.UUID;
         @UniqueConstraint(name = "uk_users_clinic_phone", columnNames = {"clinic_id", "phone"})})
 public class User {
 
-   @PrePersist
-   public void prePersist() {
-      this.joinedAt = LocalDateTime.now();
-      this.updatedAt = LocalDateTime.now();
-   }
-
-   @PreUpdate
-   public void preUpdate() {
-      this.updatedAt = LocalDateTime.now();
-   }
-
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)
    private UUID id;
@@ -59,4 +48,15 @@ public class User {
    @ManyToMany
    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
    private Set<Role> roles = new HashSet<>();
+
+   @PrePersist
+   public void prePersist() {
+      this.joinedAt = LocalDateTime.now();
+      this.updatedAt = LocalDateTime.now();
+   }
+
+   @PreUpdate
+   public void preUpdate() {
+      this.updatedAt = LocalDateTime.now();
+   }
 }

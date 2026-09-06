@@ -21,25 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 class DoctorIntegrationTest extends IntegrationTestBase {
-   private CreateDoctorRequestDto createDoctorRequest() {
-      return new CreateDoctorRequestDto("Gregory", "House", "Michael", "Dentist", null, "Experienced dentist");
-   }
-
-   private String createDoctor(String token, String apiKey) throws Exception {
-      String response = mockMvc.perform(post("/api/doctors").header("Authorization", token)
-                                                            .header("X-API-KEY", apiKey)
-                                                            .contentType(MediaType.APPLICATION_JSON)
-                                                            .content(objectMapper.writeValueAsString(
-                                                                    createDoctorRequest())))
-                               .andExpect(status().isOk())
-                               .andExpect(jsonPath("$.id", notNullValue()))
-                               .andReturn()
-                               .getResponse()
-                               .getContentAsString();
-
-      return objectMapper.readTree(response).get("id").asText();
-   }
-
    @Autowired
    private TestDataFactory dataFactory;
    @Autowired
@@ -82,7 +63,6 @@ class DoctorIntegrationTest extends IntegrationTestBase {
              .andExpect(jsonPath("$.active").value(false));
    }
 
-
    @Test
    void shouldFindDoctorsByClinic() throws Exception {
       Clinic clinic = dataFactory.createClinic();
@@ -100,7 +80,6 @@ class DoctorIntegrationTest extends IntegrationTestBase {
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(1)));
    }
-
 
    @Test
    void shouldFilterInactiveDoctors() throws Exception {
@@ -141,7 +120,6 @@ class DoctorIntegrationTest extends IntegrationTestBase {
              .andExpect(status().isOk());
    }
 
-
    @Test
    void shouldUpdateDoctor() throws Exception {
       Clinic clinic = dataFactory.createClinic();
@@ -166,7 +144,6 @@ class DoctorIntegrationTest extends IntegrationTestBase {
              .andExpect(jsonPath("$.specialty").value("Orthodontist"));
    }
 
-
    @Test
    void shouldDeactivateDoctor() throws Exception {
       Clinic clinic = dataFactory.createClinic();
@@ -183,5 +160,24 @@ class DoctorIntegrationTest extends IntegrationTestBase {
                                                                          .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.active").value(false));
+   }
+
+   private CreateDoctorRequestDto createDoctorRequest() {
+      return new CreateDoctorRequestDto("Gregory", "House", "Michael", "Dentist", null, "Experienced dentist");
+   }
+
+   private String createDoctor(String token, String apiKey) throws Exception {
+      String response = mockMvc.perform(post("/api/doctors").header("Authorization", token)
+                                                            .header("X-API-KEY", apiKey)
+                                                            .contentType(MediaType.APPLICATION_JSON)
+                                                            .content(objectMapper.writeValueAsString(
+                                                                    createDoctorRequest())))
+                               .andExpect(status().isOk())
+                               .andExpect(jsonPath("$.id", notNullValue()))
+                               .andReturn()
+                               .getResponse()
+                               .getContentAsString();
+
+      return objectMapper.readTree(response).get("id").asText();
    }
 }

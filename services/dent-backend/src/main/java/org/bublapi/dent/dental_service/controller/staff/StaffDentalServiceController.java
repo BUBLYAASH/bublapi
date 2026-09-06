@@ -22,6 +22,8 @@ import java.util.List;
         and @clinicSecurity.hasAccess(authentication)
         """)
 public class StaffDentalServiceController {
+   private final DentalServiceService dentalServiceService;
+
    public StaffDentalServiceController(DentalServiceService dentalServiceService) {
       this.dentalServiceService = dentalServiceService;
    }
@@ -31,7 +33,5 @@ public class StaffDentalServiceController {
    public List<DentalServiceResponseDto> findAllActive() {
       return dentalServiceService.findAllActive();
    }
-
-   private final DentalServiceService dentalServiceService;
 
 }

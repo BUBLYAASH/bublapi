@@ -20,17 +20,6 @@ import java.util.UUID;
 @Table(name = "clinics")
 public class Clinic {
 
-   @PrePersist
-   private void prePersist() {
-      this.createdAt = LocalDateTime.now();
-      this.updatedAt = LocalDateTime.now();
-   }
-
-   @PreUpdate
-   private void preUpdate() {
-      this.updatedAt = LocalDateTime.now();
-   }
-
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)
    private UUID id;
@@ -51,4 +40,15 @@ public class Clinic {
    private LocalDateTime updatedAt;
    @Column(nullable = false)
    private boolean active = true;
+
+   @PrePersist
+   private void prePersist() {
+      this.createdAt = LocalDateTime.now();
+      this.updatedAt = LocalDateTime.now();
+   }
+
+   @PreUpdate
+   private void preUpdate() {
+      this.updatedAt = LocalDateTime.now();
+   }
 }

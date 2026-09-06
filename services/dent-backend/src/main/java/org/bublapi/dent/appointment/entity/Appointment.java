@@ -20,11 +20,6 @@ import java.util.UUID;
 @Table(name = "appointments", uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "scheduled_at"}))
 @Filter(name = "clinicFilter")
 public class Appointment {
-   @PrePersist
-   private void prePersist() {
-      this.createdAt = LocalDateTime.now();
-   }
-
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)
    private UUID id;
@@ -51,4 +46,9 @@ public class Appointment {
    private AppointmentStatus status = AppointmentStatus.CREATED;
    @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
    private List<AppointmentServiceItem> services = new ArrayList<>();
+
+   @PrePersist
+   private void prePersist() {
+      this.createdAt = LocalDateTime.now();
+   }
 }

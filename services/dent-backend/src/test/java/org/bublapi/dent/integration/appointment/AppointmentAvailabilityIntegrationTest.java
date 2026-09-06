@@ -39,102 +39,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
 
-   private record TestContext(
-           Clinic clinic, User staff, Patient patient, Doctor doctor, ClinicService clinicService,
-           CreateApiKeyResponseDto apiKey) {
-   }
-
    private static final String STAFF_APPOINTMENTS_URL = "/api/appointments";
    private static final String STAFF_PATIENT_APPOINTMENTS_URL = STAFF_APPOINTMENTS_URL + "/patients/{patientId}";
    private final static DateTimeFormatter RESPONSE_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern(
            "yyyy-MM-dd'T'HH:mm:ss");
-
-   private TestContext createContext() {
-      Clinic clinic = dataFactory.createClinic();
-
-      User owner = dataFactory.createUserWithRoles(clinic, "appointment-owner-" + UUID.randomUUID() + "@test.com",
-                                                   RoleName.OWNER);
-
-      Patient patient = dataFactory.createPatient(clinic);
-      Doctor doctor = dataFactory.createDoctor(clinic);
-      ClinicService clinicService = dataFactory.createClinicService(clinic);
-      CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
-
-      return new TestContext(clinic, owner, patient, doctor, clinicService, apiKey);
-   }
-
-   private void addRegularWorkingHours(Doctor doctor, LocalDate date, LocalTime startTime, LocalTime endTime) {
-      DoctorWorkingHours workingHours = new DoctorWorkingHours();
-
-      workingHours.setDoctor(doctor);
-      workingHours.setDayOfWeek(DayOfWeek.valueOf(date.getDayOfWeek().name()));
-      workingHours.setStartTime(startTime);
-      workingHours.setEndTime(endTime);
-
-      doctorWorkingHoursRepository.save(workingHours);
-   }
-
-   private void addDayOff(Doctor doctor, LocalDate date) {
-      DoctorScheduleException exception = new DoctorScheduleException();
-
-      exception.setDoctor(doctor);
-      exception.setDate(date);
-      exception.setType(ScheduleExceptionType.DAY_OFF);
-      exception.setReason("Doctor day off");
-
-      doctorScheduleExceptionRepository.save(exception);
-   }
-
-   private void addCustomWorkingHours(Doctor doctor, LocalDate date, LocalTime startTime, LocalTime endTime) {
-      DoctorScheduleException exception = new DoctorScheduleException();
-
-      exception.setDoctor(doctor);
-      exception.setDate(date);
-      exception.setType(ScheduleExceptionType.CUSTOM_WORKING_HOURS);
-      exception.setStartTime(startTime);
-      exception.setEndTime(endTime);
-      exception.setReason("Custom working hours");
-
-      doctorScheduleExceptionRepository.save(exception);
-   }
-
-   private org.springframework.test.web.servlet.ResultActions createAppointment(TestContext context,
-                                                                                LocalDateTime scheduledAt) throws
-           Exception {
-      CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(context.doctor().getId(), scheduledAt,
-                                                                            List.of(new AppointmentServiceRequestDto(
-                                                                                    context.clinicService().getId(),
-                                                                                    1)),
-                                                                            "Integration test appointment");
-
-      return mockMvc.perform(post(STAFF_PATIENT_APPOINTMENTS_URL, context.patient().getId()).header("Authorization",
-                                                                                                    jwtHelper.token(
-                                                                                                            context.staff()
-                                                                                                                   .getId()))
-                                                                                            .header("X-API-KEY",
-                                                                                                    context.apiKey()
-                                                                                                           .rawKey())
-                                                                                            .contentType(
-                                                                                                    MediaType.APPLICATION_JSON)
-                                                                                            .content(
-                                                                                                    objectMapper.writeValueAsString(
-                                                                                                            request)));
-   }
-
-   private UUID extractId(MvcResult mvcResult) throws Exception {
-      JsonNode json = objectMapper.readTree(mvcResult.getResponse().getContentAsString());
-
-      return UUID.fromString(json.get("id").asText());
-   }
-
-   private LocalDateTime futureDateAt(int hour, int minute) {
-      return LocalDate.now().plusDays(14).atTime(hour, minute);
-   }
-
-   private String formatResponseDateTime(LocalDateTime value) {
-      return value.format(RESPONSE_DATE_TIME_FORMAT);
-   }
-
    @Autowired
    private TestDataFactory dataFactory;
    @Autowired
@@ -301,5 +209,96 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       createAppointment(context, scheduledAt).andExpect(status().isBadRequest())
                                              .andExpect(jsonPath("$.message").value(
                                                      "Appointment cannot continue into the next day"));
+   }
+
+   private TestContext createContext() {
+      Clinic clinic = dataFactory.createClinic();
+
+      User owner = dataFactory.createUserWithRoles(clinic, "appointment-owner-" + UUID.randomUUID() + "@test.com",
+                                                   RoleName.OWNER);
+
+      Patient patient = dataFactory.createPatient(clinic);
+      Doctor doctor = dataFactory.createDoctor(clinic);
+      ClinicService clinicService = dataFactory.createClinicService(clinic);
+      CreateApiKeyResponseDto apiKey = dataFactory.createApiKey(clinic);
+
+      return new TestContext(clinic, owner, patient, doctor, clinicService, apiKey);
+   }
+
+   private void addRegularWorkingHours(Doctor doctor, LocalDate date, LocalTime startTime, LocalTime endTime) {
+      DoctorWorkingHours workingHours = new DoctorWorkingHours();
+
+      workingHours.setDoctor(doctor);
+      workingHours.setDayOfWeek(DayOfWeek.valueOf(date.getDayOfWeek().name()));
+      workingHours.setStartTime(startTime);
+      workingHours.setEndTime(endTime);
+
+      doctorWorkingHoursRepository.save(workingHours);
+   }
+
+   private void addDayOff(Doctor doctor, LocalDate date) {
+      DoctorScheduleException exception = new DoctorScheduleException();
+
+      exception.setDoctor(doctor);
+      exception.setDate(date);
+      exception.setType(ScheduleExceptionType.DAY_OFF);
+      exception.setReason("Doctor day off");
+
+      doctorScheduleExceptionRepository.save(exception);
+   }
+
+   private void addCustomWorkingHours(Doctor doctor, LocalDate date, LocalTime startTime, LocalTime endTime) {
+      DoctorScheduleException exception = new DoctorScheduleException();
+
+      exception.setDoctor(doctor);
+      exception.setDate(date);
+      exception.setType(ScheduleExceptionType.CUSTOM_WORKING_HOURS);
+      exception.setStartTime(startTime);
+      exception.setEndTime(endTime);
+      exception.setReason("Custom working hours");
+
+      doctorScheduleExceptionRepository.save(exception);
+   }
+
+   private org.springframework.test.web.servlet.ResultActions createAppointment(TestContext context,
+                                                                                LocalDateTime scheduledAt) throws
+           Exception {
+      CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(context.doctor().getId(), scheduledAt,
+                                                                            List.of(new AppointmentServiceRequestDto(
+                                                                                    context.clinicService().getId(),
+                                                                                    1)),
+                                                                            "Integration test appointment");
+
+      return mockMvc.perform(post(STAFF_PATIENT_APPOINTMENTS_URL, context.patient().getId()).header("Authorization",
+                                                                                                    jwtHelper.token(
+                                                                                                            context.staff()
+                                                                                                                   .getId()))
+                                                                                            .header("X-API-KEY",
+                                                                                                    context.apiKey()
+                                                                                                           .rawKey())
+                                                                                            .contentType(
+                                                                                                    MediaType.APPLICATION_JSON)
+                                                                                            .content(
+                                                                                                    objectMapper.writeValueAsString(
+                                                                                                            request)));
+   }
+
+   private UUID extractId(MvcResult mvcResult) throws Exception {
+      JsonNode json = objectMapper.readTree(mvcResult.getResponse().getContentAsString());
+
+      return UUID.fromString(json.get("id").asText());
+   }
+
+   private LocalDateTime futureDateAt(int hour, int minute) {
+      return LocalDate.now().plusDays(14).atTime(hour, minute);
+   }
+
+   private String formatResponseDateTime(LocalDateTime value) {
+      return value.format(RESPONSE_DATE_TIME_FORMAT);
+   }
+
+   private record TestContext(
+           Clinic clinic, User staff, Patient patient, Doctor doctor, ClinicService clinicService,
+           CreateApiKeyResponseDto apiKey) {
    }
 }

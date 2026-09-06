@@ -12,6 +12,8 @@ import java.util.Map;
 
 @Component
 public class NotificationDispatcher {
+   private final Map<NotificationChannel, NotificationSender> senders;
+
    public NotificationDispatcher(List<NotificationSender> senderList) {
       this.senders = new EnumMap<>(NotificationChannel.class);
 
@@ -29,6 +31,4 @@ public class NotificationDispatcher {
 
       sender.send(notification, command);
    }
-
-   private final Map<NotificationChannel, NotificationSender> senders;
 }

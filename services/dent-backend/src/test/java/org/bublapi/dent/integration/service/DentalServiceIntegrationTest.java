@@ -23,11 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DentalServiceIntegrationTest extends IntegrationTestBase {
 
-   private CreateDentalServiceRequestDto createRequest() {
-      return new CreateDentalServiceRequestDto("Лечение кариеса", "Терапевтическое лечение зубов",
-                                               ServiceCategory.THERAPY, 30);
-   }
-
    @Autowired
    private TestDataFactory dataFactory;
    @Autowired
@@ -126,5 +121,10 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
                                                                .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isForbidden());
 
+   }
+
+   private CreateDentalServiceRequestDto createRequest() {
+      return new CreateDentalServiceRequestDto("Лечение кариеса", "Терапевтическое лечение зубов",
+                                               ServiceCategory.THERAPY, 30);
    }
 }

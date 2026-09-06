@@ -31,6 +31,8 @@ import java.util.UUID;
         and @clinicSecurity.hasAccess(authentication)
         """)
 public class PatientAppointmentController {
+   private final AppointmentService appointmentService;
+
    public PatientAppointmentController(AppointmentService appointmentService) {
       this.appointmentService = appointmentService;
    }
@@ -61,6 +63,4 @@ public class PatientAppointmentController {
                                           @PathVariable UUID appointmentId) {
       return appointmentService.findByIdForPatient(userDetails.getId(), appointmentId);
    }
-
-   private final AppointmentService appointmentService;
 }

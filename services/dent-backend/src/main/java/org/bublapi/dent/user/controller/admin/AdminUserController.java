@@ -24,6 +24,8 @@ import java.util.UUID;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
 
+   private final AdminUserService adminUserService;
+
    public AdminUserController(AdminUserService adminUserService) {
       this.adminUserService = adminUserService;
    }
@@ -51,6 +53,4 @@ public class AdminUserController {
    public UserRoleResponseDto removeRole(@PathVariable UUID userId, @PathVariable UUID roleId) {
       return adminUserService.removeRole(userId, roleId);
    }
-
-   private final AdminUserService adminUserService;
 }

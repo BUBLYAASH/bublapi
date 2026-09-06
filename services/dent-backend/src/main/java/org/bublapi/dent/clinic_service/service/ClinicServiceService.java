@@ -31,6 +31,13 @@ import java.util.UUID;
 
 @Service
 public class ClinicServiceService {
+   private final ClinicServiceRepository clinicServiceRepository;
+   private final DentalServiceRepository dentalServiceRepository;
+   private final ClinicServiceMapper clinicServiceMapper;
+   private final AppointmentServiceRepository appointmentServiceRepository;
+   private final NotificationPublisher notificationPublisher;
+   private final UserAuditService userAuditService;
+
    public ClinicServiceService(ClinicServiceRepository clinicServiceRepository,
                                DentalServiceRepository dentalServiceRepository, ClinicServiceMapper clinicServiceMapper,
                                AppointmentServiceRepository appointmentServiceRepository,
@@ -181,11 +188,4 @@ public class ClinicServiceService {
                                                                                            .getTitle()),
                                             LocalDateTime.now()));
    }
-
-   private final ClinicServiceRepository clinicServiceRepository;
-   private final DentalServiceRepository dentalServiceRepository;
-   private final ClinicServiceMapper clinicServiceMapper;
-   private final AppointmentServiceRepository appointmentServiceRepository;
-   private final NotificationPublisher notificationPublisher;
-   private final UserAuditService userAuditService;
 }

@@ -17,17 +17,6 @@ import java.util.UUID;
 @Filter(name = "clinicFilter")
 public class Doctor {
 
-   @PrePersist
-   public void prePersist() {
-      this.createdAt = LocalDateTime.now();
-      this.updatedAt = LocalDateTime.now();
-   }
-
-   @PreUpdate
-   public void preUpdate() {
-      this.updatedAt = LocalDateTime.now();
-   }
-
    @Id
    @GeneratedValue(strategy = GenerationType.UUID)
    private UUID id;
@@ -56,4 +45,15 @@ public class Doctor {
    private boolean active = true;
    @Column(name = "disabled_by_clinic", nullable = false)
    private boolean disabledByClinic = false;
+
+   @PrePersist
+   public void prePersist() {
+      this.createdAt = LocalDateTime.now();
+      this.updatedAt = LocalDateTime.now();
+   }
+
+   @PreUpdate
+   public void preUpdate() {
+      this.updatedAt = LocalDateTime.now();
+   }
 }

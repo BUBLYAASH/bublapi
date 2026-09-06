@@ -30,6 +30,13 @@ import java.util.UUID;
 @Service
 public class DoctorService {
 
+   private final DoctorRepository doctorRepository;
+   private final UserRepository userRepository;
+   private final RoleRepository roleRepository;
+   private final DoctorMapper doctorMapper;
+   private final UserAuditService userAuditService;
+   private final AdministrativeAuditService administrativeAuditService;
+
    public DoctorService(DoctorRepository doctorRepository, UserRepository userRepository, RoleRepository roleRepository,
                         DoctorMapper doctorMapper, UserAuditService userAuditService,
                         AdministrativeAuditService administrativeAuditService) {
@@ -226,11 +233,4 @@ public class DoctorService {
 
       return changedFields;
    }
-
-   private final DoctorRepository doctorRepository;
-   private final UserRepository userRepository;
-   private final RoleRepository roleRepository;
-   private final DoctorMapper doctorMapper;
-   private final UserAuditService userAuditService;
-   private final AdministrativeAuditService administrativeAuditService;
 }

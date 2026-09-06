@@ -13,6 +13,8 @@ import java.util.UUID;
 @Service
 public class UserAuditService {
 
+   private final Logger log = LoggerFactory.getLogger("USER_AUDIT");
+
    public void patientUpdated(UUID patientId, List<String> changedFields) {
       if (changedFields == null || changedFields.isEmpty()) {
          return;
@@ -135,6 +137,4 @@ public class UserAuditService {
          auditEvent.run();
       }
    }
-
-   private final Logger log = LoggerFactory.getLogger("USER_AUDIT");
 }

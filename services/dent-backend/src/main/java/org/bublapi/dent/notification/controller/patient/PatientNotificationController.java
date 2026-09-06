@@ -28,6 +28,8 @@ import java.util.UUID;
 @SecurityRequirement(name = "apiKey")
 @PreAuthorize("hasRole('PATIENT')")
 public class PatientNotificationController {
+   private final NotificationService notificationService;
+
    public PatientNotificationController(NotificationService notificationService) {
       this.notificationService = notificationService;
    }
@@ -72,6 +74,4 @@ public class PatientNotificationController {
    public void delete(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable UUID notificationId) {
       notificationService.deleteNotification(userDetails.getId(), notificationId);
    }
-
-   private final NotificationService notificationService;
 }
