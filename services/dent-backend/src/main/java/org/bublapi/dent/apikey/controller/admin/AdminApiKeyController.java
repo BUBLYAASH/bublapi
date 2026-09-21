@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @Tag(name = "Admin API Keys management")
 @RestController
-@RequestMapping("/api/admin/api-keys")
+@RequestMapping("/api/v1/admin/api-keys")
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminApiKeyController {

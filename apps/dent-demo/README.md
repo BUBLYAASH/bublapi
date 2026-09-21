@@ -6,10 +6,10 @@
 - Главная демо-страница и `/admin` теперь приходят как серверный HTML (SSR/пререндеринг оболочки).
 - API proxy перенесён в Next Route Handlers и по-прежнему автоматически добавляет `CLINIC_API_KEY`.
 - Для записей сотрудников добавлен постоянный SSE-канал `/live/appointments`.
-- Пока Spring API не предоставляет native event stream, Next.js проверяет `/api/appointments` раз в `LIVE_APPOINTMENTS_POLL_MS` (по умолчанию 1000 мс) и отправляет браузеру событие только при изменении snapshot.
+- Пока Spring API не предоставляет native event stream, Next.js проверяет `/api/v1/appointments` раз в `LIVE_APPOINTMENTS_POLL_MS` (по умолчанию 1000 мс) и отправляет браузеру событие только при изменении snapshot.
 - Обычный fallback auto-refresh оставлен раз в 15 секунд.
 - Добавлены favicon, OpenGraph image, metadata, canonical, robots.txt, sitemap.xml, JSON-LD.
-- `/admin`, `/api`, `/live` закрыты от индексации robots; `/admin` имеет `noindex`.
+- `/admin`, `/api/v1`, `/live` закрыты от индексации robots; `/admin` имеет `noindex`.
 - Runtime-аватары вынесены в volume-friendly каталог `/app/data/uploads/avatars`.
 
 ## Почему SSE лучше текущего фронтового polling

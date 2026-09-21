@@ -22,7 +22,7 @@ import java.util.UUID;
 @RestController
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
-@RequestMapping("/api/admin/notifications")
+@RequestMapping("/api/v1/admin/notifications")
 public class AdminNotificationController {
    private final NotificationService notificationService;
 

@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Tag(name = "Public Clinic Services")
 @RestController
-@RequestMapping("/api/public/services")
+@RequestMapping("/api/v1/public/services")
 @SecurityRequirement(name = "apiKey")
 public class PublicClinicServiceController {
    private final ClinicServiceService clinicServiceService;

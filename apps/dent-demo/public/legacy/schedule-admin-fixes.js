@@ -89,9 +89,9 @@ import { api, escapeHtml, toast } from './api.js';
     if (!doctorId || !$('#doctorScheduleList')) return;
 
     try {
-      const separator = `/api/public/doctors/${doctorId}/working-hours`.includes('?') ? '&' : '?';
+      const separator = `/api/v1/public/doctors/${doctorId}/working-hours`.includes('?') ? '&' : '?';
       const hours = await api(
-        `/api/public/doctors/${doctorId}/working-hours${separator}_=${Date.now()}`,
+        `/api/v1/public/doctors/${doctorId}/working-hours${separator}_=${Date.now()}`,
         { method: 'GET', cache: 'no-store' }
       );
       renderSchedule(hours, doctorId);
@@ -218,7 +218,7 @@ import { api, escapeHtml, toast } from './api.js';
 
     try {
       const exceptions = await api(
-        `/api/doctors/${doctorId}/schedule-exceptions?_=${Date.now()}`,
+        `/api/v1/doctors/${doctorId}/schedule-exceptions?_=${Date.now()}`,
         { method: 'GET', cache: 'no-store' }
       );
 
@@ -395,7 +395,7 @@ import { api, escapeHtml, toast } from './api.js';
 
     try {
       const created = await api(
-        `/api/doctors/${doctorId}/schedule-exceptions`,
+        `/api/v1/doctors/${doctorId}/schedule-exceptions`,
         {
           method: 'POST',
           body: {
@@ -431,7 +431,7 @@ import { api, escapeHtml, toast } from './api.js';
     button.disabled = true;
     try {
       await api(
-        `/api/doctors/${doctorId}/schedule-exceptions/${exceptionId}`,
+        `/api/v1/doctors/${doctorId}/schedule-exceptions/${exceptionId}`,
         { method: 'DELETE' }
       );
       await loadScheduleExceptions(doctorId, { silent: true });
@@ -494,7 +494,7 @@ import { api, escapeHtml, toast } from './api.js';
 
       try {
         const availability = await api(
-          `/api/public/doctors/${group.doctorId}/availability?durationMinutes=30&days=${days}&_=${Date.now()}`,
+          `/api/v1/public/doctors/${group.doctorId}/availability?durationMinutes=30&days=${days}&_=${Date.now()}`,
           { method: 'GET', cache: 'no-store' }
         );
 

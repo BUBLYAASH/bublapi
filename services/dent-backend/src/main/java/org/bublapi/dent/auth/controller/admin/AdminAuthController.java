@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "To login ADMINs")
 @RestController
-@RequestMapping("/api/admin/auth")
+@RequestMapping("/api/v1/admin/auth")
 public class AdminAuthController {
    private final AuthService authService;
 

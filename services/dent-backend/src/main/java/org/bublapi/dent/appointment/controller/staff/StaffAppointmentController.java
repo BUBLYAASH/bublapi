@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Tag(name = "Appointments for staff")
 @RestController
-@RequestMapping("/api/appointments")
+@RequestMapping("/api/v1/appointments")
 @SecurityRequirement(name = "bearerAuth")
 @SecurityRequirement(name = "apiKey")
 @PreAuthorize("""

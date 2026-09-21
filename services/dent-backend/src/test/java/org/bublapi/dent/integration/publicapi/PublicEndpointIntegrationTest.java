@@ -22,7 +22,7 @@ class PublicEndpointIntegrationTest extends IntegrationTestSupport {
       Doctor activeDoctor = dataFactory.createDoctor(data.clinic());
       dataFactory.createInactiveDoctor(data.clinic());
 
-      mockMvc.perform(get("/api/public/doctors")
+      mockMvc.perform(get("/api/v1/public/doctors")
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(1)))
@@ -34,7 +34,7 @@ class PublicEndpointIntegrationTest extends IntegrationTestSupport {
       TestClinicData data = createClinicData(RoleName.OWNER);
       dataFactory.createInactiveDoctor(data.clinic());
 
-      mockMvc.perform(get("/api/public/doctors")
+      mockMvc.perform(get("/api/v1/public/doctors")
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(0)));
@@ -46,7 +46,7 @@ class PublicEndpointIntegrationTest extends IntegrationTestSupport {
       ClinicService activeService = dataFactory.createClinicService(data.clinic());
       dataFactory.createInactiveClinicService(data.clinic());
 
-      mockMvc.perform(get("/api/public/services")
+      mockMvc.perform(get("/api/v1/public/services")
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(1)))
@@ -58,7 +58,7 @@ class PublicEndpointIntegrationTest extends IntegrationTestSupport {
       TestClinicData data = createClinicData(RoleName.OWNER);
       ClinicService inactiveService = dataFactory.createInactiveClinicService(data.clinic());
 
-      mockMvc.perform(get("/api/public/services/{clinicServiceId}", inactiveService.getId())
+      mockMvc.perform(get("/api/v1/public/services/{clinicServiceId}", inactiveService.getId())
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isNotFound());
    }
@@ -68,7 +68,7 @@ class PublicEndpointIntegrationTest extends IntegrationTestSupport {
       AppointmentContext context = createAppointmentContext(RoleName.OWNER);
       addRegularWorkingHours(context.doctor(), LocalDate.now().plusDays(7), LocalTime.of(9, 0), LocalTime.of(18, 0));
 
-      mockMvc.perform(get("/api/public/doctors/{doctorId}/working-hours", context.doctor().getId())
+      mockMvc.perform(get("/api/v1/public/doctors/{doctorId}/working-hours", context.doctor().getId())
                               .header("X-API-KEY", context.apiKey().rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(1)))

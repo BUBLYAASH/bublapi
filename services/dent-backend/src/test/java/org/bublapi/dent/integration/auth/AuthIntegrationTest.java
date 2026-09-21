@@ -30,7 +30,7 @@ class AuthIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+      mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                                              .content(objectMapper.writeValueAsString(request))
                                              .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
@@ -48,7 +48,7 @@ class AuthIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+      mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                                              .content(objectMapper.writeValueAsString(request))
                                              .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
@@ -64,7 +64,7 @@ class AuthIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+      mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                                              .content(objectMapper.writeValueAsString(request))
                                              .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
@@ -80,7 +80,7 @@ class AuthIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+      mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                                              .content(objectMapper.writeValueAsString(request))
                                              .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }

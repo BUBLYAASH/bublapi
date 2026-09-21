@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @Tag(name = "Notifications for Patients")
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/api/v1/notifications")
 @SecurityRequirement(name = "bearerAuth")
 @SecurityRequirement(name = "apiKey")
 @PreAuthorize("hasRole('PATIENT')")

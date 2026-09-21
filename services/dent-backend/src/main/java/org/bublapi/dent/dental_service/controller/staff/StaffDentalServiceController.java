@@ -14,7 +14,7 @@ import java.util.List;
 
 @Tag(name = "Global dental services catalog")
 @RestController
-@RequestMapping("/api/catalog/dental-services")
+@RequestMapping("/api/v1/catalog/dental-services")
 @SecurityRequirement(name = "bearerAuth")
 @SecurityRequirement(name = "apiKey")
 @PreAuthorize("""

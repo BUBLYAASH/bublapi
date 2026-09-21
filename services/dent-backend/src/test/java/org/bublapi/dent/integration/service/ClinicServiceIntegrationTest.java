@@ -31,8 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ClinicServiceIntegrationTest extends IntegrationTestBase {
 
-   private static final String STAFF_SERVICES_URL = "/api/services";
-   private static final String PUBLIC_SERVICES_URL = "/api/public/services";
+   private static final String STAFF_SERVICES_URL = "/api/v1/services";
+   private static final String PUBLIC_SERVICES_URL = "/api/v1/public/services";
    @Autowired
    private TestDataFactory dataFactory;
    @Autowired

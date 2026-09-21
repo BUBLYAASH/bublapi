@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DentalServiceAdminBehaviorIntegrationTest extends IntegrationTestSupport {
 
-   private static final String ADMIN_DENTAL_SERVICES_URL = "/api/admin/catalog/dental-services";
+   private static final String ADMIN_DENTAL_SERVICES_URL = "/api/v1/admin/catalog/dental-services";
 
    @Test
    void shouldNotCreateDuplicateDentalServiceTitle() throws Exception {
@@ -87,7 +87,7 @@ class DentalServiceAdminBehaviorIntegrationTest extends IntegrationTestSupport {
                               .header("Authorization", jwtHelper.token(admin.getId())))
              .andExpect(status().isOk());
 
-      mockMvc.perform(get("/api/catalog/dental-services")
+      mockMvc.perform(get("/api/v1/catalog/dental-services")
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk())

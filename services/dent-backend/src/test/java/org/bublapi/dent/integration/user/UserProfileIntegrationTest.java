@@ -30,7 +30,7 @@ class UserProfileIntegrationTest extends IntegrationTestSupport {
               null
       );
 
-      mockMvc.perform(patch("/api/profile")
+      mockMvc.perform(patch("/api/v1/profile")
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey())
                               .contentType(MediaType.APPLICATION_JSON)
@@ -45,7 +45,7 @@ class UserProfileIntegrationTest extends IntegrationTestSupport {
    void userShouldDeactivateOwnProfile() throws Exception {
       TestClinicData data = createClinicData(RoleName.PATIENT);
 
-      mockMvc.perform(patch("/api/profile/deactivation")
+      mockMvc.perform(patch("/api/v1/profile/deactivation")
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk())
@@ -56,14 +56,14 @@ class UserProfileIntegrationTest extends IntegrationTestSupport {
    void disabledUserShouldNotLoginAfterProfileDeactivation() throws Exception {
       TestClinicData data = createClinicData(RoleName.PATIENT);
 
-      mockMvc.perform(patch("/api/profile/deactivation")
+      mockMvc.perform(patch("/api/v1/profile/deactivation")
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk());
 
       LoginRequestDto request = new LoginRequestDto(data.user().getEmail(), TestDataFactory.DEFAULT_PASSWORD);
 
-      mockMvc.perform(post("/api/auth/login")
+      mockMvc.perform(post("/api/v1/auth/login")
                               .contentType(MediaType.APPLICATION_JSON)
                               .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isUnauthorized());
@@ -76,7 +76,7 @@ class UserProfileIntegrationTest extends IntegrationTestSupport {
                                                    RoleName.PATIENT);
       UpdateUserRequestDto request = new UpdateUserRequestDto(other.getEmail(), null, null, null, null, null);
 
-      mockMvc.perform(patch("/api/profile")
+      mockMvc.perform(patch("/api/v1/profile")
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey())
                               .contentType(MediaType.APPLICATION_JSON)
@@ -91,7 +91,7 @@ class UserProfileIntegrationTest extends IntegrationTestSupport {
                                                    RoleName.PATIENT);
       UpdateUserRequestDto request = new UpdateUserRequestDto(null, other.getPhone(), null, null, null, null);
 
-      mockMvc.perform(patch("/api/profile")
+      mockMvc.perform(patch("/api/v1/profile")
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey())
                               .contentType(MediaType.APPLICATION_JSON)

@@ -5,16 +5,16 @@ import {
   copyResponseHeaders,
   requestHasSameOrigin,
   upstreamHeaders
-} from '../../../../lib/upstream';
-import { sessionCookieName, sessionCookieOptions } from '../../../../lib/session';
+} from '../../../../../lib/upstream';
+import { sessionCookieName, sessionCookieOptions } from '../../../../../lib/session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /*
  * Browser compatibility route for the existing admin frontend.
- * The UI historically calls /api/users. A system ADMIN has no clinicId,
- * therefore the clinic-scoped /api/users endpoint correctly answers 403.
+ * The UI historically calls /api/v1/users. A system ADMIN has no clinicId,
+ * therefore the clinic-scoped /api/v1/users endpoint correctly answers 403.
  * Proxy those calls to the dedicated global-admin endpoint instead.
  */
 async function proxy(request, context) {
@@ -40,7 +40,7 @@ async function proxy(request, context) {
     ? `/${path.map(part => encodeURIComponent(part)).join('/')}`
     : '';
 
-  const target = new URL(`${API_BASE}/api/admin/users${suffix}`);
+  const target = new URL(`${API_BASE}/api/v1/admin/users${suffix}`);
   target.search = incoming.search;
 
   const init = {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { API_BASE, requestHasSameOrigin } from '../../../../lib/upstream';
-import { sessionCookieName, sessionCookieOptions } from '../../../../lib/session';
+import { API_BASE, requestHasSameOrigin } from '../../../../../lib/upstream';
+import { sessionCookieName, sessionCookieOptions } from '../../../../../lib/session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,7 +24,7 @@ export async function POST(request) {
   }
 
   try {
-    const upstream = await fetch(`${API_BASE}/api/admin/auth/login`, {
+    const upstream = await fetch(`${API_BASE}/api/v1/admin/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ email, password }),

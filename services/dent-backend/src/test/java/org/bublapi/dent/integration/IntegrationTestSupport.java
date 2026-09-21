@@ -32,9 +32,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 public abstract class IntegrationTestSupport extends IntegrationTestBase {
 
-   protected static final String STAFF_APPOINTMENTS_URL = "/api/appointments";
+   protected static final String STAFF_APPOINTMENTS_URL = "/api/v1/appointments";
    protected static final String STAFF_PATIENT_APPOINTMENTS_URL = STAFF_APPOINTMENTS_URL + "/patients/{patientId}";
-   protected static final String PATIENT_APPOINTMENTS_URL = "/api/patient/appointments";
+   protected static final String PATIENT_APPOINTMENTS_URL = "/api/v1/patient/appointments";
    protected static final DateTimeFormatter RESPONSE_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern(
            "yyyy-MM-dd'T'HH:mm:ss");
    @Autowired

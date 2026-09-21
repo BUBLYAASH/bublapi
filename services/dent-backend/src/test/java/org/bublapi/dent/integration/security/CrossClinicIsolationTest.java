@@ -48,7 +48,7 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
 
       CreateApiKeyResponseDto apiKeyClinicB = dataFactory.createApiKey(clinicB);
 
-      mockMvc.perform(get("/api/patients").header("Authorization", jwtHelper.token(receptionistFromClinicA.getId()))
+      mockMvc.perform(get("/api/v1/patients").header("Authorization", jwtHelper.token(receptionistFromClinicA.getId()))
                                           .header("X-API-KEY", apiKeyClinicB.rawKey()))
              .andExpect(status().isForbidden());
    }
@@ -67,7 +67,7 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
 
       UpdateDoctorRequestDto request = new UpdateDoctorRequestDto("Hacked", null, null, null, null, null);
 
-      mockMvc.perform(patch("/api/doctors/{doctorId}", doctorFromClinicB.getId()).header("Authorization",
+      mockMvc.perform(patch("/api/v1/doctors/{doctorId}", doctorFromClinicB.getId()).header("Authorization",
                                                                                          jwtHelper.token(
                                                                                                  ownerFromClinicA.getId()))
                                                                                  .header("X-API-KEY", apiKeyClinicA)
@@ -105,7 +105,7 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
                                                                                     1)),
                                                                             "Cross-clinic appointment attempt");
 
-      mockMvc.perform(post("/api/appointments/patients/{patientId}", patientFromClinicB.getId()).header("Authorization",
+      mockMvc.perform(post("/api/v1/appointments/patients/{patientId}", patientFromClinicB.getId()).header("Authorization",
                                                                                                         jwtHelper.token(
                                                                                                                 receptionistFromClinicA.getId()))
                                                                                                 .header("X-API-KEY",
@@ -138,19 +138,19 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
       String apiKeyClinicA = dataFactory.createApiKey(clinicA).rawKey();
       String token = jwtHelper.token(ownerFromClinicA.getId());
 
-      mockMvc.perform(get("/api/patients").header("Authorization", token).header("X-API-KEY", apiKeyClinicA))
+      mockMvc.perform(get("/api/v1/patients").header("Authorization", token).header("X-API-KEY", apiKeyClinicA))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(1)))
              .andExpect(jsonPath("$[0].id").value(patientFromClinicA.getId().toString()))
              .andExpect(jsonPath("$[0].clinicId").value(clinicA.getId().toString()));
 
-      mockMvc.perform(get("/api/doctors").header("Authorization", token).header("X-API-KEY", apiKeyClinicA))
+      mockMvc.perform(get("/api/v1/doctors").header("Authorization", token).header("X-API-KEY", apiKeyClinicA))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(1)))
              .andExpect(jsonPath("$[0].id").value(doctorFromClinicA.getId().toString()))
              .andExpect(jsonPath("$[0].clinicId").value(clinicA.getId().toString()));
 
-      mockMvc.perform(get("/api/services").header("Authorization", token).header("X-API-KEY", apiKeyClinicA))
+      mockMvc.perform(get("/api/v1/services").header("Authorization", token).header("X-API-KEY", apiKeyClinicA))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(1)))
              .andExpect(jsonPath("$[0].id").value(clinicServiceFromClinicA.getId().toString()))

@@ -160,9 +160,9 @@
        is revealed until the three lightweight permission probes complete. */
     const cached = readCachedAccess();
     const [patient, staffCore, staffAppointments] = await Promise.all([
-      probe('/api/notifications/unread-count', token),
-      probe('/api/patients', token),
-      probe('/api/appointments', token)
+      probe('/api/v1/notifications/unread-count', token),
+      probe('/api/v1/patients', token),
+      probe('/api/v1/appointments', token)
     ]);
 
     const allUnauthorized = [patient, staffCore, staffAppointments]
@@ -199,14 +199,14 @@
   }
 
   function cachedTtl(url) {
-    if (/\/api\/public\/doctors\/[^/]+\/working-hours$/.test(url.pathname)) return 45_000;
+    if (/\/api\/v1\/public\/doctors\/[^/]+\/working-hours$/.test(url.pathname)) return 45_000;
     if (url.pathname === '/demo-config') return 10_000;
-    if (url.pathname === '/api/notifications/unread-count') return 1_500;
+    if (url.pathname === '/api/v1/notifications/unread-count') return 1_500;
     return 0;
   }
 
   function isDashboardAvailabilityProbe(url) {
-    if (!/\/api\/public\/doctors\/[^/]+\/availability$/.test(url.pathname)) return false;
+    if (!/\/api\/v1\/public\/doctors\/[^/]+\/availability$/.test(url.pathname)) return false;
     if (url.searchParams.get('durationMinutes') !== '30') return false;
     if (url.searchParams.get('days') !== '60') return false;
 

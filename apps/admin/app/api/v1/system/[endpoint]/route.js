@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminToken, API_BASE, copyResponseHeaders, upstreamHeaders } from '../../../../lib/upstream';
+import { adminToken, API_BASE, copyResponseHeaders, upstreamHeaders } from '../../../../../lib/upstream';
 
 const ALLOWED = new Set(['health', 'info']);
 export const dynamic = 'force-dynamic';

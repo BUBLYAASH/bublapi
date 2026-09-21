@@ -23,7 +23,7 @@ class UserRoleRemovalIntegrationTest extends IntegrationTestSupport {
                                                           RoleName.PATIENT, RoleName.RECEPTIONIST);
       Role receptionistRole = dataFactory.getRole(RoleName.RECEPTIONIST);
 
-      mockMvc.perform(delete("/api/users/{userId}/roles/{roleId}", receptionist.getId(), receptionistRole.getId())
+      mockMvc.perform(delete("/api/v1/users/{userId}/roles/{roleId}", receptionist.getId(), receptionistRole.getId())
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk())
@@ -38,7 +38,7 @@ class UserRoleRemovalIntegrationTest extends IntegrationTestSupport {
                                                     RoleName.PATIENT, RoleName.RECEPTIONIST);
       Role receptionistRole = dataFactory.getRole(RoleName.RECEPTIONIST);
 
-      mockMvc.perform(delete("/api/users/{userId}/roles/{roleId}", target.getId(), receptionistRole.getId())
+      mockMvc.perform(delete("/api/v1/users/{userId}/roles/{roleId}", target.getId(), receptionistRole.getId())
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isForbidden());
@@ -51,7 +51,7 @@ class UserRoleRemovalIntegrationTest extends IntegrationTestSupport {
                                                     RoleName.PATIENT);
       Role patientRole = dataFactory.getRole(RoleName.PATIENT);
 
-      mockMvc.perform(delete("/api/users/{userId}/roles/{roleId}", target.getId(), patientRole.getId())
+      mockMvc.perform(delete("/api/v1/users/{userId}/roles/{roleId}", target.getId(), patientRole.getId())
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isForbidden());
@@ -64,7 +64,7 @@ class UserRoleRemovalIntegrationTest extends IntegrationTestSupport {
                                                     RoleName.PATIENT, RoleName.RECEPTIONIST);
       Role receptionistRole = dataFactory.getRole(RoleName.RECEPTIONIST);
 
-      mockMvc.perform(post("/api/users/{userId}/roles/{roleId}", target.getId(), receptionistRole.getId())
+      mockMvc.perform(post("/api/v1/users/{userId}/roles/{roleId}", target.getId(), receptionistRole.getId())
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isBadRequest())

@@ -20,6 +20,8 @@ npm run dev
 
 JWT никогда не передаётся браузерному JavaScript. Next.js хранит его в HttpOnly cookie и добавляет `Authorization` при серверном проксировании.
 
+HTTP API панели доступен под префиксом `/api/v1/`: авторизация — `/api/v1/auth/`, административные запросы — `/api/v1/admin/`, диагностика — `/api/v1/system/`. Запросы к Spring Boot также используют `/api/v1/`; `SPRING_API_URL` задаётся без этого префикса.
+
 ## Доступные системные поверхности
 
 - `/docs` — Swagger UI;

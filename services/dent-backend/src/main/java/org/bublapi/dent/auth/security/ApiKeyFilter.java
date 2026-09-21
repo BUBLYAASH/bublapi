@@ -33,7 +33,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
       String path = request.getRequestURI();
 
-      if (path.startsWith("/api/admin") || path.startsWith("/actuator/") || path.startsWith(
+      if (path.startsWith("/api/v1/admin") || path.startsWith("/actuator/") || path.startsWith(
               "/swagger") || path.startsWith("/v3/api-docs")) {
          filterChain.doFilter(request, response);
          return;

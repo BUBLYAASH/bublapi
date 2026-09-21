@@ -76,7 +76,7 @@ app.get('/demo-config', (_req, res) => {
   });
 });
 
-app.use('/api', async (req, res) => {
+app.use('/api/v1', async (req, res) => {
   const proxyStartedAt = process.hrtime.bigint();
   const targetUrl = `${apiBaseUrl}${req.originalUrl}`;
   const headers = new Headers();

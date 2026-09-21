@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Patient card from user profile")
 @RestController
-@RequestMapping("/api/patient/patient-card")
+@RequestMapping("/api/v1/patient/patient-card")
 @SecurityRequirement(name = "bearerAuth")
 @SecurityRequirement(name = "apiKey")
 @PreAuthorize("""

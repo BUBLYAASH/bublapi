@@ -10,8 +10,8 @@
   function rewriteAdminUsersUrl(value) {
     try {
       const absolute = new URL(String(value), window.location.origin);
-      if (absolute.pathname === '/api/users' || absolute.pathname.startsWith('/api/users/')) {
-        absolute.pathname = absolute.pathname.replace(/^\/api\/users/, '/api/admin/users');
+      if (absolute.pathname === '/api/v1/users' || absolute.pathname.startsWith('/api/v1/users/')) {
+        absolute.pathname = absolute.pathname.replace(/^\/api\/v1\/users/, '/api/v1/admin/users');
         return absolute.origin === window.location.origin
           ? `${absolute.pathname}${absolute.search}${absolute.hash}`
           : absolute.toString();
@@ -40,10 +40,10 @@
   function withFreshQuery(input) {
     const path = requestPath(input);
     const freshTargets = [
-      '/api/admin/clinics',
-      '/api/admin/catalog/dental-services',
-      '/api/admin/users',
-      '/api/admin/notifications'
+      '/api/v1/admin/clinics',
+      '/api/v1/admin/catalog/dental-services',
+      '/api/v1/admin/users',
+      '/api/v1/admin/notifications'
     ];
 
     if (!freshTargets.some(prefix => path === prefix || path.startsWith(`${prefix}/`))) {
@@ -132,14 +132,14 @@
   }
 
   function reactToSuccessfulMutation(path, method) {
-    if (method === 'POST' && path === '/api/admin/clinics') {
+    if (method === 'POST' && path === '/api/v1/admin/clinics') {
       showSuccess('Клиника успешно создана');
       setTimeout(() => clickRefresh('#loadClinics'), 50);
       setTimeout(() => clickRefresh('#loadClinics'), 450);
       return;
     }
 
-    if (method === 'POST' && path === '/api/admin/catalog/dental-services') {
+    if (method === 'POST' && path === '/api/v1/admin/catalog/dental-services') {
       showSuccess('Услуга успешно создана');
       setTimeout(() => clickRefresh('#loadCatalog'), 50);
       setTimeout(() => clickRefresh('#loadCatalog'), 450);
@@ -147,7 +147,7 @@
     }
 
     if (
-      path.startsWith('/api/admin/clinics/') &&
+      path.startsWith('/api/v1/admin/clinics/') &&
       ['PATCH', 'PUT', 'DELETE'].includes(method)
     ) {
       setTimeout(() => clickRefresh('#loadClinics'), 80);
@@ -155,7 +155,7 @@
     }
 
     if (
-      path.startsWith('/api/admin/catalog/dental-services/') &&
+      path.startsWith('/api/v1/admin/catalog/dental-services/') &&
       ['PATCH', 'PUT', 'DELETE'].includes(method)
     ) {
       setTimeout(() => clickRefresh('#loadCatalog'), 80);
@@ -163,8 +163,8 @@
     }
 
     if (
-      path === '/api/admin/users' ||
-      path.startsWith('/api/admin/users/')
+      path === '/api/v1/admin/users' ||
+      path.startsWith('/api/v1/admin/users/')
     ) {
       if (method !== 'GET') setTimeout(() => clickRefresh('#loadAdminUsers'), 80);
       return;
@@ -172,7 +172,7 @@
 
     if (
       method === 'POST' &&
-      /^\/api\/admin\/notifications\/[^/]+\/retry$/.test(path)
+      /^\/api\/v1\/admin\/notifications\/[^/]+\/retry$/.test(path)
     ) {
       showSuccess('Повторная отправка уведомления запущена');
       setTimeout(() => clickRefresh('#loadAdminNotifications'), 120);
@@ -182,14 +182,14 @@
 
     if (
       method === 'DELETE' &&
-      /^\/api\/admin\/notifications\/[^/]+$/.test(path)
+      /^\/api\/v1\/admin\/notifications\/[^/]+$/.test(path)
     ) {
       showSuccess('Уведомление удалено');
       setTimeout(() => clickRefresh('#loadAdminNotifications'), 80);
     }
   }
 
-  // Run before the legacy admin bundle. This removes the old /api/users
+  // Run before the legacy admin bundle. This removes the old /api/v1/users
   // compatibility dependency and always uses the dedicated system-admin API.
   const nativeFetch = window.fetch.bind(window);
   window.fetch = async function adminFixedFetch(input, init = undefined) {
@@ -329,12 +329,12 @@
     try {
       if (retry) {
         await runAdminMutation(
-          `/api/admin/notifications/${notificationId}/retry`,
+          `/api/v1/admin/notifications/${notificationId}/retry`,
           'POST'
         );
       } else {
         await runAdminMutation(
-          `/api/admin/notifications/${notificationId}`,
+          `/api/v1/admin/notifications/${notificationId}`,
           'DELETE'
         );
       }

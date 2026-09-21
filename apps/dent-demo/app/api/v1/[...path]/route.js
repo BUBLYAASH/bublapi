@@ -44,7 +44,7 @@ async function getClinicTimezone() {
 
   try {
     const response = await fetch(
-      `${API_BASE}/api/public/clinic/timezone`,
+      `${API_BASE}/api/v1/public/clinic/timezone`,
       {
         method: 'GET',
         headers: apiKeyHeaders(),
@@ -207,7 +207,7 @@ async function buildResponse(upstream, path) {
 async function proxy(request, context) {
   const { path = [] } = await context.params;
   const incoming = new URL(request.url);
-  const target = new URL(`${API_BASE}/api/${path.join('/')}`);
+  const target = new URL(`${API_BASE}/api/v1/${path.join('/')}`);
   target.search = incoming.search;
 
   const headers = new Headers();

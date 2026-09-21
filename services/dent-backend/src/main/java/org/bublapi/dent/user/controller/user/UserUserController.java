@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User actions for authenticated")
 @RestController
-@RequestMapping("/api/profile")
+@RequestMapping("/api/v1/profile")
 @SecurityRequirement(name = "bearerAuth")
 @SecurityRequirement(name = "apiKey")
 public class UserUserController {

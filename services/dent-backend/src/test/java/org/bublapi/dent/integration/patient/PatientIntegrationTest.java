@@ -35,7 +35,7 @@ class PatientIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(post("/api/patients").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/patients").header("Authorization", token)
                                            .header("X-API-KEY", apiKey)
                                            .contentType(MediaType.APPLICATION_JSON)
                                            .content(objectMapper.writeValueAsString(
@@ -62,7 +62,7 @@ class PatientIntegrationTest extends IntegrationTestBase {
                                                                     user.getMiddleName(), user.getPhone(),
                                                                     user.getEmail(), null, null, null, null);
 
-      mockMvc.perform(post("/api/patients").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/patients").header("Authorization", token)
                                            .header("X-API-KEY", apiKey)
                                            .contentType(MediaType.APPLICATION_JSON)
                                            .content(objectMapper.writeValueAsString(request)))
@@ -82,14 +82,14 @@ class PatientIntegrationTest extends IntegrationTestBase {
 
       CreatePatientRequestDto request = createPatientRequest("79992222222");
 
-      mockMvc.perform(post("/api/patients").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/patients").header("Authorization", token)
                                            .header("X-API-KEY", apiKey)
                                            .contentType(MediaType.APPLICATION_JSON)
                                            .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isOk());
 
 
-      mockMvc.perform(post("/api/patients").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/patients").header("Authorization", token)
                                            .header("X-API-KEY", apiKey)
                                            .contentType(MediaType.APPLICATION_JSON)
                                            .content(objectMapper.writeValueAsString(request)))
@@ -106,14 +106,14 @@ class PatientIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(post("/api/patients").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/patients").header("Authorization", token)
                                            .header("X-API-KEY", apiKey)
                                            .contentType(MediaType.APPLICATION_JSON)
                                            .content(objectMapper.writeValueAsString(
                                                    createPatientRequest("79993333333"))))
              .andExpect(status().isOk());
 
-      mockMvc.perform(get("/api/patients").header("Authorization", token).header("X-API-KEY", apiKey))
+      mockMvc.perform(get("/api/v1/patients").header("Authorization", token).header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(1)));
    }
@@ -129,7 +129,7 @@ class PatientIntegrationTest extends IntegrationTestBase {
 
       String apiKeyB = dataFactory.createApiKey(clinicB).rawKey();
 
-      mockMvc.perform(get("/api/patients").header("Authorization", token).header("X-API-KEY", apiKeyB))
+      mockMvc.perform(get("/api/v1/patients").header("Authorization", token).header("X-API-KEY", apiKeyB))
              .andExpect(status().isForbidden());
    }
 

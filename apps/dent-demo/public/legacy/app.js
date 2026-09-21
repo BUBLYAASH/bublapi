@@ -227,7 +227,7 @@ async function loadAppointmentAvailability(kind, {silent = false} = {}) {
 
     try {
         const availability = await api(
-            `/api/public/doctors/${doctorId}/availability?durationMinutes=${durationMinutes}&days=60`,
+            `/api/v1/public/doctors/${doctorId}/availability?durationMinutes=${durationMinutes}&days=60`,
             {method: 'GET'}
         );
 
@@ -382,7 +382,7 @@ async function filterServicesByDoctor(kind, doctorId, {silent = false} = {}) {
 
     try {
         const relations = await api(
-            `/api/public/doctors/${doctorId}/services`,
+            `/api/v1/public/doctors/${doctorId}/services`,
             {method: 'GET'}
         );
 
@@ -412,7 +412,7 @@ async function filterDoctorsByService(kind, clinicServiceId, {silent = false} = 
 
     try {
         const relations = await api(
-            `/api/public/services/${clinicServiceId}/doctors`,
+            `/api/v1/public/services/${clinicServiceId}/doctors`,
             {method: 'GET'}
         );
 
@@ -1046,9 +1046,9 @@ async function resolveAccessProfile() {
     }
 
     const [patient, staffCore, staffAppointments] = await Promise.all([
-        probeAccess('/api/notifications/unread-count'),
-        probeAccess('/api/patients'),
-        probeAccess('/api/appointments')
+        probeAccess('/api/v1/notifications/unread-count'),
+        probeAccess('/api/v1/patients'),
+        probeAccess('/api/v1/appointments')
     ]);
 
     accessProfile = {
@@ -1487,7 +1487,7 @@ $('#loginForm').addEventListener('submit', async event => {
     setAuthSubmitting(form, true, 'Входим…');
 
     try {
-        const result = await api('/api/auth/login', {
+        const result = await api('/api/v1/auth/login', {
             method: 'POST',
             body: formToObject(form)
         });
@@ -1530,7 +1530,7 @@ $('#registerForm').addEventListener('submit', async event => {
     setAuthSubmitting(form, true, 'Создаём аккаунт…');
 
     try {
-        const result = await api('/api/auth/register', {
+        const result = await api('/api/v1/auth/register', {
             method: 'POST',
             body: registrationData
         });
@@ -1576,12 +1576,12 @@ async function checkConnection() {
 }
 
 async function getPublicDoctorById(doctorId) {
-    const doctor = await api(`/api/public/doctors/${doctorId}`, {
+    const doctor = await api(`/api/v1/public/doctors/${doctorId}`, {
         method: 'GET'
     });
 
     const hours = await api(
-        `/api/public/doctors/${doctorId}/working-hours`,
+        `/api/v1/public/doctors/${doctorId}/working-hours`,
         {
             method: 'GET'
         }
@@ -1716,7 +1716,7 @@ function renderAppointmentGroups(
 async function loadPublicDoctors({silent = false} = {}) {
     try {
         resetOpaqueRefsByPrefix('publicDoctor');
-        const doctors = await api('/api/public/doctors', {
+        const doctors = await api('/api/v1/public/doctors', {
             method: 'GET'
         });
 
@@ -1724,7 +1724,7 @@ async function loadPublicDoctors({silent = false} = {}) {
             doctors.map(async doctor => {
                 try {
                     const hours = await api(
-                        `/api/public/doctors/${doctor.id}/working-hours`,
+                        `/api/v1/public/doctors/${doctor.id}/working-hours`,
                         {method: 'GET', cache: 'no-store'}
                     );
 
@@ -1800,7 +1800,7 @@ $('#publicDoctors').addEventListener('click', async event => {
 });
 
 async function getPublicServiceById(serviceId) {
-    const service = await api(`/api/public/services/${serviceId}`, {
+    const service = await api(`/api/v1/public/services/${serviceId}`, {
         method: 'GET'
     });
 
@@ -1820,7 +1820,7 @@ async function getPublicServiceById(serviceId) {
 async function loadPublicServices({silent = false} = {}) {
     try {
         resetOpaqueRefsByPrefix('publicService');
-        const services = await api('/api/public/services', {
+        const services = await api('/api/v1/public/services', {
             method: 'GET'
         });
 
@@ -1886,7 +1886,7 @@ $('#publicServices').addEventListener('click', async event => {
 
 async function loadPatientCard({silent = false} = {}) {
     try {
-        const patient = await api('/api/patient/patient-card', {
+        const patient = await api('/api/v1/patient/patient-card', {
             method: 'GET'
         });
 
@@ -1917,7 +1917,7 @@ $('#loadPatientCard').addEventListener('click', () => {
 
 $('#createPatientCard').addEventListener('click', async () => {
     try {
-        await api('/api/patient/patient-card', {
+        await api('/api/v1/patient/patient-card', {
             method: 'POST',
             body: formToObject($('#patientCardForm'))
         });
@@ -1931,7 +1931,7 @@ $('#createPatientCard').addEventListener('click', async () => {
 
 $('#updatePatientCard').addEventListener('click', async () => {
     try {
-        await api('/api/patient/patient-card', {
+        await api('/api/v1/patient/patient-card', {
             method: 'PATCH',
             body: formToObject($('#patientCardForm'))
         });
@@ -1989,7 +1989,7 @@ function appointmentDetailsHtml(appointment) {
 
 async function getPatientAppointmentById(appointmentId) {
     const appointment = await api(
-        `/api/patient/appointments/${appointmentId}`,
+        `/api/v1/patient/appointments/${appointmentId}`,
         {
             method: 'GET'
         }
@@ -2001,7 +2001,7 @@ async function getPatientAppointmentById(appointmentId) {
 async function loadPatientAppointments({silent = false} = {}) {
     try {
         resetOpaqueRefsByPrefix('patientAppointment');
-        const appointments = await api('/api/patient/appointments', {
+        const appointments = await api('/api/v1/patient/appointments', {
             method: 'GET'
         });
 
@@ -2069,7 +2069,7 @@ $('#patientAppointmentForm').addEventListener('submit', async event => {
     const form = event.currentTarget;
 
     try {
-        await api('/api/patient/appointments', {
+        await api('/api/v1/patient/appointments', {
             method: 'POST',
             body: appointmentBody(form)
         });
@@ -2099,7 +2099,7 @@ $('#patientAppointments').addEventListener('click', async event => {
 
         if (cancelButton) {
             await api(
-                `/api/patient/appointments/${resolveOpaqueRef(cancelButton.dataset.ref)}/cancel`,
+                `/api/v1/patient/appointments/${resolveOpaqueRef(cancelButton.dataset.ref)}/cancel`,
                 {
                     method: 'PATCH'
                 }
@@ -2114,7 +2114,7 @@ $('#patientAppointments').addEventListener('click', async event => {
 });
 
 async function getNotificationById(notificationId) {
-    const notification = await api(`/api/notifications/${notificationId}`, {
+    const notification = await api(`/api/v1/notifications/${notificationId}`, {
         method: 'GET'
     });
 
@@ -2133,8 +2133,8 @@ async function loadNotifications({silent = false} = {}) {
     try {
         resetOpaqueRefsByPrefix('notification');
         const [notifications, unread] = await Promise.all([
-            api('/api/notifications', {method: 'GET'}),
-            api('/api/notifications/unread-count', {method: 'GET'})
+            api('/api/v1/notifications', {method: 'GET'}),
+            api('/api/v1/notifications/unread-count', {method: 'GET'})
         ]);
 
         caches.notifications = new Map(
@@ -2186,7 +2186,7 @@ $('#loadNotifications').addEventListener('click', () => {
 
 $('#readAllNotifications').addEventListener('click', async () => {
     try {
-        await api('/api/notifications/read-all', {
+        await api('/api/v1/notifications/read-all', {
             method: 'PATCH'
         });
 
@@ -2205,7 +2205,7 @@ $('#notifications').addEventListener('click', async event => {
 
     try {
         if (readButton) {
-            await api(`/api/notifications/${resolveOpaqueRef(readButton.dataset.ref)}/read`, {
+            await api(`/api/v1/notifications/${resolveOpaqueRef(readButton.dataset.ref)}/read`, {
                 method: 'PATCH'
             });
             await loadNotifications();
@@ -2213,7 +2213,7 @@ $('#notifications').addEventListener('click', async event => {
         }
 
         if (deleteButton) {
-            await api(`/api/notifications/${resolveOpaqueRef(deleteButton.dataset.ref)}`, {
+            await api(`/api/v1/notifications/${resolveOpaqueRef(deleteButton.dataset.ref)}`, {
                 method: 'DELETE'
             });
             await loadNotifications();
@@ -2289,7 +2289,7 @@ function updateProfileDirtyState() {
 
 async function loadProfile({silent = false} = {}) {
     try {
-        const profile = await api('/api/profile', {method: 'GET'});
+        const profile = await api('/api/v1/profile', {method: 'GET'});
 
         profileForm.elements.email.value = profile?.email ?? '';
         setProfilePhoneValue(profileForm.elements.phone, profile?.phone ?? '');
@@ -2321,7 +2321,7 @@ profileForm.addEventListener('submit', async event => {
     if (!Object.keys(body).length) return;
 
     try {
-        const updated = await api('/api/profile', {
+        const updated = await api('/api/v1/profile', {
             method: 'PATCH',
             body
         });
@@ -2347,7 +2347,7 @@ $('#deactivateProfile').addEventListener('click', async () => {
     }
 
     try {
-        await api('/api/profile/deactivation', {
+        await api('/api/v1/profile/deactivation', {
             method: 'PATCH'
         });
 
@@ -2473,7 +2473,7 @@ async function countDoctorsWorkingNow(doctors) {
 
     const results = await Promise.all(availableDoctors.map(async doctor => {
         try {
-            const hours = await api(`/api/public/doctors/${doctor.id}/working-hours`, {method: 'GET'});
+            const hours = await api(`/api/v1/public/doctors/${doctor.id}/working-hours`, {method: 'GET'});
             return isDoctorWorkingNow(hours);
         } catch (_) {
             return false;
@@ -2607,8 +2607,8 @@ async function loadStaffCalendarSchedulesForDate({force = false} = {}) {
         await Promise.all(missing.map(async doctor => {
             const cacheBuster = force ? `?refresh=${Date.now()}` : '';
             const [hoursResult, availabilityResult] = await Promise.allSettled([
-                api(`/api/public/doctors/${doctor.id}/working-hours${cacheBuster}`, {method: 'GET', cache: 'no-store'}),
-                api(`/api/public/doctors/${doctor.id}/availability?durationMinutes=30&days=60${force ? `&refresh=${Date.now()}` : ''}`, {
+                api(`/api/v1/public/doctors/${doctor.id}/working-hours${cacheBuster}`, {method: 'GET', cache: 'no-store'}),
+                api(`/api/v1/public/doctors/${doctor.id}/availability?durationMinutes=30&days=60${force ? `&refresh=${Date.now()}` : ''}`, {
                     method: 'GET',
                     cache: 'no-store'
                 })
@@ -2778,9 +2778,9 @@ function renderStaffAttention(appointments, patients) {
 async function refreshStaffDashboard({silent = false} = {}) {
     try {
         const [patients, doctors, appointments] = await Promise.all([
-            api('/api/patients', {method: 'GET'}),
-            api('/api/doctors', {method: 'GET'}),
-            api('/api/appointments', {method: 'GET'})
+            api('/api/v1/patients', {method: 'GET'}),
+            api('/api/v1/doctors', {method: 'GET'}),
+            api('/api/v1/appointments', {method: 'GET'})
         ]);
 
         const todayKey = dashboardDateKey(new Date());
@@ -2977,7 +2977,7 @@ function openPatientEdit(patient) {
 
 async function loadStaffPatients({silent = false} = {}) {
     try {
-        const patients = await api('/api/patients', {
+        const patients = await api('/api/v1/patients', {
             method: 'GET'
         });
 
@@ -3021,7 +3021,7 @@ $('#createPatientForm').addEventListener('submit', async event => {
     const form = event.currentTarget;
 
     try {
-        await api('/api/patients', {
+        await api('/api/v1/patients', {
             method: 'POST',
             body: formToObject(form)
         });
@@ -3188,7 +3188,7 @@ async function loadDoctorSchedule(
     try {
         const cacheBuster = force ? `?refresh=${Date.now()}` : '';
         const hours = await api(
-            `/api/public/doctors/${doctorId}/working-hours${cacheBuster}`,
+            `/api/v1/public/doctors/${doctorId}/working-hours${cacheBuster}`,
             {
                 method: 'GET',
                 cache: 'no-store'
@@ -3255,7 +3255,7 @@ function doctorDetailsHtml(doctor, hours = []) {
 }
 
 async function getStaffDoctorById(doctorId) {
-    const doctor = await api(`/api/doctors/${doctorId}`, {
+    const doctor = await api(`/api/v1/doctors/${doctorId}`, {
         method: 'GET'
     });
 
@@ -3263,7 +3263,7 @@ async function getStaffDoctorById(doctorId) {
 
     try {
         hours = await api(
-            `/api/public/doctors/${doctorId}/working-hours`,
+            `/api/v1/public/doctors/${doctorId}/working-hours`,
             {
                 method: 'GET'
             }
@@ -3325,8 +3325,8 @@ function openDoctorEdit(doctor) {
 async function loadDoctorServiceManagementOptions({silent = false} = {}) {
     try {
         const [doctors, services] = await Promise.all([
-            api('/api/doctors', {method: 'GET'}),
-            api('/api/services', {method: 'GET'})
+            api('/api/v1/doctors', {method: 'GET'}),
+            api('/api/v1/services', {method: 'GET'})
         ]);
 
         caches.doctors = new Map(
@@ -3409,7 +3409,7 @@ async function loadAssignedDoctorServices(
 
     try {
         const relations = await api(
-            `/api/public/doctors/${doctorId}/services`,
+            `/api/v1/public/doctors/${doctorId}/services`,
             {method: 'GET'}
         );
 
@@ -3469,7 +3469,7 @@ $('#assignDoctorService').addEventListener('click', async () => {
 
     try {
         await api(
-            `/api/doctors/${doctorId}/services/${clinicServiceId}`,
+            `/api/v1/doctors/${doctorId}/services/${clinicServiceId}`,
             {method: 'POST'}
         );
 
@@ -3491,7 +3491,7 @@ $('#removeDoctorService').addEventListener('click', async () => {
 
     try {
         await api(
-            `/api/doctors/${doctorId}/services/${clinicServiceId}`,
+            `/api/v1/doctors/${doctorId}/services/${clinicServiceId}`,
             {method: 'DELETE'}
         );
 
@@ -3511,7 +3511,7 @@ $('#assignedDoctorServices').addEventListener('click', async event => {
 
     try {
         await api(
-            `/api/doctors/${button.dataset.doctorId}/services/${button.dataset.serviceId}`,
+            `/api/v1/doctors/${button.dataset.doctorId}/services/${button.dataset.serviceId}`,
             {method: 'DELETE'}
         );
 
@@ -3524,7 +3524,7 @@ $('#assignedDoctorServices').addEventListener('click', async event => {
 
 async function loadStaffDoctors({silent = false} = {}) {
     try {
-        const doctors = await api('/api/doctors', {
+        const doctors = await api('/api/v1/doctors', {
             method: 'GET'
         });
 
@@ -3623,7 +3623,7 @@ $('#createDoctorForm').addEventListener('submit', async event => {
         const avatarFile = form.querySelector('[name="avatarFile"]')?.files?.[0];
         if (avatarFile) body.avatarUrl = await uploadDoctorAvatar(avatarFile);
 
-        await api('/api/doctors', {
+        await api('/api/v1/doctors', {
             method: 'POST',
             body
         });
@@ -3651,7 +3651,7 @@ $('#doctorScheduleForm').addEventListener('submit', async event => {
     delete body.doctorId;
 
     try {
-        const createdInterval = await api(`/api/doctors/${doctorId}/working-hours`, {
+        const createdInterval = await api(`/api/v1/doctors/${doctorId}/working-hours`, {
             method: 'POST',
             body
         });
@@ -3698,7 +3698,7 @@ $('#doctorScheduleList')?.addEventListener('click', async event => {
 
         try {
             await api(
-                `/api/doctors/${deleteButton.dataset.doctorId}/working-hours/${deleteButton.dataset.scheduleId}`,
+                `/api/v1/doctors/${deleteButton.dataset.doctorId}/working-hours/${deleteButton.dataset.scheduleId}`,
                 {method: 'DELETE'}
             );
             const doctorId = deleteButton.dataset.doctorId;
@@ -3732,7 +3732,7 @@ async function openDoctorUserLinkModal(doctorId) {
     );
 
     try {
-        const users = await api('/api/users', {method: 'GET', cache: 'no-store'});
+        const users = await api('/api/v1/users', {method: 'GET', cache: 'no-store'});
         const availableUsers = (Array.isArray(users) ? users : [])
             .filter(user => user.enabled !== false);
 
@@ -3795,7 +3795,7 @@ async function linkDoctorToUser(doctorId, email, phone) {
         ? {email: normalizedEmail}
         : {phone: normalizedPhone};
 
-    return api(`/api/doctors/${doctorId}/link-user`, {
+    return api(`/api/v1/doctors/${doctorId}/link-user`, {
         method: 'PATCH',
         body
     });
@@ -3845,7 +3845,7 @@ $('#staffDoctors').addEventListener('click', async event => {
                 ? 'deactivation'
                 : 'activation';
 
-            await api(`/api/doctors/${toggle.dataset.id}/${action}`, {
+            await api(`/api/v1/doctors/${toggle.dataset.id}/${action}`, {
                 method: 'PATCH'
             });
 
@@ -3857,7 +3857,7 @@ $('#staffDoctors').addEventListener('click', async event => {
         }
 
         if (unlink) {
-            await api(`/api/doctors/${unlink.dataset.id}/unlink-user`, {
+            await api(`/api/v1/doctors/${unlink.dataset.id}/unlink-user`, {
                 method: 'PATCH'
             });
 
@@ -3921,7 +3921,7 @@ function openClinicServiceEdit(service) {
 
 async function loadDentalCatalogForClinicServices({silent = false} = {}) {
     try {
-        const services = await api('/api/catalog/dental-services', {
+        const services = await api('/api/v1/catalog/dental-services', {
             method: 'GET'
         });
 
@@ -4072,7 +4072,7 @@ function renderServiceStatusGroups(container, services, renderGroupContent) {
 async function loadStaffServices({silent = false} = {}) {
     try {
         const [services] = await Promise.all([
-            api('/api/services', {method: 'GET'}),
+            api('/api/v1/services', {method: 'GET'}),
             loadDentalCatalogForClinicServices({silent: true})
         ]);
 
@@ -4160,7 +4160,7 @@ $('#addClinicServiceForm').addEventListener('submit', async event => {
     body.durationMinutes = Number(body.durationMinutes);
 
     try {
-        await api(`/api/services/${dentalServiceId}`, {
+        await api(`/api/v1/services/${dentalServiceId}`, {
             method: 'POST',
             body
         });
@@ -4209,7 +4209,7 @@ $('#staffServices').addEventListener('click', async event => {
 
         if (deactivate) {
             const serviceId = deactivate.dataset.id;
-            const updated = await api(`/api/services/${serviceId}/deactivation`, {
+            const updated = await api(`/api/v1/services/${serviceId}/deactivation`, {
                 method: 'PATCH'
             });
 
@@ -4224,7 +4224,7 @@ $('#staffServices').addEventListener('click', async event => {
 
         if (activate) {
             const serviceId = activate.dataset.id;
-            const updated = await api(`/api/services/${serviceId}/activation`, {
+            const updated = await api(`/api/v1/services/${serviceId}/activation`, {
                 method: 'PATCH'
             });
 
@@ -4256,7 +4256,7 @@ function staffAppointmentStatusSelectHtml(appointment, className = 'modal-appoin
 }
 
 async function getStaffAppointmentById(appointmentId) {
-    const appointment = await api(`/api/appointments/${appointmentId}`, {
+    const appointment = await api(`/api/v1/appointments/${appointmentId}`, {
         method: 'GET'
     });
 
@@ -4341,7 +4341,7 @@ function renderStaffAppointmentList(appointments) {
 
 async function refreshStaffAppointmentListOnly({silent = true} = {}) {
     try {
-        const appointments = await api('/api/appointments', {method: 'GET'});
+        const appointments = await api('/api/v1/appointments', {method: 'GET'});
         renderStaffAppointmentList(appointments);
     } catch (error) {
         if (!silent) toast(error.message, 'error');
@@ -4352,10 +4352,10 @@ async function refreshStaffAppointmentListOnly({silent = true} = {}) {
 async function loadStaffAppointments({silent = false} = {}) {
     try {
         const [appointments, doctors, services, patients] = await Promise.all([
-            api('/api/appointments', {method: 'GET'}),
-            api('/api/doctors', {method: 'GET'}),
-            api('/api/services', {method: 'GET'}),
-            api('/api/patients', {method: 'GET'})
+            api('/api/v1/appointments', {method: 'GET'}),
+            api('/api/v1/doctors', {method: 'GET'}),
+            api('/api/v1/services', {method: 'GET'}),
+            api('/api/v1/patients', {method: 'GET'})
         ]);
 
         const activeDoctors = doctors.filter(doctor => doctor.active !== false);
@@ -4427,7 +4427,7 @@ $('#staffAppointmentForm').addEventListener('submit', async event => {
     }
 
     try {
-        await api(`/api/appointments/patients/${patientId}`, {
+        await api(`/api/v1/appointments/patients/${patientId}`, {
             method: 'POST',
             body: {
                 doctorId: values.doctorId,
@@ -4471,7 +4471,7 @@ $('#staffAppointments').addEventListener('click', async event => {
         if (change) {
             const select = $(`.appointment-status[data-id="${change.dataset.id}"]`);
 
-            await api(`/api/appointments/${change.dataset.id}/change`, {
+            await api(`/api/v1/appointments/${change.dataset.id}/change`, {
                 method: 'PATCH',
                 body: {
                     status: select.value
@@ -4482,7 +4482,7 @@ $('#staffAppointments').addEventListener('click', async event => {
         }
 
         if (cancel) {
-            await api(`/api/appointments/${cancel.dataset.id}/cancel`, {
+            await api(`/api/v1/appointments/${cancel.dataset.id}/cancel`, {
                 method: 'PATCH'
             });
 
@@ -4494,7 +4494,7 @@ $('#staffAppointments').addEventListener('click', async event => {
 });
 
 async function getUserById(userId) {
-    const user = await api(`/api/users/${userId}`, {
+    const user = await api(`/api/v1/users/${userId}`, {
         method: 'GET'
     });
 
@@ -4515,8 +4515,8 @@ async function getUserById(userId) {
 async function loadStaffUsers({silent = false} = {}) {
     try {
         const [users, patients] = await Promise.all([
-            api('/api/users', {method: 'GET'}),
-            api('/api/patients', {method: 'GET'})
+            api('/api/v1/users', {method: 'GET'}),
+            api('/api/v1/patients', {method: 'GET'})
         ]);
 
         caches.patients = new Map(patients.map(patient => [patient.id, patient]));
@@ -4582,7 +4582,7 @@ $('#staffUsers').addEventListener('click', async event => {
                 ? 'deactivation'
                 : 'activation';
 
-            await api(`/api/users/${toggle.dataset.id}/${action}`, {
+            await api(`/api/v1/users/${toggle.dataset.id}/${action}`, {
                 method: 'PATCH'
             });
 
@@ -4602,7 +4602,7 @@ $('#detailModalActions').addEventListener('click', async event => {
 
         if (appointmentPatient?.dataset.patientId) {
             let patient = caches.patients.get(String(appointmentPatient.dataset.patientId)) || caches.patients.get(appointmentPatient.dataset.patientId);
-            if (!patient) patient = await api(`/api/patients/${appointmentPatient.dataset.patientId}`, {method: 'GET'});
+            if (!patient) patient = await api(`/api/v1/patients/${appointmentPatient.dataset.patientId}`, {method: 'GET'});
             if (patient) {
                 caches.patients.set(patient.id, patient);
                 showPatientDetails(patient);
@@ -4617,7 +4617,7 @@ $('#detailModalActions').addEventListener('click', async event => {
         if (appointmentChange) {
             const select = $(`.modal-appointment-status[data-id="${appointmentChange.dataset.id}"]`);
             if (!select) throw new Error('Не удалось определить новый статус записи');
-            await api(`/api/appointments/${appointmentChange.dataset.id}/change`, {
+            await api(`/api/v1/appointments/${appointmentChange.dataset.id}/change`, {
                 method: 'PATCH',
                 body: {status: select.value}
             });
@@ -4629,7 +4629,7 @@ $('#detailModalActions').addEventListener('click', async event => {
         }
 
         if (appointmentCancel) {
-            await api(`/api/appointments/${appointmentCancel.dataset.id}/cancel`, {method: 'PATCH'});
+            await api(`/api/v1/appointments/${appointmentCancel.dataset.id}/cancel`, {method: 'PATCH'});
             closeModal();
             toast('Запись отменена', 'success');
             if (getCurrentViewName() === 'staff-dashboard') await refreshStaffDashboard({silent: true});
@@ -4672,7 +4672,7 @@ $('#detailModalActions').addEventListener('click', async event => {
         if (userBook) {
             let patient = [...caches.patients.values()].find(item => String(item.userId) === String(userBook.dataset.userId));
             if (!patient) {
-                const patients = await api('/api/patients', {method: 'GET'});
+                const patients = await api('/api/v1/patients', {method: 'GET'});
                 caches.patients = new Map(patients.map(item => [item.id, item]));
                 patient = patients.find(item => String(item.userId) === String(userBook.dataset.userId));
             }
@@ -4700,7 +4700,7 @@ $('#detailModalActions').addEventListener('click', async event => {
         }
 
         if (patientSave) {
-            await api(`/api/patients/${patientSave.dataset.id}`, {
+            await api(`/api/v1/patients/${patientSave.dataset.id}`, {
                 method: 'PATCH',
                 body: formToObject($('#modalPatientEditForm'))
             });
@@ -4716,7 +4716,7 @@ $('#detailModalActions').addEventListener('click', async event => {
             const body = formToObject($('#modalScheduleEditForm'));
 
             const updatedInterval = await api(
-                `/api/doctors/${scheduleSave.dataset.doctorId}/working-hours/${scheduleSave.dataset.scheduleId}`,
+                `/api/v1/doctors/${scheduleSave.dataset.doctorId}/working-hours/${scheduleSave.dataset.scheduleId}`,
                 {method: 'PATCH', body}
             );
 
@@ -4751,7 +4751,7 @@ $('#detailModalActions').addEventListener('click', async event => {
             const avatarFile = form.querySelector('[name="avatarFile"]')?.files?.[0];
             if (avatarFile) body.avatarUrl = await uploadDoctorAvatar(avatarFile);
 
-            await api(`/api/doctors/${doctorSave.dataset.id}`, {
+            await api(`/api/v1/doctors/${doctorSave.dataset.id}`, {
                 method: 'PATCH',
                 body
             });
@@ -4773,7 +4773,7 @@ $('#detailModalActions').addEventListener('click', async event => {
             body.price = Number(body.price);
             body.durationMinutes = Number(body.durationMinutes);
 
-            await api(`/api/services/${serviceSave.dataset.id}`, {
+            await api(`/api/v1/services/${serviceSave.dataset.id}`, {
                 method: 'PATCH',
                 body
             });

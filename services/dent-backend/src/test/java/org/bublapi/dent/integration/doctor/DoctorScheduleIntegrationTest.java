@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
 
-   private static final String DOCTOR_URL = "/api/doctors";
+   private static final String DOCTOR_URL = "/api/v1/doctors";
 
    @Test
    void shouldCreateDoctorWorkingHours() throws Exception {
@@ -94,7 +94,7 @@ class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
                                                                                                                                .rawKey()))
              .andExpect(status().isNoContent());
 
-      mockMvc.perform(get("/api/public/doctors/{doctorId}/working-hours", context.doctor()
+      mockMvc.perform(get("/api/v1/public/doctors/{doctorId}/working-hours", context.doctor()
                                                                                  .getId()).header("X-API-KEY",
                                                                                                   context.apiKey()
                                                                                                          .rawKey()))

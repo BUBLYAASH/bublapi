@@ -36,7 +36,7 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       String token = jwtHelper.token(admin.getId());
 
-      mockMvc.perform(post("/api/admin/catalog/dental-services").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/admin/catalog/dental-services").header("Authorization", token)
                                                                 .contentType(MediaType.APPLICATION_JSON)
                                                                 .content(objectMapper.writeValueAsString(
                                                                         createRequest())))
@@ -51,7 +51,7 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       String token = jwtHelper.token(admin.getId());
 
-      mockMvc.perform(post("/api/admin/catalog/dental-services").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/admin/catalog/dental-services").header("Authorization", token)
                                                                 .contentType(MediaType.APPLICATION_JSON)
                                                                 .content(objectMapper.writeValueAsString(
                                                                         createRequest())))
@@ -65,7 +65,7 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       String token = jwtHelper.token(admin.getId());
 
-      mockMvc.perform(post("/api/admin/catalog/dental-services").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/admin/catalog/dental-services").header("Authorization", token)
                                                                 .contentType(MediaType.APPLICATION_JSON)
                                                                 .content(objectMapper.writeValueAsString(
                                                                         createRequest())))
@@ -79,7 +79,7 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       String token = jwtHelper.token(admin.getId());
 
-      mockMvc.perform(post("/api/admin/catalog/dental-services").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/admin/catalog/dental-services").header("Authorization", token)
                                                                 .contentType(MediaType.APPLICATION_JSON)
                                                                 .content(objectMapper.writeValueAsString(
                                                                         createRequest())))
@@ -97,7 +97,7 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(get("/api/catalog/dental-services").header("Authorization", jwtHelper.token(receptionist.getId()))
+      mockMvc.perform(get("/api/v1/catalog/dental-services").header("Authorization", jwtHelper.token(receptionist.getId()))
                                                          .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$").isArray());
@@ -115,7 +115,7 @@ class DentalServiceIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(
-                     post("/api/admin/catalog/dental-services").header("Authorization", jwtHelper.token(receptionist.getId()))
+                     post("/api/v1/admin/catalog/dental-services").header("Authorization", jwtHelper.token(receptionist.getId()))
                                                                .header("X-API-KEY", apiKey)
                                                                .contentType(MediaType.APPLICATION_JSON)
                                                                .content(objectMapper.writeValueAsString(request)))

@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Tag(name = "Users management for staff")
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @SecurityRequirement(name = "bearerAuth")
 @SecurityRequirement(name = "apiKey")
 @PreAuthorize("""

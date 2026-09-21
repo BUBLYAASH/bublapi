@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
 
-   private static final String STAFF_APPOINTMENTS_URL = "/api/appointments";
+   private static final String STAFF_APPOINTMENTS_URL = "/api/v1/appointments";
    private static final String STAFF_PATIENT_APPOINTMENTS_URL = STAFF_APPOINTMENTS_URL + "/patients/{patientId}";
    private final static DateTimeFormatter RESPONSE_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern(
            "yyyy-MM-dd'T'HH:mm:ss");

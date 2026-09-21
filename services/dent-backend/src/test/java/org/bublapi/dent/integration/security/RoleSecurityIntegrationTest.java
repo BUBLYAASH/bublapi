@@ -22,10 +22,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class RoleSecurityIntegrationTest extends IntegrationTestBase {
 
-   private static final String CLINIC_SERVICES_URL = "/api/services";
-   private static final String PATIENTS_URL = "/api/patients";
-   private static final String USERS_URL = "/api/users";
-   private static final String ADMIN_CLINICS_URL = "/api/admin/clinics";
+   private static final String CLINIC_SERVICES_URL = "/api/v1/services";
+   private static final String PATIENTS_URL = "/api/v1/patients";
+   private static final String USERS_URL = "/api/v1/users";
+   private static final String ADMIN_CLINICS_URL = "/api/v1/admin/clinics";
 
    @Autowired
    private TestDataFactory dataFactory;

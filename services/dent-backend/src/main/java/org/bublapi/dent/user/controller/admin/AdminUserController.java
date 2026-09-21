@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Tag(name = "Users management for admin")
 @RestController
-@RequestMapping("/api/admin/users")
+@RequestMapping("/api/v1/admin/users")
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {

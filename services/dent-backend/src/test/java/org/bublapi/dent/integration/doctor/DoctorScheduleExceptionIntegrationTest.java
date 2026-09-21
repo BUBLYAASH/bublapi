@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DoctorScheduleExceptionIntegrationTest extends IntegrationTestSupport {
 
-   private static final String DOCTOR_URL = "/api/doctors";
+   private static final String DOCTOR_URL = "/api/v1/doctors";
 
    @Test
    void shouldCreateDayOffException() throws Exception {

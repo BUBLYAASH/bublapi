@@ -37,7 +37,7 @@ class ClinicIntegrationTest extends IntegrationTestBase {
                                                                   "Europe/Moscow");
 
 
-      mockMvc.perform(post("/api/admin/clinics").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isOk())
@@ -59,13 +59,13 @@ class ClinicIntegrationTest extends IntegrationTestBase {
                                                                   "clinic1@mail.com", null, "Europe/Moscow");
 
 
-      mockMvc.perform(post("/api/admin/clinics").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isOk());
 
 
-      mockMvc.perform(post("/api/admin/clinics").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isConflict());
@@ -84,7 +84,7 @@ class ClinicIntegrationTest extends IntegrationTestBase {
                                                                   "active@mail.com", null, "Europe/Moscow");
 
 
-      mockMvc.perform(post("/api/admin/clinics").header("Authorization", token)
+      mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isOk())

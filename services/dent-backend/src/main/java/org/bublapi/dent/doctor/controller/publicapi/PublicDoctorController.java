@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Tag(name = "Public doctors' information")
 @RestController
-@RequestMapping("/api/public/doctors")
+@RequestMapping("/api/v1/public/doctors")
 @SecurityRequirement(name = "apiKey")
 public class PublicDoctorController {
 

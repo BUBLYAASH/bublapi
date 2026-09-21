@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Tag(name = "Global dental services catalog")
 @RestController
-@RequestMapping("/api/admin/catalog/dental-services")
+@RequestMapping("/api/v1/admin/catalog/dental-services")
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminDentalServiceController {

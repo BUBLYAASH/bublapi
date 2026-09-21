@@ -9,7 +9,7 @@ export async function hasValidAdminSession(token) {
     : `Bearer ${normalized}`;
 
   try {
-    const response = await fetch(`${API_BASE}/api/admin/clinics`, {
+    const response = await fetch(`${API_BASE}/api/v1/admin/clinics`, {
       method: 'GET',
       headers: {
         Authorization: authorization,

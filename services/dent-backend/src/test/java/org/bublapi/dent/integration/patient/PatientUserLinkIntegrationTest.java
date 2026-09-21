@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class PatientUserLinkIntegrationTest extends IntegrationTestBase {
 
-   private static final String PATIENT_CARD_URL = "/api/patient/patient-card";
+   private static final String PATIENT_CARD_URL = "/api/v1/patient/patient-card";
 
    @Autowired
    private TestDataFactory dataFactory;

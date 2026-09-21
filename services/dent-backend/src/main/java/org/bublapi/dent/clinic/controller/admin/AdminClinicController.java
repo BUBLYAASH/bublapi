@@ -22,7 +22,7 @@ import java.util.UUID;
 
 @Tag(name = "Clinics management for admin")
 @RestController
-@RequestMapping("/api/admin/clinics")
+@RequestMapping("/api/v1/admin/clinics")
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminClinicController {

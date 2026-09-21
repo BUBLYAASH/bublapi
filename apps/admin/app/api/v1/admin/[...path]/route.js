@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { adminToken, API_BASE, copyResponseHeaders, requestHasSameOrigin, upstreamHeaders } from '../../../../lib/upstream';
-import { sessionCookieName, sessionCookieOptions } from '../../../../lib/session';
+import { adminToken, API_BASE, copyResponseHeaders, requestHasSameOrigin, upstreamHeaders } from '../../../../../lib/upstream';
+import { sessionCookieName, sessionCookieOptions } from '../../../../../lib/session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -15,7 +15,7 @@ async function proxy(request, context) {
 
   const { path = [] } = await context.params;
   const incoming = new URL(request.url);
-  const target = new URL(`${API_BASE}/api/admin/${path.join('/')}`);
+  const target = new URL(`${API_BASE}/api/v1/admin/${path.join('/')}`);
   target.search = incoming.search;
 
   const init = {

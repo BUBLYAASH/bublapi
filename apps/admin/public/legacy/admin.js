@@ -270,7 +270,7 @@ function updateSession() {
 }
 
 $('#adminLogout').addEventListener('click', async () => {
-    await fetch('/api/auth/logout', {method: 'POST', headers: {'Content-Type': 'application/json'}});
+    await fetch('/api/v1/auth/logout', {method: 'POST', headers: {'Content-Type': 'application/json'}});
     adminAuthenticated = false;
     stopAutoRefresh();
     location.assign('/login');
@@ -281,7 +281,7 @@ $('#adminLoginForm').addEventListener('submit', async event => {
 
     try {
         const result = await api(
-            '/api/auth/login',
+            '/api/v1/auth/login',
             {
                 method: 'POST',
                 skipAuth: true,
@@ -309,8 +309,8 @@ async function loadSystemStatus() {
         }
     };
     await Promise.all([
-        render('/api/system/health', '#systemHealth'),
-        render('/api/system/info', '#systemInfo')
+        render('/api/v1/system/health', '#systemHealth'),
+        render('/api/v1/system/info', '#systemInfo')
     ]);
 }
 
@@ -419,7 +419,7 @@ function openClinicEdit(clinic) {
 async function loadClinics({silent = false} = {}) {
     try {
         const clinics = await api(
-            '/api/admin/clinics',
+            '/api/v1/admin/clinics',
             {
                 method: 'GET'
             },
@@ -484,7 +484,7 @@ $('#createClinicForm').addEventListener('submit', async event => {
 
     try {
         await api(
-            '/api/admin/clinics',
+            '/api/v1/admin/clinics',
             {
                 method: 'POST',
                 body: formToObject(event.currentTarget)
@@ -526,7 +526,7 @@ $('#clinicsTable').addEventListener('click', async event => {
                 : 'activation';
 
             await api(
-                `/api/admin/clinics/${toggle.dataset.id}/${action}`,
+                `/api/v1/admin/clinics/${toggle.dataset.id}/${action}`,
                 {
                     method: 'PATCH'
                 },
@@ -575,7 +575,7 @@ function renderDentalServiceStatus(service) {
 
 async function getDentalServiceById(serviceId) {
     const service = await api(
-        `/api/admin/catalog/dental-services/${serviceId}`,
+        `/api/v1/admin/catalog/dental-services/${serviceId}`,
         {
             method: 'GET'
         },
@@ -632,7 +632,7 @@ function openDentalServiceEdit(service) {
 async function loadCatalog({silent = false} = {}) {
     try {
         const services = await api(
-            '/api/admin/catalog/dental-services',
+            '/api/v1/admin/catalog/dental-services',
             {
                 method: 'GET'
             },
@@ -711,7 +711,7 @@ $('#createCatalogServiceForm').addEventListener('submit', async event => {
 
     try {
         await api(
-            '/api/admin/catalog/dental-services',
+            '/api/v1/admin/catalog/dental-services',
             {
                 method: 'POST',
                 body
@@ -747,7 +747,7 @@ $('#catalogTable').addEventListener('click', async event => {
 
         if (deactivate) {
             await api(
-                `/api/admin/catalog/dental-services/${deactivate.dataset.id}/deactivation`,
+                `/api/v1/admin/catalog/dental-services/${deactivate.dataset.id}/deactivation`,
                 {method: 'PATCH'},
                 'admin'
             );
@@ -758,7 +758,7 @@ $('#catalogTable').addEventListener('click', async event => {
 
         if (activate) {
             await api(
-                `/api/admin/catalog/dental-services/${activate.dataset.id}/activation`,
+                `/api/v1/admin/catalog/dental-services/${activate.dataset.id}/activation`,
                 {method: 'PATCH'},
                 'admin'
             );
@@ -779,7 +779,7 @@ $('#createApiKeyForm').addEventListener('submit', async event => {
 
     try {
         const result = await api(
-            `/api/admin/api-keys/${values.clinicId}`,
+            `/api/v1/admin/api-keys/${values.clinicId}`,
             {
                 method: 'POST',
                 body: {
@@ -823,7 +823,7 @@ async function loadApiKeys({silent = false} = {}) {
 
     try {
         const apiKeys = await api(
-            '/api/admin/api-keys',
+            '/api/v1/admin/api-keys',
             {method: 'GET'},
             'admin'
         );
@@ -896,7 +896,7 @@ $('#apiKeysTable').addEventListener('click', async event => {
         if (renew) {
             setButtonBusy(actionButton, true, 'Продлеваем…');
             await api(
-                `/api/admin/api-keys/${renew.dataset.clinicId}/renew`,
+                `/api/v1/admin/api-keys/${renew.dataset.clinicId}/renew`,
                 {method: 'PATCH'},
                 'admin'
             );
@@ -915,7 +915,7 @@ $('#apiKeysTable').addEventListener('click', async event => {
 
             setButtonBusy(actionButton, true, 'Меняем…');
             const result = await api(
-                `/api/admin/api-keys/${rotate.dataset.clinicId}/rotate`,
+                `/api/v1/admin/api-keys/${rotate.dataset.clinicId}/rotate`,
                 {method: 'POST'},
                 'admin'
             );
@@ -935,7 +935,7 @@ $('#apiKeysTable').addEventListener('click', async event => {
 
             setButtonBusy(actionButton, true, 'Отзываем…');
             await api(
-                `/api/admin/api-keys/${revoke.dataset.id}`,
+                `/api/v1/admin/api-keys/${revoke.dataset.id}`,
                 {method: 'DELETE'},
                 'admin'
             );
@@ -952,7 +952,7 @@ $('#apiKeysTable').addEventListener('click', async event => {
 
 async function getNotificationById(notificationId) {
     const notification = await api(
-        `/api/admin/notifications/${notificationId}`,
+        `/api/v1/admin/notifications/${notificationId}`,
         {
             method: 'GET'
         },
@@ -983,7 +983,7 @@ async function getNotificationById(notificationId) {
 async function loadNotifications({silent = false} = {}) {
     try {
         const notifications = await api(
-            '/api/admin/notifications',
+            '/api/v1/admin/notifications',
             {
                 method: 'GET'
             },
@@ -1075,7 +1075,7 @@ $('#adminNotifications').addEventListener('click', async event => {
 
 async function getAdminUserById(userId) {
     const user = await api(
-        `/api/admin/users/${userId}`,
+        `/api/v1/admin/users/${userId}`,
         {method: 'GET'},
         'admin'
     );
@@ -1184,7 +1184,7 @@ function filterAdminUsersByEmail() {
 async function loadAdminUsers({silent = false} = {}) {
     try {
         loadedAdminUsers = await api(
-            '/api/admin/users',
+            '/api/v1/admin/users',
             {method: 'GET'},
             'admin'
         );
@@ -1255,7 +1255,7 @@ $('#adminUsers').addEventListener('click', async event => {
         }
 
         await api(
-            `/api/users/${userId}/roles/${roleId}`,
+            `/api/v1/users/${userId}/roles/${roleId}`,
             {
                 method: assign ? 'POST' : 'DELETE'
             },
@@ -1293,7 +1293,7 @@ $('#detailModalActions').addEventListener('click', async event => {
 
         if (clinicSave) {
             await api(
-                `/api/admin/clinics/${clinicSave.dataset.id}`,
+                `/api/v1/admin/clinics/${clinicSave.dataset.id}`,
                 {
                     method: 'PATCH',
                     body: formToObject($('#modalClinicEditForm'))
@@ -1321,7 +1321,7 @@ $('#detailModalActions').addEventListener('click', async event => {
             }
 
             await api(
-                `/api/admin/catalog/dental-services/${catalogSave.dataset.id}`,
+                `/api/v1/admin/catalog/dental-services/${catalogSave.dataset.id}`,
                 {
                     method: 'PATCH',
                     body

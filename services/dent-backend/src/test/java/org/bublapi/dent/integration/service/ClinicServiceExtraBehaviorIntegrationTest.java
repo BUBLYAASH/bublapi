@@ -30,7 +30,7 @@ class ClinicServiceExtraBehaviorIntegrationTest extends IntegrationTestSupport {
       TestClinicData data = createClinicData(RoleName.OWNER);
       ClinicService service = dataFactory.createInactiveClinicService(data.clinic());
 
-      mockMvc.perform(patch("/api/services/{clinicServiceId}/activation", service.getId())
+      mockMvc.perform(patch("/api/v1/services/{clinicServiceId}/activation", service.getId())
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk())
@@ -51,7 +51,7 @@ class ClinicServiceExtraBehaviorIntegrationTest extends IntegrationTestSupport {
       ClinicService service = dataFactory.createClinicService(data.clinic());
       UpdateClinicServiceRequestDto request = new UpdateClinicServiceRequestDto(2_500, 60);
 
-      mockMvc.perform(patch("/api/services/{clinicServiceId}", service.getId())
+      mockMvc.perform(patch("/api/v1/services/{clinicServiceId}", service.getId())
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey())
                               .contentType(MediaType.APPLICATION_JSON)
@@ -80,17 +80,17 @@ class ClinicServiceExtraBehaviorIntegrationTest extends IntegrationTestSupport {
       TestClinicData data = createClinicData(RoleName.OWNER);
       ClinicService service = dataFactory.createInactiveClinicService(data.clinic());
 
-      mockMvc.perform(get("/api/public/services")
+      mockMvc.perform(get("/api/v1/public/services")
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(0)));
 
-      mockMvc.perform(patch("/api/services/{clinicServiceId}/activation", service.getId())
+      mockMvc.perform(patch("/api/v1/services/{clinicServiceId}/activation", service.getId())
                               .header("Authorization", jwtHelper.token(data.user().getId()))
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk());
 
-      mockMvc.perform(get("/api/public/services")
+      mockMvc.perform(get("/api/v1/public/services")
                               .header("X-API-KEY", data.apiKey().rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(1)))

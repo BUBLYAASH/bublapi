@@ -36,7 +36,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
       CreateApiKeyRequestDto request = new CreateApiKeyRequestDto("Clinic API key");
 
-      mockMvc.perform(post("/api/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
+      mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
                                                                                     jwtHelper.token(
                                                                                             admin.getId()))
                                                                             .contentType(
@@ -54,7 +54,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
       CreateApiKeyRequestDto request = new CreateApiKeyRequestDto("Clinic API key");
 
-      mockMvc.perform(post("/api/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
+      mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
                                                                                     jwtHelper.token(
                                                                                             admin.getId()))
                                                                             .contentType(
@@ -64,7 +64,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
                                                                                             request)))
              .andExpect(status().isOk());
 
-      mockMvc.perform(post("/api/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
+      mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
                                                                                     jwtHelper.token(
                                                                                             admin.getId()))
                                                                             .contentType(
@@ -83,7 +83,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       ApiKey before = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
       LocalDateTime oldExpiresAt = before.getExpiresAt();
 
-      mockMvc.perform(patch("/api/admin/api-keys/{clinicId}/renew", clinic.getId()).header("Authorization",
+      mockMvc.perform(patch("/api/v1/admin/api-keys/{clinicId}/renew", clinic.getId()).header("Authorization",
                                                                                            jwtHelper.token(
                                                                                                    admin.getId())))
              .andExpect(status().isOk());
@@ -99,7 +99,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       String oldRawKey = dataFactory.createApiKey(clinic).rawKey();
       ApiKey oldApiKey = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
 
-      mockMvc.perform(post("/api/admin/api-keys/{clinicId}/rotate", clinic.getId()).header("Authorization",
+      mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}/rotate", clinic.getId()).header("Authorization",
                                                                                            jwtHelper.token(
                                                                                                    admin.getId())))
              .andExpect(status().isOk())
@@ -123,7 +123,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       dataFactory.createApiKey(clinic);
       ApiKey apiKey = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
 
-      mockMvc.perform(delete("/api/admin/api-keys/{apiKeyId}", apiKey.getId()).header("Authorization",
+      mockMvc.perform(delete("/api/v1/admin/api-keys/{apiKeyId}", apiKey.getId()).header("Authorization",
                                                                                       jwtHelper.token(admin.getId())))
              .andExpect(status().isNoContent());
 
@@ -139,7 +139,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       dataFactory.createApiKey(firstClinic);
       dataFactory.createApiKey(secondClinic);
 
-      mockMvc.perform(get("/api/admin/api-keys").header("Authorization", jwtHelper.token(admin.getId())))
+      mockMvc.perform(get("/api/v1/admin/api-keys").header("Authorization", jwtHelper.token(admin.getId())))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(2)))
              .andExpect(jsonPath("$[*].clinicId", containsInAnyOrder(firstClinic.getId().toString(),
@@ -154,7 +154,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
    void requestWithInvalidApiKeyShouldReturnUnauthorized() throws Exception {
       TestClinicData data = createClinicData(RoleName.OWNER);
 
-      mockMvc.perform(get("/api/patients").header("Authorization", jwtHelper.token(data.user().getId()))
+      mockMvc.perform(get("/api/v1/patients").header("Authorization", jwtHelper.token(data.user().getId()))
                                           .header("X-API-KEY", "bad-key")).andExpect(status().isUnauthorized());
    }
 
@@ -162,7 +162,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
    void requestWithoutApiKeyShouldReturnUnauthorized() throws Exception {
       TestClinicData data = createClinicData(RoleName.OWNER);
 
-      mockMvc.perform(get("/api/patients").header("Authorization", jwtHelper.token(data.user().getId())))
+      mockMvc.perform(get("/api/v1/patients").header("Authorization", jwtHelper.token(data.user().getId())))
              .andExpect(status().isUnauthorized());
    }
 
@@ -170,7 +170,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
    void adminEndpointShouldWorkWithoutApiKey() throws Exception {
       User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
 
-      mockMvc.perform(get("/api/admin/clinics").header("Authorization", jwtHelper.token(admin.getId())))
+      mockMvc.perform(get("/api/v1/admin/clinics").header("Authorization", jwtHelper.token(admin.getId())))
              .andExpect(status().isOk());
    }
 }

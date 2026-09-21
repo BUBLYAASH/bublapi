@@ -92,7 +92,7 @@ async function fetchPublicJson(path) {
 }
 
 async function loadDoctors() {
-  const doctors = await fetchPublicJson('/api/public/doctors');
+  const doctors = await fetchPublicJson('/api/v1/public/doctors');
   if (!Array.isArray(doctors)) {
     throw new Error('Public doctors response is not an array');
   }
@@ -100,7 +100,7 @@ async function loadDoctors() {
   return Promise.all(doctors.map(async doctor => {
     try {
       const hours = await fetchPublicJson(
-        `/api/public/doctors/${encodeURIComponent(doctor.id)}/working-hours`
+        `/api/v1/public/doctors/${encodeURIComponent(doctor.id)}/working-hours`
       );
       return { ...doctor, workingHours: Array.isArray(hours) ? hours : [] };
     } catch {
@@ -110,7 +110,7 @@ async function loadDoctors() {
 }
 
 async function loadServices() {
-  const services = await fetchPublicJson('/api/public/services');
+  const services = await fetchPublicJson('/api/v1/public/services');
   if (!Array.isArray(services)) {
     throw new Error('Public services response is not an array');
   }

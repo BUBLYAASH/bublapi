@@ -51,7 +51,7 @@ export async function GET(request) {
         try {
           const headers = { 'Accept':'application/json', 'Authorization':authorization };
           if (API_KEY) headers['X-API-KEY'] = API_KEY;
-          const response = await fetch(`${API_BASE}/api/appointments`, { headers, cache:'no-store' });
+          const response = await fetch(`${API_BASE}/api/v1/appointments`, { headers, cache:'no-store' });
           if (response.status === 401 || response.status === 403) {
             send('auth-error', { status:response.status });
             close();

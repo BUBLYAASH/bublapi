@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Tag(name = "Public Clinic")
 @RestController
-@RequestMapping("/api/public/clinic")
+@RequestMapping("/api/v1/public/clinic")
 public class PublicClinicController {
 
    @Operation(summary = "Show clinic timezone")

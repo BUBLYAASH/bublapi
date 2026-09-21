@@ -76,9 +76,9 @@
     }
 
     const [patient, staffCore, staffAppointments] = await Promise.all([
-      probe('/api/notifications/unread-count'),
-      probe('/api/patients'),
-      probe('/api/appointments')
+      probe('/api/v1/notifications/unread-count'),
+      probe('/api/v1/patients'),
+      probe('/api/v1/appointments')
     ]);
 
     freshAccess = {
@@ -275,7 +275,7 @@
     if (staffPatientsPromise) return staffPatientsPromise;
 
     staffPatientsPromise = (async () => {
-      const response = await fetch('/api/patients', {
+      const response = await fetch('/api/v1/patients', {
         method: 'GET',
         headers: authorizationHeaders(),
         cache: 'no-store'
@@ -501,7 +501,7 @@
       if (!event.target?.matches?.('#staffPatientSearch')) return;
 
       // The legacy listener searches a cache that is not populated by the
-      // dashboard loader. Stop that listener and use the real /api/patients
+      // dashboard loader. Stop that listener and use the real /api/v1/patients
       // response instead.
       event.stopImmediatePropagation();
 

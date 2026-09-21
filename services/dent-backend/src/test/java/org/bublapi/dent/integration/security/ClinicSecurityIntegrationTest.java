@@ -29,7 +29,7 @@ class ClinicSecurityIntegrationTest extends IntegrationTestBase {
 
       String apiKeyClinicB = dataFactory.createApiKey(clinicB).rawKey();
 
-      mockMvc.perform(get("/api/patients").header("Authorization", userAToken)
+      mockMvc.perform(get("/api/v1/patients").header("Authorization", userAToken)
                                           .header("X-API-KEY", apiKeyClinicB))
              .andExpect(status().isForbidden());
    }
@@ -44,7 +44,7 @@ class ClinicSecurityIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(get("/api/patient/patient-card").header("Authorization", token).header("X-API-KEY", apiKey))
+      mockMvc.perform(get("/api/v1/patient/patient-card").header("Authorization", token).header("X-API-KEY", apiKey))
              .andExpect(status().isUnauthorized());
    }
 
@@ -58,7 +58,7 @@ class ClinicSecurityIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(get("/api/patients").header("Authorization", token).header("X-API-KEY", apiKey))
+      mockMvc.perform(get("/api/v1/patients").header("Authorization", token).header("X-API-KEY", apiKey))
              .andExpect(status().isOk());
    }
 }

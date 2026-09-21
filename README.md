@@ -74,9 +74,13 @@ The demo application demonstrates how a client application can integrate with Bu
 
 The production BublAPI Dent API is available at:
 
-**https://dent.bublapi.ru**
+**https://dent.bublapi.ru/api/v1/**
 
 The API is designed to support both authenticated users and integrations using clinic API keys.
+
+All application API endpoints use the `/api/v1` prefix, including authentication, public clinic data, and administration. Both web applications proxy requests through the same prefix. `SPRING_API_URL` remains the backend origin (for example, `http://localhost:8080`), without an API path.
+
+The API version is independent of the application release version in `VERSION`. Swagger/OpenAPI (`/swagger-ui`, `/v3/api-docs`) and Actuator (`/actuator`) keep their existing paths.
 
 ## Website
 

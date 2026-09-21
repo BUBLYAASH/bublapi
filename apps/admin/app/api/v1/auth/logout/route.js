@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { requestHasSameOrigin } from '../../../../lib/upstream';
-import { sessionCookieName, sessionCookieOptions } from '../../../../lib/session';
+import { requestHasSameOrigin } from '../../../../../lib/upstream';
+import { sessionCookieName, sessionCookieOptions } from '../../../../../lib/session';
 
 export async function POST(request) {
   if (!requestHasSameOrigin(request)) {
