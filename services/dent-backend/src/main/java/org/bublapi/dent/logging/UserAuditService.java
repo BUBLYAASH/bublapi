@@ -111,6 +111,14 @@ public class UserAuditService {
       logAfterCommit("DELETE", "DOCTOR_CLINIC_SERVICE", doctorClinicServiceId, List.of());
    }
 
+   public void userUpdated(UUID userId, List<String> changedFields) {
+      if (changedFields == null || changedFields.isEmpty()) {
+         return;
+      }
+
+      logAfterCommit("UPDATE", "USER", userId, changedFields);
+   }
+
    private void logAfterCommit(String action, String entityType, UUID entityId, List<String> changedFields) {
       Runnable auditEvent = () -> {
          LoggingEventBuilder event = log.atInfo()

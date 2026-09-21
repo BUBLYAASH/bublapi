@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -51,8 +52,12 @@ public class AdministrativeAuditService {
       logAfterCommit("CREATE", "CLINIC", clinicId, clinicId);
    }
 
-   public void clinicUpdated(UUID clinicId) {
-      logAfterCommit("UPDATE", "CLINIC", clinicId, clinicId);
+   public void clinicUpdated(UUID clinicId, List<String> changedFields) {
+      if (changedFields == null || changedFields.isEmpty()) {
+         return;
+      }
+
+      logAfterCommit("UPDATE", "CLINIC", clinicId, clinicId, changedFields);
    }
 
    public void clinicDeactivated(UUID clinicId) {
@@ -67,8 +72,12 @@ public class AdministrativeAuditService {
       logAfterCommit("CREATE", "DENTAL_SERVICE", dentalServiceId, null);
    }
 
-   public void dentalServiceUpdated(UUID dentalServiceId) {
-      logAfterCommit("UPDATE", "DENTAL_SERVICE", dentalServiceId, null);
+   public void dentalServiceUpdated(UUID dentalServiceId, List<String> changedFields) {
+      if (changedFields == null || changedFields.isEmpty()) {
+         return;
+      }
+
+      logAfterCommit("UPDATE", "DENTAL_SERVICE", dentalServiceId, null, changedFields);
    }
 
    public void dentalServiceDeactivated(UUID dentalServiceId) {
@@ -79,7 +88,16 @@ public class AdministrativeAuditService {
       logAfterCommit("ACTIVATE", "DENTAL_SERVICE", dentalServiceId, null);
    }
 
-   private void logAfterCommit(String action, String entityType, UUID entityId, UUID clinicId) {
+   public void notificationRetried(UUID notificationId, UUID clinicId) {
+      logAfterCommit("RETRY", "NOTIFICATION", notificationId, clinicId);
+   }
+
+   public void notificationDeleted(UUID notificationId, UUID clinicId) {
+      logAfterCommit("DELETE", "NOTIFICATION", notificationId, clinicId);
+   }
+
+   private void logAfterCommit(String action, String entityType, UUID entityId, UUID clinicId, String role,
+                               List<String> changedFields) {
       Runnable auditEvent = () -> {
          LoggingEventBuilder event = log.atInfo()
                                         .addKeyValue("action", action)
@@ -91,32 +109,12 @@ public class AdministrativeAuditService {
             event.addKeyValue("clinicId", clinicId);
          }
 
-         event.log("Administrative action completed");
-      };
+         if (role != null) {
+            event.addKeyValue("role", role);
+         }
 
-      if (TransactionSynchronizationManager.isSynchronizationActive()) {
-         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-               auditEvent.run();
-            }
-         });
-      } else {
-         auditEvent.run();
-      }
-   }
-
-   private void logAfterCommit(String action, String entityType, UUID entityId, UUID clinicId, String role) {
-      Runnable auditEvent = () -> {
-         LoggingEventBuilder event = log.atInfo()
-                                        .addKeyValue("action", action)
-                                        .addKeyValue("entityType", entityType)
-                                        .addKeyValue("entityId", entityId)
-                                        .addKeyValue("result", "SUCCESS")
-                                        .addKeyValue("role", role);
-
-         if (clinicId != null && MDC.get("clinicId") == null) {
-            event.addKeyValue("clinicId", clinicId);
+         if (changedFields != null && !changedFields.isEmpty()) {
+            event.addKeyValue("changedFields", changedFields);
          }
 
          event.log("Administrative action completed");
@@ -132,5 +130,21 @@ public class AdministrativeAuditService {
       } else {
          auditEvent.run();
       }
+   }
+
+   private void logAfterCommit(String action, String entityType, UUID entityId, UUID clinicId) {
+
+      logAfterCommit(action, entityType, entityId, clinicId, null, null);
+   }
+
+   private void logAfterCommit(String action, String entityType, UUID entityId, UUID clinicId, String role) {
+
+      logAfterCommit(action, entityType, entityId, clinicId, role, null);
+   }
+
+   private void logAfterCommit(String action, String entityType, UUID entityId, UUID clinicId,
+                               List<String> changedFields) {
+
+      logAfterCommit(action, entityType, entityId, clinicId, null, changedFields);
    }
 }

@@ -2,6 +2,7 @@ package org.bublapi.dent.notification.service;
 
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
+import org.bublapi.dent.logging.AdministrativeAuditService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.dispatcher.NotificationDispatcher;
 import org.bublapi.dent.notification.dto.NotificationResponseDto;
@@ -30,17 +31,20 @@ public class NotificationService {
    private final NotificationDispatcher notificationDispatcher;
    private final NotificationContentRenderer contentRenderer;
    private final NotificationProducer notificationProducer;
+   private final AdministrativeAuditService administrativeAuditService;
 
    public NotificationService(NotificationRepository notificationRepository, NotificationMapper notificationMapper,
                               NotificationTransactionService transactionService,
                               NotificationDispatcher notificationDispatcher,
-                              NotificationContentRenderer contentRenderer, NotificationProducer notificationProducer) {
+                              NotificationContentRenderer contentRenderer, NotificationProducer notificationProducer,
+                              AdministrativeAuditService administrativeAuditService) {
       this.notificationRepository = notificationRepository;
       this.notificationMapper = notificationMapper;
       this.transactionService = transactionService;
       this.notificationDispatcher = notificationDispatcher;
       this.contentRenderer = contentRenderer;
       this.notificationProducer = notificationProducer;
+      this.administrativeAuditService = administrativeAuditService;
    }
 
    public void create(CreateNotificationCommand command) {
@@ -138,6 +142,8 @@ public class NotificationService {
       if (!notification.isDeleted()) {
          notification.setDeleted(true);
          notification.setDeletedAt(LocalDateTime.now());
+
+         administrativeAuditService.notificationDeleted(notification.getId(), notification.getClinic().getId());
       }
    }
 
@@ -164,6 +170,8 @@ public class NotificationService {
                                                                         notification.getScheduledAt());
 
       notificationProducer.publish(command);
+
+      administrativeAuditService.notificationRetried(notification.getId(), notification.getClinic().getId());
    }
 
    private void send(CreateNotificationCommand command, NotificationChannel channel, NotificationContent content) {

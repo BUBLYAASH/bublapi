@@ -12,7 +12,9 @@ import org.bublapi.dent.logging.AdministrativeAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -53,9 +55,11 @@ public class DentalServiceService {
          throw new BadRequestException("Service with this title already exists");
       }
 
+      List<String> changedFields = getChangedFields(dentalService, request);
+
       dentalServiceMapper.updateEntity(request, dentalService);
 
-      administrativeAuditService.dentalServiceUpdated(dentalService.getId());
+      administrativeAuditService.dentalServiceUpdated(dentalService.getId(), changedFields);
 
       return dentalServiceMapper.toResponse(dentalService);
    }
@@ -98,5 +102,28 @@ public class DentalServiceService {
       administrativeAuditService.dentalServiceActivated(dentalService.getId());
 
       return dentalServiceMapper.toResponse(dentalService);
+   }
+
+   private List<String> getChangedFields(DentalService dentalService, UpdateDentalServiceRequestDto request) {
+      List<String> changedFields = new ArrayList<>();
+
+      if (request.title() != null && !Objects.equals(request.title(), dentalService.getTitle())) {
+         changedFields.add("title");
+      }
+
+      if (request.description() != null && !Objects.equals(request.description(), dentalService.getDescription())) {
+         changedFields.add("description");
+      }
+
+      if (request.category() != null && !Objects.equals(request.category(), dentalService.getCategory())) {
+         changedFields.add("category");
+      }
+
+      if (request.defaultDurationMinutes() != null && !Objects.equals(request.defaultDurationMinutes(),
+                                                                      dentalService.getDefaultDurationMinutes())) {
+         changedFields.add("defaultDurationMinutes");
+      }
+
+      return changedFields;
    }
 }

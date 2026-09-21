@@ -9,6 +9,7 @@ import org.bublapi.dent.apikey.service.ApiKeyService;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.logging.SecurityLogService;
+import org.slf4j.MDC;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,9 +29,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
    @Override
    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                   FilterChain filterChain) throws
-           ServletException,
-           IOException {
+                                   FilterChain filterChain) throws ServletException, IOException {
 
       String path = request.getRequestURI();
 
@@ -53,6 +52,8 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
          ClinicContext.set(key.getClinic());
 
+         MDC.put("clinicId", key.getClinic().getId().toString());
+
          securityLogService.apiKeyAuthenticationSuccess(key.getId(), key.getClinic().getId());
 
          filterChain.doFilter(request, response);
@@ -61,6 +62,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       } finally {
+         MDC.remove("clinicId");
          ClinicContext.clear();
       }
    }

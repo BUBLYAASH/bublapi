@@ -6,6 +6,7 @@ import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.logging.AdministrativeAuditService;
 import org.bublapi.dent.logging.SecurityLogService;
+import org.bublapi.dent.logging.UserAuditService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.command.UserNotificationData;
 import org.bublapi.dent.notification.entity.NotificationType;
@@ -29,8 +30,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,11 +48,12 @@ public class UserService {
    private final NotificationPublisher notificationPublisher;
    private final SecurityLogService securityLogService;
    private final AdministrativeAuditService administrativeAuditService;
+   private final UserAuditService userAuditService;
 
    public UserService(UserRepository userRepository, RoleRepository roleRepository, PatientRepository patientRepository,
                       UserMapper userMapper, PasswordEncoder passwordEncoder,
                       NotificationPublisher notificationPublisher, SecurityLogService securityLogService,
-                      AdministrativeAuditService administrativeAuditService) {
+                      AdministrativeAuditService administrativeAuditService, UserAuditService userAuditService) {
       this.userRepository = userRepository;
       this.roleRepository = roleRepository;
       this.patientRepository = patientRepository;
@@ -58,6 +62,7 @@ public class UserService {
       this.notificationPublisher = notificationPublisher;
       this.securityLogService = securityLogService;
       this.administrativeAuditService = administrativeAuditService;
+      this.userAuditService = userAuditService;
    }
 
    @Transactional
@@ -117,6 +122,8 @@ public class UserService {
       User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+      List<String> changedFields = getChangedFields(user, request, email, phone);
+
       userMapper.updateEntity(request, user);
 
       if (request.password() != null && !request.password().isBlank()) {
@@ -130,6 +137,8 @@ public class UserService {
       if (phone != null && !phone.isBlank()) {
          user.setPhone(phone);
       }
+
+      userAuditService.userUpdated(user.getId(), changedFields);
 
       return userMapper.toResponse(user);
    }
@@ -268,5 +277,35 @@ public class UserService {
               new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
                                             new UserNotificationData(user.getClinic().getTitle(), user.getFirstName()),
                                             LocalDateTime.now()));
+   }
+
+   private List<String> getChangedFields(User user, UpdateUserRequestDto request, String email, String phone) {
+      List<String> changedFields = new ArrayList<>();
+
+      if (email != null && !email.isBlank() && !Objects.equals(request.email(), user.getEmail())) {
+         changedFields.add("email");
+      }
+
+      if (phone != null && !phone.isBlank() && !Objects.equals(request.phone(), user.getPhone())) {
+         changedFields.add("phone");
+      }
+
+      if (request.firstName() != null && !Objects.equals(request.firstName(), user.getFirstName())) {
+         changedFields.add("firstName");
+      }
+
+      if (request.lastName() != null && !Objects.equals(request.lastName(), user.getLastName())) {
+         changedFields.add("lastName");
+      }
+
+      if (request.middleName() != null && !Objects.equals(request.middleName(), user.getMiddleName())) {
+         changedFields.add("middleName");
+      }
+
+      if (request.password() != null && !request.password().isBlank()) {
+         changedFields.add("password");
+      }
+
+      return changedFields;
    }
 }

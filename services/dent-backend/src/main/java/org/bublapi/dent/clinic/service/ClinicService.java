@@ -14,7 +14,9 @@ import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -54,9 +56,11 @@ public class ClinicService {
       Clinic clinic = clinicRepository.findById(id)
                                       .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
 
+      List<String> changedFields = getChangedFields(clinic, request);
+
       clinicMapper.updateEntity(request, clinic);
 
-      administrativeAuditService.clinicUpdated(clinic.getId());
+      administrativeAuditService.clinicUpdated(clinic.getId(), changedFields);
 
       return clinicMapper.toResponse(clinic);
    }
@@ -95,5 +99,39 @@ public class ClinicService {
 
    public List<ClinicResponseDto> findAll() {
       return clinicRepository.findAll().stream().map(clinicMapper::toResponse).toList();
+   }
+
+   private List<String> getChangedFields(Clinic clinic, UpdateClinicRequestDto request) {
+      List<String> changedFields = new ArrayList<>();
+
+      if (request.title() != null && !Objects.equals(request.title(), clinic.getTitle())) {
+         changedFields.add("title");
+      }
+
+      if (request.description() != null && !Objects.equals(request.description(), clinic.getDescription())) {
+         changedFields.add("description");
+      }
+
+      if (request.address() != null && !Objects.equals(request.address(), clinic.getAddress())) {
+         changedFields.add("address");
+      }
+
+      if (request.phone() != null && !Objects.equals(request.phone(), clinic.getPhone())) {
+         changedFields.add("phone");
+      }
+
+      if (request.email() != null && !Objects.equals(request.email(), clinic.getEmail())) {
+         changedFields.add("email");
+      }
+
+      if (request.website() != null && !Objects.equals(request.website(), clinic.getWebsite())) {
+         changedFields.add("website");
+      }
+
+      if (request.timezone() != null && !Objects.equals(request.timezone(), clinic.getTimezone())) {
+         changedFields.add("timezone");
+      }
+
+      return changedFields;
    }
 }
