@@ -282,11 +282,11 @@ public class UserService {
    private List<String> getChangedFields(User user, UpdateUserRequestDto request, String email, String phone) {
       List<String> changedFields = new ArrayList<>();
 
-      if (email != null && !email.isBlank() && !Objects.equals(request.email(), user.getEmail())) {
+      if (email != null && !email.isBlank() && !Objects.equals(email, user.getEmail())) {
          changedFields.add("email");
       }
 
-      if (phone != null && !phone.isBlank() && !Objects.equals(request.phone(), user.getPhone())) {
+      if (phone != null && !phone.isBlank() && !Objects.equals(phone, user.getPhone())) {
          changedFields.add("phone");
       }
 

@@ -147,7 +147,7 @@ public class NotificationService {
       }
    }
 
-   @Transactional(readOnly = true)
+   @Transactional
    public void retry(UUID notificationId) {
       Notification notification = notificationRepository.findById(notificationId)
                                                         .orElseThrow(() -> new ResourceNotFoundException(
