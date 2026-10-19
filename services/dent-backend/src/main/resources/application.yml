@@ -57,7 +57,8 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration-ms: 2592000000
+  expiration-ms: 900000
+  refresh-expiration-days: 30
 
 management:
   endpoints:

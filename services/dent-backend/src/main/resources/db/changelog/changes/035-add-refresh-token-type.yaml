@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 035-add-refresh-token-type
+      author: Gleb Kovalev
+      changes:
+        - addColumn:
+            tableName: refresh_tokens
+            columns:
+              - column:
+                  name: token_type
+                  type: varchar(10)
+                  defaultValue: USER
+                  constraints:
+                    nullable: false

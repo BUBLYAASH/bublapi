@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: 033-create-important-indexes
+      author: Gleb Kovalev
+      changes:
+        - createIndex:
+            tableName: appointments
+            indexName: idx_appointments_clinic_scheduled
+            columns:
+              - column:
+                  name: clinic_id
+              - column:
+                  name: scheduled_at
+                  descending: true
+
+        - createIndex:
+            tableName: appointments
+            indexName: idx_appointments_clinic_patient_scheduled
+            columns:
+              - column:
+                  name: clinic_id
+              - column:
+                  name: patient_id
+              - column:
+                  name: scheduled_at
+                  descending: true
+
+        - createIndex:
+            tableName: appointments
+            indexName: idx_appointments_clinic_doctor_scheduled
+            columns:
+              - column:
+                  name: clinic_id
+              - column:
+                  name: doctor_id
+              - column:
+                  name: scheduled_at
+
+        - sql:
+            sql: |
+              CREATE INDEX idx_notifications_status_sent ON notifications (user_id, channel, status, sent_at DESC)
+              WHERE deleted = false;
+
+        - sql:
+            sql: |
+              CREATE INDEX idx_users_clinic_email_lower
+              ON users (clinic_id, lower(email));
+
+        - createIndex:
+            tableName: appointment_services
+            indexName: idx_appointment_services_clinic_service
+            columns:
+              - column:
+                  name: clinic_service_id

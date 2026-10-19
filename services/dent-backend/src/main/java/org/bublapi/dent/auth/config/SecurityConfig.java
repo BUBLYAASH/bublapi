@@ -3,8 +3,10 @@ package org.bublapi.dent.auth.config;
 
 import org.bublapi.dent.auth.security.ApiKeyFilter;
 import org.bublapi.dent.auth.security.JwtAuthenticationFilter;
+import org.bublapi.dent.auth.security.RefreshOriginFilter;
 import org.bublapi.dent.auth.security.RestAccessDeniedHandler;
 import org.bublapi.dent.auth.security.RestAuthenticationEntryPoint;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -46,7 +48,8 @@ public class SecurityConfig {
    }
 
    @Bean
-   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+   public SecurityFilterChain securityFilterChain(HttpSecurity http, RefreshOriginFilter refreshOriginFilter) throws
+           Exception {
       http.csrf(AbstractHttpConfigurer::disable)
           .cors(cors -> cors.configurationSource(corsConfigurationSource()))
           .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -66,7 +69,8 @@ public class SecurityConfig {
           .formLogin(AbstractHttpConfigurer::disable)
           .httpBasic(AbstractHttpConfigurer::disable)
           .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class)
-          .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+          .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+          .addFilterBefore(refreshOriginFilter, UsernamePasswordAuthenticationFilter.class);
 
       return http.build();
    }
@@ -86,5 +90,15 @@ public class SecurityConfig {
       source.registerCorsConfiguration("/**", configuration);
 
       return source;
+   }
+
+   @Bean
+   public FilterRegistrationBean<RefreshOriginFilter> refreshOriginFilterFilterRegistration(
+           RefreshOriginFilter filter) {
+      FilterRegistrationBean<RefreshOriginFilter> registration = new FilterRegistrationBean<>(filter);
+
+      registration.setEnabled(false);
+
+      return registration;
    }
 }
