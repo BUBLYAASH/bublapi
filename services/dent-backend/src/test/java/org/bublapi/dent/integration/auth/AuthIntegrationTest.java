@@ -31,8 +31,8 @@ class AuthIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                             .content(objectMapper.writeValueAsString(request))
-                                             .header("X-API-KEY", apiKey))
+                                                .content(objectMapper.writeValueAsString(request))
+                                                .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.token").exists());
    }
@@ -49,8 +49,8 @@ class AuthIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                             .content(objectMapper.writeValueAsString(request))
-                                             .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
+                                                .content(objectMapper.writeValueAsString(request))
+                                                .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
 
    @Test
@@ -65,12 +65,12 @@ class AuthIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                             .content(objectMapper.writeValueAsString(request))
-                                             .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
+                                                .content(objectMapper.writeValueAsString(request))
+                                                .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
 
    @Test
-   void login_shouldFailUnkownEmail() throws Exception {
+   void login_shouldFailUnknownEmail() throws Exception {
       Clinic clinic = dataFactory.createClinic();
       String email = UUID.randomUUID() + "@mail.com";
 
@@ -81,7 +81,7 @@ class AuthIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                             .content(objectMapper.writeValueAsString(request))
-                                             .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
+                                                .content(objectMapper.writeValueAsString(request))
+                                                .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
 }
