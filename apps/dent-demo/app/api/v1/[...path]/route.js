@@ -1,3 +1,5 @@
+import { sameOrigin, backendOrigin } from '../../../../lib/auth-origin';
+
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -6,7 +8,11 @@ const API_KEY = process.env.CLINIC_API_KEY || '';
 
 const FORWARDED_HEADER_DENYLIST = new Set([
   'host',
+  'cookie',
+  'set-cookie',
+  'x-api-key',
   'content-length',
+  'content-encoding',
   'connection',
   'transfer-encoding',
   'keep-alive',
@@ -177,6 +183,9 @@ async function buildResponse(upstream, path) {
     }
   });
 
+  for (const cookie of upstream.headers.getSetCookie()) {
+    if (cookie.startsWith('refresh_token=')) responseHeaders.append('Set-Cookie', cookie);
+  }
   responseHeaders.set('Cache-Control', 'no-store');
 
   if (
@@ -206,6 +215,13 @@ async function buildResponse(upstream, path) {
 
 async function proxy(request, context) {
   const { path = [] } = await context.params;
+  const route = path.join('/');
+  if (path.some(part => !part || part === '.' || part === '..' || /[\\/?#%]/.test(part)) || path[0] === 'admin') {
+    return Response.json({ message: 'Endpoint запрещён' }, { status: 404 });
+  }
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method) && !sameOrigin(request)) {
+    return Response.json({ message: 'Недопустимый источник запроса' }, { status: 403 });
+  }
   const incoming = new URL(request.url);
   const target = new URL(`${API_BASE}/api/v1/${path.join('/')}`);
   target.search = incoming.search;
@@ -218,6 +234,14 @@ async function proxy(request, context) {
   });
 
   if (API_KEY) headers.set('X-API-KEY', API_KEY);
+  if (['auth/login', 'auth/refresh', 'auth/logout'].includes(route)) {
+    headers.delete('authorization');
+    headers.set('Origin', backendOrigin(request));
+    if (route !== 'auth/login') {
+      const refresh = request.cookies.get('refresh_token')?.value;
+      if (refresh) headers.set('Cookie', `refresh_token=${encodeURIComponent(refresh)}`);
+    }
+  }
   headers.set('X-Forwarded-Proto', incoming.protocol.replace(':',''));
   headers.set('X-Forwarded-Host', incoming.host);
 

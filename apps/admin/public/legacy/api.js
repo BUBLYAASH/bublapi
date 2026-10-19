@@ -1,3 +1,5 @@
+import { ensureAdminSession, sessionLock } from '../session.js';
+
 function extractErrorMessage(data, rawText, status) {
   if (typeof data === 'string' && data.trim()) {
     return data;
@@ -62,7 +64,15 @@ export async function api(path, options = {}, kind = 'user') {
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(path, {
+  let sessionVersion;
+  if (!path.startsWith('/api/v1/auth/')) {
+    try { sessionVersion = await ensureAdminSession(); }
+    catch (error) {
+      if (error.status === 401) window.dispatchEvent(new CustomEvent('admin:unauthorized'));
+      throw error;
+    }
+  }
+  const init = {
     ...requestOptions,
     headers,
     credentials: 'same-origin',
@@ -70,7 +80,18 @@ export async function api(path, options = {}, kind = 'user') {
     body: hasBody && !isFormData
         ? JSON.stringify(requestOptions.body)
         : requestOptions.body
-  });
+  };
+  let response = path === '/api/v1/auth/login'
+    ? await sessionLock(() => fetch(path, init)) : await fetch(path, init);
+  if (response.status === 401 && !path.startsWith('/api/v1/auth/')) {
+    await response.body?.cancel();
+    try { await ensureAdminSession(true, sessionVersion); }
+    catch (error) {
+      if (error.status === 401) window.dispatchEvent(new CustomEvent('admin:unauthorized'));
+      throw error;
+    }
+    response = await fetch(path, init);
+  }
 
   const text = await response.text();
   let data = null;

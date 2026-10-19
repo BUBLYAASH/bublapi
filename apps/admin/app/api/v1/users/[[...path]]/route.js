@@ -6,7 +6,6 @@ import {
   requestHasSameOrigin,
   upstreamHeaders
 } from '../../../../../lib/upstream';
-import { sessionCookieName, sessionCookieOptions } from '../../../../../lib/session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -61,13 +60,6 @@ async function proxy(request, context) {
       headers: copyResponseHeaders(upstream)
     });
 
-    if (upstream.status === 401) {
-      response.cookies.set(
-        sessionCookieName(),
-        '',
-        sessionCookieOptions(0)
-      );
-    }
 
     return response;
   } catch (error) {

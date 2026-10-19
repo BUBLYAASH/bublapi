@@ -1,8 +1,9 @@
+import { accessMaxAge } from './refresh-session';
 import { API_BASE } from './upstream';
 
 export async function hasValidAdminSession(token) {
   const normalized = String(token || '').trim();
-  if (!normalized) return false;
+  if (!normalized || accessMaxAge(normalized) < 10) return false;
 
   const authorization = normalized.startsWith('Bearer ')
     ? normalized

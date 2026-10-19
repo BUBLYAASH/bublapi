@@ -13,38 +13,20 @@ const HOP_BY_HOP = new Set([
   'proxy-authorization',
   'te',
   'trailers',
-  'origin'
+  'origin',
+  'authorization',
+  'x-api-key'
 ]);
 
-function firstForwardedValue(value) {
-  return value?.split(',')[0]?.trim() || '';
-}
-
-function normalizedOrigin(value) {
-  if (!value) return '';
-  try {
-    return new URL(value).origin;
-  } catch {
-    return '';
-  }
+export function adminPublicOrigin(request) {
+  return process.env.ADMIN_PUBLIC_ORIGIN
+    ? new URL(process.env.ADMIN_PUBLIC_ORIGIN).origin
+    : new URL(request.url).origin;
 }
 
 export function requestHasSameOrigin(request) {
-  const origin = normalizedOrigin(request.headers.get('origin'));
-  if (!origin) return true;
-
-  const allowedOrigins = new Set([new URL(request.url).origin]);
-  const configuredOrigin = normalizedOrigin(process.env.ADMIN_PUBLIC_ORIGIN);
-  if (configuredOrigin) allowedOrigins.add(configuredOrigin);
-
-  const forwardedHost = firstForwardedValue(request.headers.get('x-forwarded-host'))
-    || firstForwardedValue(request.headers.get('host'));
-  const forwardedProto = firstForwardedValue(request.headers.get('x-forwarded-proto'));
-  if (forwardedHost && (forwardedProto === 'http' || forwardedProto === 'https')) {
-    allowedOrigins.add(`${forwardedProto}://${forwardedHost}`);
-  }
-
-  return allowedOrigins.has(origin);
+  const origin = request.headers.get('origin');
+  return !!origin && origin !== 'null' && origin === adminPublicOrigin(request);
 }
 
 export function upstreamHeaders(request, token, { contentType } = {}) {
@@ -65,7 +47,7 @@ export function copyResponseHeaders(upstream) {
   const headers = new Headers();
   upstream.headers.forEach((value, name) => {
     const normalized = name.toLowerCase();
-    if (!HOP_BY_HOP.has(normalized) && !['set-cookie', 'x-frame-options', 'content-security-policy'].includes(normalized)) {
+    if (!HOP_BY_HOP.has(normalized) && !['set-cookie', 'x-frame-options', 'content-security-policy', 'content-encoding', 'content-length'].includes(normalized)) {
       headers.set(name, value);
     }
   });

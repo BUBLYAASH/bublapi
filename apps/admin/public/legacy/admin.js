@@ -270,7 +270,10 @@ function updateSession() {
 }
 
 $('#adminLogout').addEventListener('click', async () => {
-    await fetch('/api/v1/auth/logout', {method: 'POST', headers: {'Content-Type': 'application/json'}});
+    let response;
+    try { response = await (await import('/session.js')).sessionLock(() => fetch('/api/v1/auth/logout', {method: 'POST', headers: {'Content-Type': 'application/json'}})); }
+    catch { toast('Не удалось завершить сессию. Повторите выход.', 'error'); return; }
+    if (!response.ok) { toast('Не удалось завершить сессию. Повторите выход.', 'error'); return; }
     adminAuthenticated = false;
     stopAutoRefresh();
     location.assign('/login');

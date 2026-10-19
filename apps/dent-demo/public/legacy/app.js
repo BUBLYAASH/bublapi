@@ -1,5 +1,9 @@
 import {
     api,
+    restoreSession,
+    logoutSession,
+    refreshSession,
+    sessionToken,
     clearToken,
     detailItem,
     escapeHtml,
@@ -1470,8 +1474,17 @@ function setAuthSubmitting(form, submitting, pendingLabel) {
     form.setAttribute('aria-busy', String(submitting));
 }
 
-$('#logoutBtn').addEventListener('click', () => {
-    clearToken();
+window.addEventListener('user:unauthorized', () => {
+    accessProfile = {};
+    stopAutoRefresh();
+    stopAppointmentLiveUpdates();
+    updateAuthState();
+    showView('login');
+});
+
+$('#logoutBtn').addEventListener('click', async () => {
+    try { await logoutSession(); }
+    catch (error) { toast(error.message, 'error'); return; }
     accessProfile = {};
     stopAutoRefresh();
     stopAppointmentLiveUpdates();
@@ -1492,7 +1505,7 @@ $('#loginForm').addEventListener('submit', async event => {
             body: formToObject(form)
         });
 
-        const token = result?.token ?? result?.accessToken ?? result?.access_token;
+        const token = result?.accessToken;
 
         if (!token || typeof token !== 'string') {
             throw new Error('Сервер не вернул токен авторизации');
@@ -1506,7 +1519,7 @@ $('#loginForm').addEventListener('submit', async event => {
 
         // После входа уводим пользователя с формы авторизации. Иначе адрес
         // остаётся с #auth, и после обновления страницы кажется, что вход пропал,
-        // хотя JWT уже сохранён в localStorage.
+        // хотя вход уже выполнен.
         if (accessProfile.patient) {
             showView('profile');
         } else {
@@ -4980,7 +4993,9 @@ async function initialize() {
     const ssrCatalog = hydratePublicCatalogFromSsr();
 
     // Сначала восстанавливаем сохранённую сессию и права, затем рисуем UI.
-    // JWT хранится в localStorage и должен переживать обычное обновление страницы.
+    // Access token lives in memory; only the HttpOnly refresh cookie survives reload.
+    try { await restoreSession(); }
+    catch (error) { toast(error.message, 'error'); }
     await checkConnection();
     await resolveAccessProfile();
     updateAuthState();
@@ -5093,7 +5108,9 @@ function scheduleAppointmentLiveReconnect(generation) {
 }
 
 async function startAppointmentLiveUpdates() {
-    const token = getToken();
+    let token;
+    try { token = await sessionToken(); }
+    catch { scheduleAppointmentLiveReconnect(appointmentLiveGeneration); return; }
     if (!token || !(accessProfile['staff-core'] || accessProfile['staff-appointments'])) {
         stopAppointmentLiveUpdates();
         return;
@@ -5130,6 +5147,8 @@ async function startAppointmentLiveUpdates() {
         });
 
         if (!response.ok || !response.body) {
+            if (response.status === 403) { stopAppointmentLiveUpdates(); return; }
+            if (response.status === 401) await refreshSession(token);
             throw new Error(`Live stream HTTP ${response.status}`);
         }
 
@@ -5154,6 +5173,10 @@ async function startAppointmentLiveUpdates() {
                 if (eventName === 'appointments-changed') {
                     await handleAppointmentLiveChange();
                 } else if (eventName === 'auth-error') {
+                    const raw = block.split('\n').find(line => line.startsWith('data:'))?.slice(5);
+                    const status = raw ? JSON.parse(raw).status : 401;
+                    if (status === 403) { stopAppointmentLiveUpdates(); return; }
+                    await refreshSession(token);
                     throw new Error('Live stream authorization failed');
                 }
             }

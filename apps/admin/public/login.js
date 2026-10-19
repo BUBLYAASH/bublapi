@@ -16,7 +16,7 @@
     button.setAttribute('aria-busy', 'true');
 
     try {
-      const response = await fetch('/api/v1/auth/login', {
+      const response = await (await import('/session.js')).sessionLock(() => fetch('/api/v1/auth/login', {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
@@ -24,7 +24,7 @@
           email: form.elements.email.value.trim(),
           password: form.elements.password.value
         })
-      });
+      }));
 
       let result = {};
       try { result = await response.json(); } catch {}

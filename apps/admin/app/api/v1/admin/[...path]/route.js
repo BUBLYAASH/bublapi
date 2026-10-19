@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { adminToken, API_BASE, copyResponseHeaders, requestHasSameOrigin, upstreamHeaders } from '../../../../../lib/upstream';
-import { sessionCookieName, sessionCookieOptions } from '../../../../../lib/session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,6 +13,7 @@ async function proxy(request, context) {
   }
 
   const { path = [] } = await context.params;
+  if (path[0] === 'auth' || path.some(part => /[\\/?#%]/.test(part) || part === '..' || part === '.')) return NextResponse.json({ message: 'Endpoint запрещён' }, { status: 404 });
   const incoming = new URL(request.url);
   const target = new URL(`${API_BASE}/api/v1/admin/${path.join('/')}`);
   target.search = incoming.search;
@@ -36,11 +36,6 @@ async function proxy(request, context) {
       headers: copyResponseHeaders(upstream)
     });
 
-    // Only an authentication failure invalidates the whole browser session.
-    // A 403 may be a legitimate per-operation role/permission denial.
-    if (upstream.status === 401) {
-      response.cookies.set(sessionCookieName(), '', sessionCookieOptions(0));
-    }
 
     return response;
   } catch (error) {

@@ -5,6 +5,7 @@ import { adminShell } from '../../lib/shells';
 import { withThemeToggle } from '../../lib/theme-toggle';
 import { sessionCookieName } from '../../lib/session';
 import { hasValidAdminSession } from '../../lib/admin-session';
+import { refreshCookieName, accessMaxAge } from '../../lib/refresh-session';
 import ThemeToggle from '../theme-toggle';
 
 export const dynamic = 'force-dynamic';
@@ -134,6 +135,12 @@ export default async function AdminRoute({ params }) {
   const token = cookieStore.get(sessionCookieName())?.value || '';
   const authenticated = await hasValidAdminSession(token);
 
+  if (!authenticated && accessMaxAge(token) < 10 && cookieStore.has(refreshCookieName())) {
+    return <main><p role="status">Восстанавливаем сессию…</p>
+      <Script src="/restore-session.js" type="module" strategy="afterInteractive" />
+    </main>;
+  }
+
   if (!key) redirect(authenticated ? '/apis' : '/login');
   if (!config) notFound();
 
@@ -152,6 +159,7 @@ export default async function AdminRoute({ params }) {
     <div data-workspace-surface="dent" hidden={catalogActive}>
       <div data-admin-authenticated="true" data-initial-view={initialView} dangerouslySetInnerHTML={{ __html: buildDentShell(initialView) }} />
     </div>
+    <Script src="/session-keepalive.js" type="module" strategy="afterInteractive" />
     <Script src="/portal.js" strategy="afterInteractive" />
     <Script src="/legacy/admin.js" type="module" strategy="afterInteractive" />
     <Script src="/workspace-navigation.js" strategy="afterInteractive" />
