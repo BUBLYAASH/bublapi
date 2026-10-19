@@ -30,13 +30,16 @@ function withAuthLock(work) {
   if (!navigator.locks) return Promise.reject(new Error('Для безопасного обновления сессии нужен браузер с Web Locks (HTTPS).'));
   return navigator.locks.request('bublapi-user-auth', work);
 }
-export function refreshSession(rejectedToken) {
+export function refreshSession(rejectedToken, { notifyUnauthorized = true } = {}) {
   if (refreshPromise) return refreshPromise;
   refreshPromise = withAuthLock(async () => {
     if (rejectedToken && accessToken && accessToken !== rejectedToken) return accessToken;
     const response = await fetch('/api/v1/auth/refresh', { method: 'POST', credentials: 'same-origin', cache: 'no-store' });
     if (!response.ok) {
-      if (response.status === 401) { clearToken(); window.dispatchEvent(new CustomEvent('user:unauthorized')); }
+      if (response.status === 401) {
+        clearToken();
+        if (notifyUnauthorized) window.dispatchEvent(new CustomEvent('user:unauthorized'));
+      }
       const error = new Error('Не удалось обновить сессию');
       error.status = response.status;
       throw error;
@@ -49,7 +52,8 @@ export function refreshSession(rejectedToken) {
   return refreshPromise;
 }
 export async function restoreSession() {
-  try { await refreshSession(); }
+  // A guest without a refresh cookie is expected on public pages.
+  try { await refreshSession(undefined, { notifyUnauthorized: false }); }
   catch (error) {
     if (error.status !== 401) throw error;
   }

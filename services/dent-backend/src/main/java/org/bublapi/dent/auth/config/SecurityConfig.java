@@ -79,7 +79,8 @@ public class SecurityConfig {
    public CorsConfigurationSource corsConfigurationSource() {
       CorsConfiguration configuration = new CorsConfiguration();
 
-      configuration.setAllowedOrigins(List.of("http://localhost:3001", "http://localhost:3002"));
+      configuration.setAllowedOrigins(
+              List.of("http://localhost:3000", "http://localhost:3001", "http://localhost:3002"));
       configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
       configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-API-KEY", "X-Request-ID"));
       configuration.setExposedHeaders(List.of("X-Request-ID"));

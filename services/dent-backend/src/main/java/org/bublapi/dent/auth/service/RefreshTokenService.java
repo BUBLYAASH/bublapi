@@ -5,6 +5,7 @@ import org.bublapi.dent.auth.entity.RefreshTokenType;
 import org.bublapi.dent.auth.repository.RefreshTokenRepository;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.InvalidRefreshTokenException;
+import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.user.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -66,7 +67,7 @@ public class RefreshTokenService {
       if (expectedType == RefreshTokenType.USER) {
          UUID clinicId = ClinicContext.getClinicId();
 
-         if (clinicId == null || user.getClinic() == null || !user.getClinic().getId().equals(clinicId)) {
+         if (user.getClinic() == null || !user.getClinic().getId().equals(clinicId)) {
             throw new InvalidRefreshTokenException();
          }
       }
@@ -74,7 +75,7 @@ public class RefreshTokenService {
       if (expectedType == RefreshTokenType.ADMIN) {
          boolean isAdmin = user.getClinic() == null && user.getRoles()
                                                            .stream()
-                                                           .anyMatch(role -> "ADMIN".equals(role.getName()));
+                                                           .anyMatch(role -> RoleName.ADMIN.equals(role.getName()));
 
          if (!isAdmin) {
             throw new InvalidRefreshTokenException();

@@ -20,7 +20,7 @@ class AuthIntegrationTest extends IntegrationTestBase {
    private TestDataFactory dataFactory;
 
    @Test
-   void login_shouldReturnToken() throws Exception {
+   void login_shouldReturnAccessToken() throws Exception {
       Clinic clinic = dataFactory.createClinic();
       String email = UUID.randomUUID() + "@mail.com";
 
@@ -34,7 +34,9 @@ class AuthIntegrationTest extends IntegrationTestBase {
                                                 .content(objectMapper.writeValueAsString(request))
                                                 .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
-             .andExpect(jsonPath("$.token").exists());
+             .andExpect(jsonPath("$.accessToken").isString())
+             .andExpect(jsonPath("$.accessToken").isNotEmpty())
+             .andExpect(jsonPath("$.token").doesNotExist());
    }
 
    @Test
