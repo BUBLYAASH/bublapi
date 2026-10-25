@@ -1,13 +1,17 @@
 package org.bublapi.dent.clinic.service;
 
 import org.bublapi.dent.common.exception.BadRequestException;
-import java.net.URI;
+
 import java.net.IDN;
+import java.net.URI;
 import java.util.Locale;
 
-/** Stores browser origins, never arbitrary URLs, credentials or wildcard hosts. */
+/**
+ * Stores browser origins, never arbitrary URLs, credentials or wildcard hosts.
+ */
 public final class WebsiteOrigin {
-   private WebsiteOrigin() {}
+   private WebsiteOrigin() {
+   }
 
    public static String fromWebsite(String value) {
       try {
@@ -39,7 +43,10 @@ public final class WebsiteOrigin {
 
    public static boolean isCanonical(String value) {
       if (value == null) return false;
-      try { return value.equals(fromWebsite(value)); }
-      catch (BadRequestException e) { return false; }
+      try {
+         return value.equals(fromWebsite(value));
+      } catch (BadRequestException e) {
+         return false;
+      }
    }
 }

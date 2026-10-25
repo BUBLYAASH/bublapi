@@ -38,8 +38,8 @@ class ClinicIntegrationTest extends IntegrationTestBase {
 
 
       mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .content(objectMapper.writeValueAsString(request)))
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.id", notNullValue()))
              .andExpect(jsonPath("$.title").value("Dental Clinic"))
@@ -56,18 +56,19 @@ class ClinicIntegrationTest extends IntegrationTestBase {
 
 
       CreateClinicRequestDto request = new CreateClinicRequestDto("Dental Clinic", null, "Same address", "79991234567",
-                                                                  "clinic1@mail.com", "https://clinic.com", "Europe/Moscow");
+                                                                  "clinic1@mail.com", "https://clinic.com",
+                                                                  "Europe/Moscow");
 
 
       mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .content(objectMapper.writeValueAsString(request)))
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isOk());
 
 
       mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .content(objectMapper.writeValueAsString(request)))
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isConflict());
    }
 
@@ -81,12 +82,13 @@ class ClinicIntegrationTest extends IntegrationTestBase {
 
 
       CreateClinicRequestDto request = new CreateClinicRequestDto("Active Clinic", null, "Some address", "79990000000",
-                                                                  "active@mail.com", "https://active.clinic.com", "Europe/Moscow");
+                                                                  "active@mail.com", "https://active.clinic.com",
+                                                                  "Europe/Moscow");
 
 
       mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .content(objectMapper.writeValueAsString(request)))
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.active").value(true));
    }

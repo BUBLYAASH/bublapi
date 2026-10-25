@@ -33,7 +33,8 @@ public class ClinicService {
 
    public ClinicService(ClinicRepository clinicRepository, UserRepository userRepository,
                         DoctorRepository doctorRepository, ClinicServiceRepository clinicServiceRepository,
-                        ClinicMapper clinicMapper, AdministrativeAuditService administrativeAuditService, ClinicOriginService origins) {
+                        ClinicMapper clinicMapper, AdministrativeAuditService administrativeAuditService,
+                        ClinicOriginService origins) {
       this.origins = origins;
       this.clinicRepository = clinicRepository;
       this.userRepository = userRepository;

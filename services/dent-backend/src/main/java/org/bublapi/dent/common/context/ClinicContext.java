@@ -5,10 +5,10 @@ import org.bublapi.dent.clinic.entity.Clinic;
 import java.util.UUID;
 
 public class ClinicContext {
+   private static final ThreadLocal<Clinic> current = new ThreadLocal<>();
+
    private ClinicContext() {
    }
-
-   private static final ThreadLocal<Clinic> current = new ThreadLocal<>();
 
    public static void set(Clinic clinic) {
       current.set(clinic);

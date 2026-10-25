@@ -37,9 +37,9 @@ class DoctorIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(post("/api/v1/doctors").header("Authorization", token)
-                                          .header("X-API-KEY", apiKey)
-                                          .contentType(MediaType.APPLICATION_JSON)
-                                          .content(objectMapper.writeValueAsString(createDoctorRequest())))
+                                             .header("X-API-KEY", apiKey)
+                                             .contentType(MediaType.APPLICATION_JSON)
+                                             .content(objectMapper.writeValueAsString(createDoctorRequest())))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.active").value(true))
              .andExpect(jsonPath("$.firstName").value("Gregory"));
@@ -58,7 +58,7 @@ class DoctorIntegrationTest extends IntegrationTestBase {
       String doctorId = createDoctor(token, apiKey);
 
       mockMvc.perform(patch("/api/v1/doctors/" + doctorId + "/deactivation").header("Authorization", token)
-                                                                         .header("X-API-KEY", apiKey))
+                                                                            .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.active").value(false));
    }
@@ -94,7 +94,7 @@ class DoctorIntegrationTest extends IntegrationTestBase {
       String doctorId = createDoctor(token, apiKey);
 
       mockMvc.perform(patch("/api/v1/doctors/" + doctorId + "/deactivation").header("Authorization", token)
-                                                                         .header("X-API-KEY", apiKey))
+                                                                            .header("X-API-KEY", apiKey))
              .andExpect(status().isOk());
 
       mockMvc.perform(get("/api/v1/public/doctors").header("X-API-KEY", apiKey))
@@ -116,7 +116,7 @@ class DoctorIntegrationTest extends IntegrationTestBase {
 
 
       mockMvc.perform(patch("/api/v1/doctors/" + doctorId + "/deactivation").header("Authorization", token)
-                                                                         .header("X-API-KEY", apiKey))
+                                                                            .header("X-API-KEY", apiKey))
              .andExpect(status().isOk());
    }
 
@@ -136,9 +136,9 @@ class DoctorIntegrationTest extends IntegrationTestBase {
                                                                   "Updated description");
 
       mockMvc.perform(patch("/api/v1/doctors/" + doctorId).header("Authorization", token)
-                                                       .header("X-API-KEY", apiKey)
-                                                       .contentType(MediaType.APPLICATION_JSON)
-                                                       .content(objectMapper.writeValueAsString(request)))
+                                                          .header("X-API-KEY", apiKey)
+                                                          .contentType(MediaType.APPLICATION_JSON)
+                                                          .content(objectMapper.writeValueAsString(request)))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.firstName").value("James"))
              .andExpect(jsonPath("$.specialty").value("Orthodontist"));
@@ -157,7 +157,7 @@ class DoctorIntegrationTest extends IntegrationTestBase {
       String doctorId = createDoctor(token, apiKey);
 
       mockMvc.perform(patch("/api/v1/doctors/" + doctorId + "/deactivation").header("Authorization", token)
-                                                                         .header("X-API-KEY", apiKey))
+                                                                            .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.active").value(false));
    }
@@ -168,10 +168,10 @@ class DoctorIntegrationTest extends IntegrationTestBase {
 
    private String createDoctor(String token, String apiKey) throws Exception {
       String response = mockMvc.perform(post("/api/v1/doctors").header("Authorization", token)
-                                                            .header("X-API-KEY", apiKey)
-                                                            .contentType(MediaType.APPLICATION_JSON)
-                                                            .content(objectMapper.writeValueAsString(
-                                                                    createDoctorRequest())))
+                                                               .header("X-API-KEY", apiKey)
+                                                               .contentType(MediaType.APPLICATION_JSON)
+                                                               .content(objectMapper.writeValueAsString(
+                                                                       createDoctorRequest())))
                                .andExpect(status().isOk())
                                .andExpect(jsonPath("$.id", notNullValue()))
                                .andReturn()

@@ -37,13 +37,13 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       CreateApiKeyRequestDto request = new CreateApiKeyRequestDto("Clinic API key");
 
       mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
-                                                                                    jwtHelper.token(
-                                                                                            admin.getId()))
-                                                                            .contentType(
-                                                                                    MediaType.APPLICATION_JSON)
-                                                                            .content(
-                                                                                    objectMapper.writeValueAsString(
-                                                                                            request)))
+                                                                                       jwtHelper.token(
+                                                                                               admin.getId()))
+                                                                               .contentType(
+                                                                                       MediaType.APPLICATION_JSON)
+                                                                               .content(
+                                                                                       objectMapper.writeValueAsString(
+                                                                                               request)))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.rawKey", startsWith("pk_live_")));
    }
@@ -55,23 +55,23 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       CreateApiKeyRequestDto request = new CreateApiKeyRequestDto("Clinic API key");
 
       mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
-                                                                                    jwtHelper.token(
-                                                                                            admin.getId()))
-                                                                            .contentType(
-                                                                                    MediaType.APPLICATION_JSON)
-                                                                            .content(
-                                                                                    objectMapper.writeValueAsString(
-                                                                                            request)))
+                                                                                       jwtHelper.token(
+                                                                                               admin.getId()))
+                                                                               .contentType(
+                                                                                       MediaType.APPLICATION_JSON)
+                                                                               .content(
+                                                                                       objectMapper.writeValueAsString(
+                                                                                               request)))
              .andExpect(status().isOk());
 
       mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
-                                                                                    jwtHelper.token(
-                                                                                            admin.getId()))
-                                                                            .contentType(
-                                                                                    MediaType.APPLICATION_JSON)
-                                                                            .content(
-                                                                                    objectMapper.writeValueAsString(
-                                                                                            request)))
+                                                                                       jwtHelper.token(
+                                                                                               admin.getId()))
+                                                                               .contentType(
+                                                                                       MediaType.APPLICATION_JSON)
+                                                                               .content(
+                                                                                       objectMapper.writeValueAsString(
+                                                                                               request)))
              .andExpect(status().is5xxServerError());
    }
 
@@ -84,8 +84,8 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       LocalDateTime oldExpiresAt = before.getExpiresAt();
 
       mockMvc.perform(patch("/api/v1/admin/api-keys/{clinicId}/renew", clinic.getId()).header("Authorization",
-                                                                                           jwtHelper.token(
-                                                                                                   admin.getId())))
+                                                                                              jwtHelper.token(
+                                                                                                      admin.getId())))
              .andExpect(status().isOk());
 
       ApiKey after = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
@@ -100,8 +100,8 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       ApiKey oldApiKey = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
 
       mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}/rotate", clinic.getId()).header("Authorization",
-                                                                                           jwtHelper.token(
-                                                                                                   admin.getId())))
+                                                                                              jwtHelper.token(
+                                                                                                      admin.getId())))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.rawKey", startsWith("pk_live_")))
              .andExpect(jsonPath("$.rawKey").value(org.hamcrest.Matchers.not(oldRawKey)));
@@ -124,7 +124,8 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       ApiKey apiKey = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
 
       mockMvc.perform(delete("/api/v1/admin/api-keys/{apiKeyId}", apiKey.getId()).header("Authorization",
-                                                                                      jwtHelper.token(admin.getId())))
+                                                                                         jwtHelper.token(
+                                                                                                 admin.getId())))
              .andExpect(status().isNoContent());
 
       assertThat(apiKeyRepository.findById(apiKey.getId()).orElseThrow().isActive()).isFalse();
@@ -155,7 +156,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
       TestClinicData data = createClinicData(RoleName.OWNER);
 
       mockMvc.perform(get("/api/v1/patients").header("Authorization", jwtHelper.token(data.user().getId()))
-                                          .header("X-API-KEY", "bad-key")).andExpect(status().isUnauthorized());
+                                             .header("X-API-KEY", "bad-key")).andExpect(status().isUnauthorized());
    }
 
    @Test

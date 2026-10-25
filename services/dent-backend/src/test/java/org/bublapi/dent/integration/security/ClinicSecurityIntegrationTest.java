@@ -30,7 +30,7 @@ class ClinicSecurityIntegrationTest extends IntegrationTestBase {
       String apiKeyClinicB = dataFactory.createApiKey(clinicB).rawKey();
 
       mockMvc.perform(get("/api/v1/patients").header("Authorization", userAToken)
-                                          .header("X-API-KEY", apiKeyClinicB))
+                                             .header("X-API-KEY", apiKeyClinicB))
              .andExpect(status().isForbidden());
    }
 

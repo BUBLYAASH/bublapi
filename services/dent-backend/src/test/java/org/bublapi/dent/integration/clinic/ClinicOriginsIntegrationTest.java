@@ -105,7 +105,9 @@ class ClinicOriginsIntegrationTest extends IntegrationTestBase {
       mockMvc.perform(post("/api/v1/auth/refresh").header("Origin", "https://a.clinic.test").header("X-API-KEY", keyA))
              .andExpect(status().isForbidden());
    }
-   @Test void loginRefreshLogoutWorkForClinicAndAdminOrigins() throws Exception {
+
+   @Test
+   void loginRefreshLogoutWorkForClinicAndAdminOrigins() throws Exception {
       var clinic = data.createClinic();
       origins.add(clinic.getId(), "https://clinic.test");
       String key = data.createApiKey(clinic).rawKey();
@@ -115,20 +117,26 @@ class ClinicOriginsIntegrationTest extends IntegrationTestBase {
          String base = admin ? "/api/v1/admin/auth" : "/api/v1/auth";
          String origin = admin ? "http://localhost:3001" : "https://clinic.test";
          String email = admin ? "admin@clinic.test" : "patient@clinic.test";
-         var login = mockMvc.perform(post(base + "/login").header("Origin", origin).header("X-API-KEY", key)
-                 .contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"" + email
-                         + "\",\"password\":\"password123\"}"))
-                 .andExpect(status().isOk()).andExpect(jsonPath("$.accessToken").isString())
-                 .andReturn().getResponse();
+         var login = mockMvc.perform(post(base + "/login").header("Origin", origin)
+                                                          .header("X-API-KEY", key)
+                                                          .contentType(MediaType.APPLICATION_JSON)
+                                                          .content("{\"email\":\"" + email
+                                                                           + "\",\"password\":\"password123\"}"))
+                            .andExpect(status().isOk()).andExpect(jsonPath("$.accessToken").isString())
+                            .andReturn().getResponse();
          String cookieName = admin ? "admin_refresh_token" : "refresh_token";
          var cookie = login.getCookie(cookieName);
          org.junit.jupiter.api.Assertions.assertNotNull(cookie);
          var refresh = mockMvc.perform(post(base + "/refresh").header("Origin", origin).header("X-API-KEY", key)
-                 .cookie(cookie)).andExpect(status().isOk()).andReturn().getResponse();
+                                                              .cookie(cookie))
+                              .andExpect(status().isOk())
+                              .andReturn()
+                              .getResponse();
          mockMvc.perform(post(base + "/logout").header("Origin", origin).header("X-API-KEY", key)
-                 .cookie(refresh.getCookie(cookieName))).andExpect(status().isNoContent());
+                                               .cookie(refresh.getCookie(cookieName)))
+                .andExpect(status().isNoContent());
          mockMvc.perform(post(base + "/refresh").header("X-API-KEY", key).cookie(cookie))
-                 .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
       }
    }
 

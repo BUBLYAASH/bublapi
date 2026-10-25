@@ -41,8 +41,8 @@ class UserIntegrationTest extends IntegrationTestBase {
       LoginRequestDto request = new LoginRequestDto(email, TestDataFactory.DEFAULT_PASSWORD);
 
       mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                             .content(objectMapper.writeValueAsString(request))
-                                             .header("X-API-KEY", apiKey))
+                                                .content(objectMapper.writeValueAsString(request))
+                                                .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.accessToken").isString())
              .andExpect(jsonPath("$.accessToken").isNotEmpty())
@@ -62,7 +62,8 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(get("/api/v1/users/" + user.getId()).header("Authorization", adminToken).header("X-API-KEY", apiKey))
+      mockMvc.perform(
+                     get("/api/v1/users/" + user.getId()).header("Authorization", adminToken).header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.roles", hasItem("RECEPTIONIST")))
              .andExpect(jsonPath("$.roles.length()").value(1));
@@ -81,7 +82,8 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(get("/api/v1/users/" + user.getId()).header("Authorization", adminToken).header("X-API-KEY", apiKey))
+      mockMvc.perform(
+                     get("/api/v1/users/" + user.getId()).header("Authorization", adminToken).header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.roles", hasItems("PATIENT", "RECEPTIONIST")))
              .andExpect(jsonPath("$.roles.length()").value(2));
@@ -100,7 +102,8 @@ class UserIntegrationTest extends IntegrationTestBase {
 
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
-      mockMvc.perform(get("/api/v1/users/" + user.getId()).header("Authorization", adminToken).header("X-API-KEY", apiKey))
+      mockMvc.perform(
+                     get("/api/v1/users/" + user.getId()).header("Authorization", adminToken).header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.enabled").value(false));
    }
@@ -119,7 +122,7 @@ class UserIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(patch("/api/v1/users/" + user.getId() + "/deactivation").header("Authorization", adminToken)
-                                                                           .header("X-API-KEY", apiKey))
+                                                                              .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.enabled").value(false));
    }
@@ -138,7 +141,7 @@ class UserIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(patch("/api/v1/users/" + user.getId() + "/activation").header("Authorization", adminToken)
-                                                                         .header("X-API-KEY", apiKey))
+                                                                            .header("X-API-KEY", apiKey))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.enabled").value(true));
    }
@@ -155,8 +158,8 @@ class UserIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(post("/api/v1/auth/login").content(objectMapper.writeValueAsString(request))
-                                             .contentType(MediaType.APPLICATION_JSON)
-                                             .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .header("X-API-KEY", apiKey)).andExpect(status().isBadRequest());
    }
 
    @Test
@@ -177,16 +180,16 @@ class UserIntegrationTest extends IntegrationTestBase {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(post("/api/v1/auth/register").content(objectMapper.writeValueAsString(firstRequest))
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .header("X-API-KEY", apiKey)).andExpect(status().isOk());
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .header("X-API-KEY", apiKey)).andExpect(status().isOk());
 
       mockMvc.perform(post("/api/v1/auth/register").content(objectMapper.writeValueAsString(duplicatePhoneRequest))
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .header("X-API-KEY", apiKey)).andExpect(status().isConflict());
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .header("X-API-KEY", apiKey)).andExpect(status().isConflict());
 
       mockMvc.perform(post("/api/v1/auth/register").content(objectMapper.writeValueAsString(uniquePhoneRequest))
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .header("X-API-KEY", apiKey)).andExpect(status().isOk());
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .header("X-API-KEY", apiKey)).andExpect(status().isOk());
    }
 
    @Test

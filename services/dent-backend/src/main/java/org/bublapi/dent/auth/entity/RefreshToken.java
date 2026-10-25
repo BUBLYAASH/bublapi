@@ -38,18 +38,18 @@ public class RefreshToken {
    @Column(name = "token_type", nullable = false, length = 10)
    private RefreshTokenType tokenType;
 
-   @PrePersist
-   private void prePersist() {
-      if (createdAt == null) {
-         this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
-      }
-   }
-
    public boolean isRevoked() {
       return this.revokedAt != null;
    }
 
    public boolean isExpired() {
       return !expiresAt.isAfter(LocalDateTime.now(ZoneOffset.UTC));
+   }
+
+   @PrePersist
+   private void prePersist() {
+      if (createdAt == null) {
+         this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
+      }
    }
 }

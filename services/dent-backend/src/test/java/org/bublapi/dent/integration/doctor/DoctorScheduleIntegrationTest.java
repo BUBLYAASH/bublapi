@@ -95,9 +95,9 @@ class DoctorScheduleIntegrationTest extends IntegrationTestSupport {
              .andExpect(status().isNoContent());
 
       mockMvc.perform(get("/api/v1/public/doctors/{doctorId}/working-hours", context.doctor()
-                                                                                 .getId()).header("X-API-KEY",
-                                                                                                  context.apiKey()
-                                                                                                         .rawKey()))
+                                                                                    .getId()).header("X-API-KEY",
+                                                                                                     context.apiKey()
+                                                                                                            .rawKey()))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$", hasSize(0)));
    }

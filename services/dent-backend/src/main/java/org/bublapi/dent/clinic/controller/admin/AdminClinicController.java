@@ -4,25 +4,24 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.bublapi.dent.clinic.dto.ClinicOriginRequestDto;
+import org.bublapi.dent.clinic.dto.ClinicOriginResponseDto;
 import org.bublapi.dent.clinic.dto.ClinicResponseDto;
 import org.bublapi.dent.clinic.dto.CreateClinicRequestDto;
 import org.bublapi.dent.clinic.dto.UpdateClinicRequestDto;
+import org.bublapi.dent.clinic.service.ClinicOriginService;
 import org.bublapi.dent.clinic.service.ClinicService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import org.bublapi.dent.clinic.dto.ClinicOriginRequestDto;
-import org.bublapi.dent.clinic.dto.ClinicOriginResponseDto;
-import org.bublapi.dent.clinic.service.ClinicOriginService;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
@@ -72,6 +71,7 @@ public class AdminClinicController {
    public List<ClinicResponseDto> findAll() {
       return clinicService.findAll();
    }
+
    @GetMapping("/{clinicId}/origins")
    public List<ClinicOriginResponseDto> origins(@PathVariable UUID clinicId) {
       return origins.list(clinicId);
@@ -80,7 +80,7 @@ public class AdminClinicController {
    @PostMapping("/{clinicId}/origins")
    @Operation(summary = "Approve a website origin for a clinic (ADMIN only)")
    public ClinicOriginResponseDto addOrigin(@PathVariable UUID clinicId,
-           @Valid @RequestBody ClinicOriginRequestDto request) {
+                                            @Valid @RequestBody ClinicOriginRequestDto request) {
       return origins.add(clinicId, request.origin());
    }
 
