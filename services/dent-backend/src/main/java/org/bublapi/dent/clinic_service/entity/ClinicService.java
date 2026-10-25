@@ -8,6 +8,7 @@ import org.bublapi.dent.dental_service.entity.DentalService;
 import org.hibernate.annotations.Filter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Getter
@@ -38,6 +39,6 @@ public class ClinicService {
 
    @PrePersist
    public void prePersist() {
-      this.createdAt = LocalDateTime.now();
+      this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
    }
 }

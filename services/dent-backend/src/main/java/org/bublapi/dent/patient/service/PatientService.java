@@ -4,7 +4,7 @@ import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.bublapi.dent.logging.UserAuditService;
+import org.bublapi.dent.logging.audit.UserAuditService;
 import org.bublapi.dent.patient.dto.CreatePatientFromProfileRequestDto;
 import org.bublapi.dent.patient.dto.CreatePatientRequestDto;
 import org.bublapi.dent.patient.dto.PatientByPhoneRequestDto;
@@ -26,6 +26,7 @@ import java.util.UUID;
 
 @Service
 public class PatientService {
+   private static final String PATIENT_NOT_FOUND = "Patient not found";
 
    private final PatientRepository patientRepository;
    private final UserRepository userRepository;
@@ -98,7 +99,7 @@ public class PatientService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Patient patient = patientRepository.findByClinic_IdAndId(clinicId, patientId)
-                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+                                         .orElseThrow(() -> new ResourceNotFoundException(PATIENT_NOT_FOUND));
 
       List<String> changedFields = getChangedFields(patient, request);
 
@@ -125,7 +126,7 @@ public class PatientService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Patient patient = patientRepository.findByClinic_IdAndUser_Id(clinicId, userId)
-                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+                                         .orElseThrow(() -> new ResourceNotFoundException(PATIENT_NOT_FOUND));
 
       List<String> changedFields = getChangedFields(patient, request);
 
@@ -140,7 +141,7 @@ public class PatientService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Patient patient = patientRepository.findByClinic_IdAndUser_Id(clinicId, userId)
-                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+                                         .orElseThrow(() -> new ResourceNotFoundException(PATIENT_NOT_FOUND));
 
       return patientMapper.toResponse(patient);
    }
@@ -151,7 +152,7 @@ public class PatientService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Patient patient = patientRepository.findByClinic_IdAndPhone(clinicId, phone)
-                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+                                         .orElseThrow(() -> new ResourceNotFoundException(PATIENT_NOT_FOUND));
 
       return patientMapper.toResponse(patient);
    }
@@ -160,7 +161,7 @@ public class PatientService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Patient patient = patientRepository.findByClinic_IdAndId(clinicId, patientId)
-                                         .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+                                         .orElseThrow(() -> new ResourceNotFoundException(PATIENT_NOT_FOUND));
 
       return patientMapper.toResponse(patient);
    }

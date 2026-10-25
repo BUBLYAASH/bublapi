@@ -2,7 +2,7 @@ package org.bublapi.dent.notification.service;
 
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.bublapi.dent.logging.AdministrativeAuditService;
+import org.bublapi.dent.logging.audit.AdministrativeAuditService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.dispatcher.NotificationDispatcher;
 import org.bublapi.dent.notification.dto.NotificationResponseDto;
@@ -20,11 +20,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class NotificationService {
+   private static final String NOTIFICATION_NOT_FOUND = "Notification not found";
+
    private final NotificationRepository notificationRepository;
    private final NotificationMapper notificationMapper;
    private final NotificationTransactionService transactionService;
@@ -48,7 +51,7 @@ public class NotificationService {
    }
 
    public void create(CreateNotificationCommand command) {
-      NotificationContent content = contentRenderer.render(command.type(), command.data());
+      NotificationContent content = contentRenderer.render(command.type());
 
       send(command, NotificationChannel.IN_APP, content);
       send(command, NotificationChannel.EMAIL, content);
@@ -73,7 +76,7 @@ public class NotificationService {
    public NotificationResponseDto findByIdForAdmin(UUID notificationId) {
       Notification notification = notificationRepository.findById(notificationId)
                                                         .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Notification not found"));
+                                                                NOTIFICATION_NOT_FOUND));
 
       return notificationMapper.toResponse(notification);
    }
@@ -82,7 +85,7 @@ public class NotificationService {
       Notification notification = notificationRepository.findByIdAndUser_IdAndChannelAndStatusAndDeletedFalse(
                                                                 notificationId, userId, NotificationChannel.IN_APP, NotificationStatus.SENT)
                                                         .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Notification not found"));
+                                                                NOTIFICATION_NOT_FOUND));
 
       return notificationMapper.toUserResponse(notification);
    }
@@ -99,11 +102,11 @@ public class NotificationService {
       Notification notification = notificationRepository.findByIdAndUser_IdAndChannelAndStatusAndDeletedFalse(
                                                                 notificationId, userId, NotificationChannel.IN_APP, NotificationStatus.SENT)
                                                         .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Notification not found"));
+                                                                NOTIFICATION_NOT_FOUND));
 
       if (!notification.isRead()) {
          notification.setRead(true);
-         notification.setReadAt(LocalDateTime.now());
+         notification.setReadAt(LocalDateTime.now(ZoneOffset.UTC));
       }
    }
 
@@ -112,7 +115,7 @@ public class NotificationService {
       List<Notification> notifications = notificationRepository.findAllByUser_IdAndChannelAndStatusAndReadFalseAndDeletedFalse(
               userId, NotificationChannel.IN_APP, NotificationStatus.SENT);
 
-      LocalDateTime now = LocalDateTime.now();
+      LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
       notifications.forEach(notification -> {
          notification.setRead(true);
@@ -125,11 +128,11 @@ public class NotificationService {
       Notification notification = notificationRepository.findByIdAndUser_IdAndChannelAndStatusAndDeletedFalse(
                                                                 notificationId, userId, NotificationChannel.IN_APP, NotificationStatus.SENT)
                                                         .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Notification not found"));
+                                                                NOTIFICATION_NOT_FOUND));
 
       if (!notification.isDeleted()) {
          notification.setDeleted(true);
-         notification.setDeletedAt(LocalDateTime.now());
+         notification.setDeletedAt(LocalDateTime.now(ZoneOffset.UTC));
       }
    }
 
@@ -137,11 +140,11 @@ public class NotificationService {
    public void deleteNotificationForAdmin(UUID notificationId) {
       Notification notification = notificationRepository.findById(notificationId)
                                                         .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Notification not found"));
+                                                                NOTIFICATION_NOT_FOUND));
 
       if (!notification.isDeleted()) {
          notification.setDeleted(true);
-         notification.setDeletedAt(LocalDateTime.now());
+         notification.setDeletedAt(LocalDateTime.now(ZoneOffset.UTC));
 
          administrativeAuditService.notificationDeleted(notification.getId(), notification.getClinic().getId());
       }
@@ -151,7 +154,7 @@ public class NotificationService {
    public void retry(UUID notificationId) {
       Notification notification = notificationRepository.findById(notificationId)
                                                         .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Notification not found"));
+                                                                NOTIFICATION_NOT_FOUND));
 
       if (notification.getStatus() != NotificationStatus.FAILED) {
          throw new BadRequestException("Only failed notifications can be retried");

@@ -26,8 +26,8 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
                                                    RoleName.OWNER);
 
       mockMvc.perform(patch("/api/v1/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization",
-                                                                                                 jwtHelper.token(
-                                                                                                         admin.getId())))
+                                                                                                    jwtHelper.token(
+                                                                                                            admin.getId())))
              .andExpect(status().isOk());
 
       User updated = userRepository.findById(owner.getId()).orElseThrow();
@@ -49,8 +49,8 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
       User savedAdmin = userRepository.findById(admin.getId()).orElseThrow();
 
       mockMvc.perform(patch("/api/v1/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization",
-                                                                                                 jwtHelper.token(
-                                                                                                         savedAdmin.getId())))
+                                                                                                    jwtHelper.token(
+                                                                                                            savedAdmin.getId())))
              .andExpect(status().isOk());
 
       User adminAfterDeactivation = userRepository.findById(savedAdmin.getId()).orElseThrow();
@@ -68,8 +68,8 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
       System.out.println("owner clinic = " + ownerAfterDeactivation.getClinic().getId());
 
       mockMvc.perform(patch("/api/v1/admin/clinics/{clinicId}/activation", clinic.getId()).header("Authorization",
-                                                                                               jwtHelper.token(
-                                                                                                       savedAdmin.getId())))
+                                                                                                  jwtHelper.token(
+                                                                                                          savedAdmin.getId())))
              .andExpect(status().isOk());
 
       User updated = userRepository.findById(owner.getId()).orElseThrow();
@@ -86,11 +86,11 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 
       mockMvc.perform(patch("/api/v1/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization",
-                                                                                                 jwtHelper.token(
-                                                                                                         admin.getId())))
+                                                                                                    jwtHelper.token(
+                                                                                                            admin.getId())))
              .andExpect(status().isOk());
 
       mockMvc.perform(get("/api/v1/patients").header("Authorization", jwtHelper.token(owner.getId()))
-                                          .header("X-API-KEY", apiKey)).andExpect(status().isForbidden());
+                                             .header("X-API-KEY", apiKey)).andExpect(status().isUnauthorized());
    }
 }

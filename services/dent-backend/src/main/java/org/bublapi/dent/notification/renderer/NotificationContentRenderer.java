@@ -1,13 +1,12 @@
 package org.bublapi.dent.notification.renderer;
 
-import org.bublapi.dent.notification.command.NotificationData;
 import org.bublapi.dent.notification.entity.NotificationType;
 import org.bublapi.dent.notification.message.NotificationContent;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationContentRenderer {
-   public NotificationContent render(NotificationType type, NotificationData data) {
+   public NotificationContent render(NotificationType type) {
       return switch (type) {
          case APPOINTMENT_CREATED -> new NotificationContent("Запись создана", "Вы успешно записались на приём");
          case APPOINTMENT_CANCELLED -> new NotificationContent("Запись отменена", "Запись на приём была отменена");

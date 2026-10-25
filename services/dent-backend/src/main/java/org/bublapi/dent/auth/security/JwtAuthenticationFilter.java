@@ -7,7 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.bublapi.dent.auth.service.JwtService;
-import org.bublapi.dent.logging.SecurityLogService;
+import org.bublapi.dent.logging.security.SecurityLogService;
 import org.slf4j.MDC;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

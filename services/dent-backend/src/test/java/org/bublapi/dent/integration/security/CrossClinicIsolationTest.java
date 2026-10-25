@@ -49,7 +49,7 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
       CreateApiKeyResponseDto apiKeyClinicB = dataFactory.createApiKey(clinicB);
 
       mockMvc.perform(get("/api/v1/patients").header("Authorization", jwtHelper.token(receptionistFromClinicA.getId()))
-                                          .header("X-API-KEY", apiKeyClinicB.rawKey()))
+                                             .header("X-API-KEY", apiKeyClinicB.rawKey()))
              .andExpect(status().isForbidden());
    }
 
@@ -68,16 +68,16 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
       UpdateDoctorRequestDto request = new UpdateDoctorRequestDto("Hacked", null, null, null, null, null);
 
       mockMvc.perform(patch("/api/v1/doctors/{doctorId}", doctorFromClinicB.getId()).header("Authorization",
-                                                                                         jwtHelper.token(
-                                                                                                 ownerFromClinicA.getId()))
-                                                                                 .header("X-API-KEY", apiKeyClinicA)
-                                                                                 .contentType(
-                                                                                         MediaType.APPLICATION_JSON)
-                                                                                 .content(
-                                                                                         objectMapper.writeValueAsString(
-                                                                                                 request)))
+                                                                                            jwtHelper.token(
+                                                                                                    ownerFromClinicA.getId()))
+                                                                                    .header("X-API-KEY", apiKeyClinicA)
+                                                                                    .contentType(
+                                                                                            MediaType.APPLICATION_JSON)
+                                                                                    .content(
+                                                                                            objectMapper.writeValueAsString(
+                                                                                                    request)))
              .andExpect(status().isNotFound())
-             .andExpect(jsonPath("$.message").value("Doctor in clinic not found"));
+             .andExpect(jsonPath("$.message").value("Doctor not found"));
    }
 
 
@@ -105,16 +105,17 @@ class CrossClinicIsolationTest extends IntegrationTestBase {
                                                                                     1)),
                                                                             "Cross-clinic appointment attempt");
 
-      mockMvc.perform(post("/api/v1/appointments/patients/{patientId}", patientFromClinicB.getId()).header("Authorization",
-                                                                                                        jwtHelper.token(
-                                                                                                                receptionistFromClinicA.getId()))
-                                                                                                .header("X-API-KEY",
-                                                                                                        apiKeyClinicB.rawKey())
-                                                                                                .contentType(
-                                                                                                        MediaType.APPLICATION_JSON)
-                                                                                                .content(
-                                                                                                        objectMapper.writeValueAsString(
-                                                                                                                request)))
+      mockMvc.perform(
+                     post("/api/v1/appointments/patients/{patientId}", patientFromClinicB.getId()).header("Authorization",
+                                                                                                          jwtHelper.token(
+                                                                                                                  receptionistFromClinicA.getId()))
+                                                                                                  .header("X-API-KEY",
+                                                                                                          apiKeyClinicB.rawKey())
+                                                                                                  .contentType(
+                                                                                                          MediaType.APPLICATION_JSON)
+                                                                                                  .content(
+                                                                                                          objectMapper.writeValueAsString(
+                                                                                                                  request)))
              .andExpect(status().isForbidden());
    }
 

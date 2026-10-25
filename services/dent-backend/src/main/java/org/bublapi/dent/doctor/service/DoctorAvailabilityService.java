@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -57,8 +58,8 @@ public class DoctorAvailabilityService {
       List<Appointment> doctorAppointments = appointmentRepository.findAllByClinic_IdAndDoctor_IdOrderByScheduledAtAsc(
               clinicId, doctorId);
 
-      LocalDate today = LocalDate.now();
-      LocalDateTime now = LocalDateTime.now();
+      LocalDate today = LocalDate.now(ZoneOffset.UTC);
+      LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
       List<DoctorAvailabilityResponseDto> result = new ArrayList<>();
 

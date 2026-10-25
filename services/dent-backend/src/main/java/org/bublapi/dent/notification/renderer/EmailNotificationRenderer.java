@@ -12,6 +12,9 @@ import org.thymeleaf.context.Context;
 
 @Component
 public class EmailNotificationRenderer {
+   private static final String FIRST_NAME = "firstName";
+   private static final String CLINIC_TITLE = "clinicTitle";
+
    private final TemplateEngine templateEngine;
 
    public EmailNotificationRenderer(TemplateEngine templateEngine) {
@@ -35,21 +38,21 @@ public class EmailNotificationRenderer {
 
       switch (data) {
          case AppointmentNotificationData appointment -> {
-            context.setVariable("clinicTitle", appointment.clinicTitle());
-            context.setVariable("firstName", appointment.firstName());
+            context.setVariable(CLINIC_TITLE, appointment.clinicTitle());
+            context.setVariable(FIRST_NAME, appointment.firstName());
             context.setVariable("scheduledAt", appointment.scheduledAt());
             context.setVariable("doctorName", appointment.doctorName());
             context.setVariable("serviceTitles", appointment.serviceTitles());
          }
 
          case UserNotificationData user -> {
-            context.setVariable("clinicTitle", user.clinicTitle());
-            context.setVariable("firstName", user.firstName());
+            context.setVariable(CLINIC_TITLE, user.clinicTitle());
+            context.setVariable(FIRST_NAME, user.firstName());
          }
 
          case ClinicServiceNotificationData clinicService -> {
-            context.setVariable("clinicTitle", clinicService.clinicTitle());
-            context.setVariable("firstName", clinicService.firstName());
+            context.setVariable(CLINIC_TITLE, clinicService.clinicTitle());
+            context.setVariable(FIRST_NAME, clinicService.firstName());
             context.setVariable("serviceTitle", clinicService.serviceTitle());
          }
       }

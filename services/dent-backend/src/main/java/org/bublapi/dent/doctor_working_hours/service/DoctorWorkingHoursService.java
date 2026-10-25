@@ -11,7 +11,7 @@ import org.bublapi.dent.doctor_working_hours.dto.UpdateDoctorWorkingHoursRequest
 import org.bublapi.dent.doctor_working_hours.entity.DoctorWorkingHours;
 import org.bublapi.dent.doctor_working_hours.mapper.DoctorWorkingHoursMapper;
 import org.bublapi.dent.doctor_working_hours.repository.DoctorWorkingHoursRepository;
-import org.bublapi.dent.logging.UserAuditService;
+import org.bublapi.dent.logging.audit.UserAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +23,8 @@ import java.util.UUID;
 
 @Service
 public class DoctorWorkingHoursService {
+   private static final String DOCTOR_NOT_FOUND = "Doctor not found";
+
    private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
    private final DoctorRepository doctorRepository;
    private final DoctorWorkingHoursMapper doctorWorkingHoursMapper;
@@ -46,7 +48,7 @@ public class DoctorWorkingHoursService {
 
       Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
                                       .orElseThrow(
-                                              () -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                                              () -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       boolean overlaps = doctorWorkingHoursRepository.existsOverlappingInterval(clinicId, doctorId, request.dayOfWeek(),
                                                                                 request.startTime(), request.endTime());
@@ -72,7 +74,7 @@ public class DoctorWorkingHoursService {
       UUID clinicId = ClinicContext.getClinicId();
 
       doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
-                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       DoctorWorkingHours workingHours = doctorWorkingHoursRepository.findByDoctor_Clinic_IdAndIdAndDoctor_Id(clinicId,
                                                                                                              scheduleId,
@@ -112,7 +114,7 @@ public class DoctorWorkingHoursService {
       UUID clinicId = ClinicContext.getClinicId();
 
       doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
-                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       return doctorWorkingHoursRepository.findAllByDoctor_Clinic_IdAndDoctor_Id(clinicId, doctorId)
                                          .stream()

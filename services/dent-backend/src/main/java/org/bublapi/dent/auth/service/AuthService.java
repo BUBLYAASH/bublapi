@@ -6,7 +6,7 @@ import org.bublapi.dent.auth.dto.RegisterRequestDto;
 import org.bublapi.dent.auth.entity.RefreshTokenType;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
-import org.bublapi.dent.logging.SecurityLogService;
+import org.bublapi.dent.logging.security.SecurityLogService;
 import org.bublapi.dent.user.dto.CreateUserRequestDto;
 import org.bublapi.dent.user.dto.CreateUserResponseDto;
 import org.bublapi.dent.user.entity.User;
@@ -21,6 +21,8 @@ import java.util.UUID;
 
 @Service
 public class AuthService {
+   private static final String INVALID_CREDENTIALS = "INVALID_CREDENTIALS";
+
    private final UserRepository userRepository;
    private final PasswordEncoder passwordEncoder;
    private final JwtService jwtService;
@@ -45,14 +47,14 @@ public class AuthService {
       String email = request.email().trim().toLowerCase(Locale.ROOT);
 
       User user = userRepository.findByEmailIgnoreCaseAndClinic_Id(email, clinicId).orElseThrow(() -> {
-         securityLogService.loginFailed("INVALID_CREDENTIALS");
+         securityLogService.loginFailed(INVALID_CREDENTIALS);
          return new BadRequestException("Invalid email or password");
       });
 
       boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPasswordHash());
 
       if (!passwordMatches) {
-         securityLogService.loginFailed("INVALID_CREDENTIALS");
+         securityLogService.loginFailed(INVALID_CREDENTIALS);
 
          throw new BadRequestException("Invalid email or password");
       }
@@ -76,14 +78,14 @@ public class AuthService {
       String email = request.email().trim().toLowerCase(Locale.ROOT);
 
       User user = userRepository.findAdminByEmailWithRoles(email).orElseThrow(() -> {
-         securityLogService.adminLoginFailed("INVALID_CREDENTIALS");
+         securityLogService.adminLoginFailed(INVALID_CREDENTIALS);
          return new BadRequestException("Invalid email or password");
       });
 
       boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPasswordHash());
 
       if (!passwordMatches) {
-         securityLogService.adminLoginFailed("INVALID_CREDENTIALS");
+         securityLogService.adminLoginFailed(INVALID_CREDENTIALS);
 
          throw new BadRequestException("Invalid email or password");
       }

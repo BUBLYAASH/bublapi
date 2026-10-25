@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.bublapi.dent.user.entity.User;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Getter
@@ -40,7 +41,7 @@ public class RefreshToken {
    @PrePersist
    private void prePersist() {
       if (createdAt == null) {
-         this.createdAt = LocalDateTime.now();
+         this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
       }
    }
 
@@ -49,6 +50,6 @@ public class RefreshToken {
    }
 
    public boolean isExpired() {
-      return !expiresAt.isAfter(LocalDateTime.now());
+      return !expiresAt.isAfter(LocalDateTime.now(ZoneOffset.UTC));
    }
 }

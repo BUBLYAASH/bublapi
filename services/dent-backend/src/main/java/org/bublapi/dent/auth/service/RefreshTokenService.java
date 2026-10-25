@@ -16,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.HexFormat;
 import java.util.UUID;
@@ -44,7 +45,7 @@ public class RefreshTokenService {
       refreshToken.setUser(user);
       refreshToken.setTokenType(type);
       refreshToken.setTokenHash(hash(rawToken));
-      refreshToken.setExpiresAt(LocalDateTime.now().plusDays(expirationDays));
+      refreshToken.setExpiresAt(LocalDateTime.now(ZoneOffset.UTC).plusDays(expirationDays));
 
       refreshTokenRepository.save(refreshToken);
 
@@ -86,7 +87,7 @@ public class RefreshTokenService {
          throw new InvalidRefreshTokenException();
       }
 
-      oldToken.setRevokedAt(LocalDateTime.now());
+      oldToken.setRevokedAt(LocalDateTime.now(ZoneOffset.UTC));
 
       String newToken = create(user, expectedType);
 
@@ -97,7 +98,7 @@ public class RefreshTokenService {
    public void revoke(String rawToken, RefreshTokenType expectedType) {
       refreshTokenRepository.findByTokenHashForUpdate(hash(rawToken)).ifPresent(token -> {
          if (token.getTokenType() == expectedType && !token.isRevoked()) {
-            token.setRevokedAt(LocalDateTime.now());
+            token.setRevokedAt(LocalDateTime.now(ZoneOffset.UTC));
          }
       });
    }

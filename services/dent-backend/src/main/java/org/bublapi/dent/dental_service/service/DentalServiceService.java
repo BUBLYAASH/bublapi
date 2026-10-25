@@ -8,7 +8,7 @@ import org.bublapi.dent.dental_service.dto.UpdateDentalServiceRequestDto;
 import org.bublapi.dent.dental_service.entity.DentalService;
 import org.bublapi.dent.dental_service.mapper.DentalServiceMapper;
 import org.bublapi.dent.dental_service.repository.DentalServiceRepository;
-import org.bublapi.dent.logging.AdministrativeAuditService;
+import org.bublapi.dent.logging.audit.AdministrativeAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +19,8 @@ import java.util.UUID;
 
 @Service
 public class DentalServiceService {
+   private static final String DENTAL_SERVICE_NOT_FOUND = "Dental Service not found";
+
    private final DentalServiceRepository dentalServiceRepository;
    private final DentalServiceMapper dentalServiceMapper;
    private final AdministrativeAuditService administrativeAuditService;
@@ -48,7 +50,7 @@ public class DentalServiceService {
    public DentalServiceResponseDto update(UUID dentalServiceId, UpdateDentalServiceRequestDto request) {
       DentalService dentalService = dentalServiceRepository.findByIdAndActiveTrue(dentalServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
-                                                                   "Dental Service not found or unavailable"));
+                                                                   DENTAL_SERVICE_NOT_FOUND));
 
       if (request.title() != null && dentalServiceRepository.existsByTitle(request.title()) && !request.title()
                                                                                                        .equals(dentalService.getTitle())) {
@@ -71,7 +73,7 @@ public class DentalServiceService {
    public DentalServiceResponseDto findById(UUID dentalServiceId) {
       DentalService dentalService = dentalServiceRepository.findByIdAndActiveTrue(dentalServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
-                                                                   "Dental Service not found or unavailable"));
+                                                                   DENTAL_SERVICE_NOT_FOUND));
 
       return dentalServiceMapper.toResponse(dentalService);
    }
@@ -84,7 +86,7 @@ public class DentalServiceService {
    public DentalServiceResponseDto deactivate(UUID dentalServiceId) {
       DentalService dentalService = dentalServiceRepository.findByIdAndActiveTrue(dentalServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
-                                                                   "Dental Service not found or unavailable"));
+                                                                   DENTAL_SERVICE_NOT_FOUND));
       dentalService.setActive(false);
 
       administrativeAuditService.dentalServiceDeactivated(dentalService.getId());
@@ -96,7 +98,7 @@ public class DentalServiceService {
    public DentalServiceResponseDto activate(UUID dentalServiceId) {
       DentalService dentalService = dentalServiceRepository.findById(dentalServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
-                                                                   "Dental Service not found"));
+                                                                   DENTAL_SERVICE_NOT_FOUND));
       dentalService.setActive(true);
 
       administrativeAuditService.dentalServiceActivated(dentalService.getId());

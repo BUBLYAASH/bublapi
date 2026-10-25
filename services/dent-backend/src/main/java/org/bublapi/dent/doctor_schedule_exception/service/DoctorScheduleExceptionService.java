@@ -11,7 +11,7 @@ import org.bublapi.dent.doctor_schedule_exception.entity.DoctorScheduleException
 import org.bublapi.dent.doctor_schedule_exception.entity.ScheduleExceptionType;
 import org.bublapi.dent.doctor_schedule_exception.mapper.DoctorScheduleExceptionMapper;
 import org.bublapi.dent.doctor_schedule_exception.repository.DoctorScheduleExceptionRepository;
-import org.bublapi.dent.logging.UserAuditService;
+import org.bublapi.dent.logging.audit.UserAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

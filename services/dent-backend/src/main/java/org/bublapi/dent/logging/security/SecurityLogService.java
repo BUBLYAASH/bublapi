@@ -1,4 +1,4 @@
-package org.bublapi.dent.logging;
+package org.bublapi.dent.logging.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

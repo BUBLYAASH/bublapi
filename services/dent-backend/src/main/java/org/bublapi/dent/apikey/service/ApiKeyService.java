@@ -7,18 +7,22 @@ import org.bublapi.dent.apikey.repository.ApiKeyRepository;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.bublapi.dent.logging.AdministrativeAuditService;
+import org.bublapi.dent.logging.audit.AdministrativeAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ApiKeyService {
+   private static final String API_KEY_PREFIX = "pk_live_";
+
+   private static final String API_KEY_NOT_FOUND = "API Key not found";
 
    private final ApiKeyRepository apiKeyRepository;
    private final ClinicRepository clinicRepository;
@@ -43,9 +47,9 @@ public class ApiKeyService {
    @Transactional
    public void renewApiKey(UUID clinicId) {
       ApiKey apiKey = apiKeyRepository.findByClinic_IdAndActiveTrue(clinicId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("API Key not found"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(API_KEY_NOT_FOUND));
 
-      LocalDateTime now = LocalDateTime.now();
+      LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
       if (apiKey.getGraceUntil().isAfter(now)) {
          apiKey.setExpiresAt(apiKey.getExpiresAt().plusMonths(1));
@@ -63,7 +67,7 @@ public class ApiKeyService {
       ParsedKey parsed = parse(rawKey);
 
       ApiKey apiKey = apiKeyRepository.findByPrefix(parsed.prefix)
-                                      .orElseThrow(() -> new ResourceNotFoundException("API Key not found"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(API_KEY_NOT_FOUND));
 
       String hashed = hash(parsed.secret);
 
@@ -75,7 +79,7 @@ public class ApiKeyService {
          throw new ResourceNotFoundException("API Key disabled");
       }
 
-      LocalDateTime now = LocalDateTime.now();
+      LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
       boolean expired = apiKey.getExpiresAt().isBefore(now);
       boolean graceExpired = apiKey.getGraceUntil().isBefore(now);
 
@@ -89,7 +93,7 @@ public class ApiKeyService {
    @Transactional
    public CreateApiKeyResponseDto rotate(UUID clinicId) {
       ApiKey old = apiKeyRepository.findByClinic_IdAndActiveTrue(clinicId)
-                                   .orElseThrow(() -> new ResourceNotFoundException("API Key not found"));
+                                   .orElseThrow(() -> new ResourceNotFoundException(API_KEY_NOT_FOUND));
       old.setActive(false);
 
       ApiKeyCreationResult result = createApiKeyInternal(clinicId, old.getName());
@@ -102,7 +106,7 @@ public class ApiKeyService {
    @Transactional
    public void revoke(UUID apiKeyId) {
       ApiKey apiKey = apiKeyRepository.findById(apiKeyId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("ApiKey not found"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(API_KEY_NOT_FOUND));
 
       apiKey.setActive(false);
 
@@ -119,7 +123,7 @@ public class ApiKeyService {
                              .toList();
    }
 
-   public ApiKeyCreationResult createApiKeyInternal(UUID clinicId, String name) {
+   private ApiKeyCreationResult createApiKeyInternal(UUID clinicId, String name) {
       if (apiKeyRepository.existsByClinic_IdAndActiveTrue(clinicId)) {
          throw new IllegalStateException("API Key already exists");
       }
@@ -131,7 +135,7 @@ public class ApiKeyService {
       String rawKey = generateRawKey();
       ParsedKey parsed = parse(rawKey);
 
-      LocalDateTime now = LocalDateTime.now();
+      LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
       ApiKey apiKey = new ApiKey();
       apiKey.setClinic(clinic);
@@ -150,7 +154,7 @@ public class ApiKeyService {
       String prefix = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
       String secret = UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
 
-      return "pk_live_" + prefix + "_" + secret;
+      return API_KEY_PREFIX + prefix + "_" + secret;
    }
 
    private String hash(String value) {
@@ -170,11 +174,11 @@ public class ApiKeyService {
    }
 
    private ParsedKey parse(String rawKey) {
-      if (!rawKey.startsWith("pk_live_")) {
+      if (!rawKey.startsWith(API_KEY_PREFIX)) {
          throw new IllegalArgumentException("Invalid API Key format");
       }
 
-      String withoutPrefix = rawKey.substring("pk_live_".length());
+      String withoutPrefix = rawKey.substring(API_KEY_PREFIX.length());
 
       int idx = withoutPrefix.indexOf('_');
       if (idx == -1) {

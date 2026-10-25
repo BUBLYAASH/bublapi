@@ -11,7 +11,7 @@ import org.bublapi.dent.doctor_clinic_service.dto.DoctorClinicServiceResponseDto
 import org.bublapi.dent.doctor_clinic_service.entity.DoctorClinicService;
 import org.bublapi.dent.doctor_clinic_service.mapper.DoctorClinicServiceMapper;
 import org.bublapi.dent.doctor_clinic_service.repository.DoctorClinicServiceRepository;
-import org.bublapi.dent.logging.UserAuditService;
+import org.bublapi.dent.logging.audit.UserAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +20,9 @@ import java.util.UUID;
 
 @Service
 public class DoctorClinicServiceService {
+   private static final String CLINIC_SERVICE_NOT_FOUND = "Clinic Service not found";
+   private static final String DOCTOR_NOT_FOUND = "Doctor not found";
+
    private final DoctorClinicServiceRepository doctorClinicServiceRepository;
    private final DoctorRepository doctorRepository;
    private final ClinicServiceRepository clinicServiceRepository;
@@ -42,7 +45,7 @@ public class DoctorClinicServiceService {
       UUID clinicId = ClinicContext.getClinicId();
 
       doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
-                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       return doctorClinicServiceRepository.findAllByDoctor_Clinic_IdAndDoctor_Id(clinicId, doctorId)
                                           .stream()
@@ -55,8 +58,7 @@ public class DoctorClinicServiceService {
       UUID clinicId = ClinicContext.getClinicId();
 
       clinicServiceRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, clinicServiceId)
-                             .orElseThrow(
-                                     () -> new ResourceNotFoundException("Clinic Service not found or unavailable"));
+                             .orElseThrow(() -> new ResourceNotFoundException(CLINIC_SERVICE_NOT_FOUND));
 
       return doctorClinicServiceRepository.findAllByDoctor_Clinic_IdAndClinicService_Id(clinicId, clinicServiceId)
                                           .stream()
@@ -69,12 +71,11 @@ public class DoctorClinicServiceService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
-                                      .orElseThrow(
-                                              () -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       ClinicService clinicService = clinicServiceRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, clinicServiceId)
                                                            .orElseThrow(() -> new ResourceNotFoundException(
-                                                                   "Clinic Service not found or unavailable"));
+                                                                   CLINIC_SERVICE_NOT_FOUND));
 
       if (doctorClinicServiceRepository.existsByDoctor_Clinic_IdAndDoctor_IdAndClinicService_Id(clinicId, doctorId,
                                                                                                 clinicServiceId)) {
@@ -98,17 +99,16 @@ public class DoctorClinicServiceService {
       UUID clinicId = ClinicContext.getClinicId();
 
       doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
-                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       clinicServiceRepository.findByClinic_IdAndId(clinicId, clinicServiceId)
-                             .orElseThrow(
-                                     () -> new ResourceNotFoundException("Clinic Service not found or unavailable"));
+                             .orElseThrow(() -> new ResourceNotFoundException(CLINIC_SERVICE_NOT_FOUND));
 
       DoctorClinicService doctorClinicService = doctorClinicServiceRepository.findByDoctor_Clinic_IdAndDoctor_IdAndClinicService_Id(
                                                                                      clinicId, doctorId, clinicServiceId)
                                                                              .orElseThrow(
                                                                                      () -> new ResourceNotFoundException(
-                                                                                             "DoctorClinicService not found or unavailable"));
+                                                                                             "Doctor Clinic Service not found or unavailable"));
 
       doctorClinicServiceRepository.delete(doctorClinicService);
 

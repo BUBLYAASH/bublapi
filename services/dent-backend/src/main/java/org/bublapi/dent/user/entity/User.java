@@ -7,6 +7,7 @@ import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.role.entity.Role;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -51,12 +52,12 @@ public class User {
 
    @PrePersist
    public void prePersist() {
-      this.joinedAt = LocalDateTime.now();
-      this.updatedAt = LocalDateTime.now();
+      this.joinedAt = LocalDateTime.now(ZoneOffset.UTC);
+      this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
    }
 
    @PreUpdate
    public void preUpdate() {
-      this.updatedAt = LocalDateTime.now();
+      this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
    }
 }

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Service
@@ -88,7 +89,7 @@ public class NotificationTransactionService {
       Notification notification = findNotification(notificationId);
 
       notification.setStatus(NotificationStatus.SENT);
-      notification.setSentAt(LocalDateTime.now());
+      notification.setSentAt(LocalDateTime.now(ZoneOffset.UTC));
       notification.setErrorMessage(null);
    }
 

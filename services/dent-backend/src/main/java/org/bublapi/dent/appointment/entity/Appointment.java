@@ -10,6 +10,7 @@ import org.bublapi.dent.patient.entity.Patient;
 import org.hibernate.annotations.Filter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -49,6 +50,6 @@ public class Appointment {
 
    @PrePersist
    private void prePersist() {
-      this.createdAt = LocalDateTime.now();
+      this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
    }
 }

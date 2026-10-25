@@ -1,4 +1,4 @@
-package org.bublapi.dent.logging;
+package org.bublapi.dent.logging.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

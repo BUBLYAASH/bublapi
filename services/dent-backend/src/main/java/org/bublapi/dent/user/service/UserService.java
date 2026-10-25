@@ -4,9 +4,9 @@ import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.bublapi.dent.logging.AdministrativeAuditService;
-import org.bublapi.dent.logging.SecurityLogService;
-import org.bublapi.dent.logging.UserAuditService;
+import org.bublapi.dent.logging.audit.AdministrativeAuditService;
+import org.bublapi.dent.logging.audit.UserAuditService;
+import org.bublapi.dent.logging.security.SecurityLogService;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.command.UserNotificationData;
 import org.bublapi.dent.notification.entity.NotificationType;
@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +40,7 @@ import java.util.UUID;
 
 @Service
 public class UserService {
+   private static final String USER_NOT_FOUND = "User not found";
 
    private final UserRepository userRepository;
    private final RoleRepository roleRepository;
@@ -120,7 +122,7 @@ public class UserService {
       UUID clinicId = ClinicContext.getClinicId();
 
       User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
 
       List<String> changedFields = getChangedFields(user, request, email, phone);
 
@@ -216,7 +218,7 @@ public class UserService {
       UUID clinicId = ClinicContext.getClinicId();
 
       User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
 
       if (!user.isEnabled()) {
          throw new BadRequestException("User is already deactivated");
@@ -239,7 +241,7 @@ public class UserService {
       UUID clinicId = ClinicContext.getClinicId();
 
       User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
 
       if (user.isEnabled()) {
          throw new BadRequestException("User is already active");
@@ -267,7 +269,7 @@ public class UserService {
       UUID clinicId = ClinicContext.getClinicId();
 
       User user = userRepository.findByIdAndClinic_Id(userId, clinicId)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found or unavailable"));
+                                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
 
       return userMapper.toResponse(user);
    }
@@ -276,7 +278,7 @@ public class UserService {
       notificationPublisher.publishAfterCommit(
               new CreateNotificationCommand(user.getClinic().getId(), user.getId(), null, type,
                                             new UserNotificationData(user.getClinic().getTitle(), user.getFirstName()),
-                                            LocalDateTime.now()));
+                                            LocalDateTime.now(ZoneOffset.UTC)));
    }
 
    private List<String> getChangedFields(User user, UpdateUserRequestDto request, String email, String phone) {

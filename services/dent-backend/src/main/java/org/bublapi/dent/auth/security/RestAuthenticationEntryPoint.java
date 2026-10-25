@@ -2,7 +2,7 @@ package org.bublapi.dent.auth.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.bublapi.dent.logging.SecurityLogService;
+import org.bublapi.dent.logging.security.SecurityLogService;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;

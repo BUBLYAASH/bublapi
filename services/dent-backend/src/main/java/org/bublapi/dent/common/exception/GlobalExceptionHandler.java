@@ -1,5 +1,6 @@
 package org.bublapi.dent.common.exception;
 
+import org.bublapi.dent.common.dto.ApiErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,110 +22,58 @@ public class GlobalExceptionHandler {
    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
    @ExceptionHandler(ResourceNotFoundException.class)
-   public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException e) {
-      Map<String, Object> response = new HashMap<>();
+   public ResponseEntity<ApiErrorResponse> handleResourceNotFound(ResourceNotFoundException e) {
+      return errorResponse(HttpStatus.NOT_FOUND, "Resource not found", e.getMessage());
 
-      response.put("error", "Resource not found");
-      response.put("message", e.getMessage());
-      response.put("status", HttpStatus.NOT_FOUND.value());
-      response.put("timestamp", LocalDateTime.now());
-
-      return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
    }
 
    @ExceptionHandler(BadRequestException.class)
-   public ResponseEntity<Map<String, Object>> handleBadRequest(BadRequestException e) {
-      Map<String, Object> response = new HashMap<>();
-
-      response.put("error", "Bad request");
-      response.put("message", e.getMessage());
-      response.put("status", HttpStatus.BAD_REQUEST.value());
-      response.put("timestamp", LocalDateTime.now());
-
-      return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+   public ResponseEntity<ApiErrorResponse> handleBadRequest(BadRequestException e) {
+      return errorResponse(HttpStatus.BAD_REQUEST, "Bad request", e.getMessage());
    }
 
    @ExceptionHandler(MethodArgumentNotValidException.class)
-   public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
-      Map<String, Object> response = new HashMap<>();
+   public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
       Map<String, String> validationErrors = new HashMap<>();
 
       e.getBindingResult()
        .getFieldErrors()
        .forEach(error -> validationErrors.put(error.getField(), error.getDefaultMessage()));
 
-      response.put("error", "Validation failed");
-      response.put("message", "Request contains invalid data");
-      response.put("validationErrors", validationErrors);
-      response.put("status", HttpStatus.BAD_REQUEST.value());
-      response.put("timestamp", LocalDateTime.now());
-
-      return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+      return ResponseEntity.badRequest()
+                           .body(ApiErrorResponse.validation("Request contains invalid data", validationErrors));
    }
 
    @ExceptionHandler(DataIntegrityViolationException.class)
-   public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation() {
-      Map<String, Object> response = new HashMap<>();
-
-      response.put("error", "Data integrity violation");
-      response.put("message", "The operation conflicts with existing data");
-      response.put("status", HttpStatus.CONFLICT.value());
-      response.put("timestamp", LocalDateTime.now());
-
-      return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+   public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation() {
+      return errorResponse(HttpStatus.CONFLICT, "Data integrity violation",
+                           "The operation conflicts with existing data");
    }
 
    @ExceptionHandler(AccessDeniedException.class)
-   public ResponseEntity<Map<String, Object>> handleAccessDenied() {
-      Map<String, Object> response = new HashMap<>();
-
-      response.put("error", "Forbidden");
-      response.put("message", "Access denied");
-      response.put("status", HttpStatus.FORBIDDEN.value());
-      response.put("timestamp", LocalDateTime.now());
-
-      return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+   public ResponseEntity<ApiErrorResponse> handleAccessDenied() {
+      return errorResponse(HttpStatus.FORBIDDEN, "Forbidden", "Access denied");
    }
 
    @ExceptionHandler(AuthenticationException.class)
-   public ResponseEntity<Map<String, Object>> handleAuthentication() {
-      Map<String, Object> response = new HashMap<>();
-
-      response.put("error", "Unauthorized");
-      response.put("message", "Authentication required");
-      response.put("status", HttpStatus.UNAUTHORIZED.value());
-      response.put("timestamp", LocalDateTime.now());
-
-      return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+   public ResponseEntity<ApiErrorResponse> handleAuthentication() {
+      return errorResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", "Authentication required");
    }
 
    @ExceptionHandler(InvalidRefreshTokenException.class)
-   public ResponseEntity<Map<String, Object>> handleInvalidRefreshToken(InvalidRefreshTokenException ex) {
-      Map<String, Object> response = new HashMap<>();
-
-      response.put("error", "Unauthorized");
-      response.put("message", "Invalid refresh token");
-      response.put("status", HttpStatus.UNAUTHORIZED.value());
-      response.put("timestamp", LocalDateTime.now());
-
-      return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+   public ResponseEntity<ApiErrorResponse> handleInvalidRefreshToken() {
+      return errorResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", "Invalid refresh token");
    }
 
    @ExceptionHandler(Exception.class)
-   public ResponseEntity<Map<String, Object>> handleGeneral(Exception e) {
+   public ResponseEntity<ApiErrorResponse> handleGeneral(Exception e) {
       log.atError()
          .addKeyValue("errorClass", e.getClass().getName())
          .addKeyValue("errorLocation", getErrorLocation(e))
+         .setCause(e)
          .log("Unhandled exception");
 
-      Map<String, Object> response = new HashMap<>();
-
-      response.put("error", "Internal Server Error");
-      response.put("message", "An unexpected error occurred");
-      response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-      response.put("timestamp", LocalDateTime.now());
-
-      return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+      return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "An unexpected error occurred");
    }
 
    private static String getErrorLocation(Exception e) {
@@ -138,5 +86,9 @@ public class GlobalExceptionHandler {
       StackTraceElement element = stackTrace[0];
 
       return element.getClassName() + "." + element.getMethodName() + ":" + element.getLineNumber();
+   }
+
+   private static ResponseEntity<ApiErrorResponse> errorResponse(HttpStatus status, String error, String message) {
+      return ResponseEntity.status(status).body(ApiErrorResponse.of(error, message, status));
    }
 }

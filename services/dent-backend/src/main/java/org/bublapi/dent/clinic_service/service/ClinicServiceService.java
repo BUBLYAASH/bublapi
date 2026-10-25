@@ -15,7 +15,7 @@ import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.dental_service.entity.DentalService;
 import org.bublapi.dent.dental_service.repository.DentalServiceRepository;
-import org.bublapi.dent.logging.UserAuditService;
+import org.bublapi.dent.logging.audit.UserAuditService;
 import org.bublapi.dent.notification.command.ClinicServiceNotificationData;
 import org.bublapi.dent.notification.command.CreateNotificationCommand;
 import org.bublapi.dent.notification.entity.NotificationType;
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -105,7 +106,8 @@ public class ClinicServiceService {
 
       clinicService.setActive(false);
 
-      appointmentServiceRepository.findAllAffectedByServiceDeactivation(clinicServiceId, LocalDateTime.now(),
+      appointmentServiceRepository.findAllAffectedByServiceDeactivation(clinicServiceId,
+                                                                        LocalDateTime.now(ZoneOffset.UTC),
                                                                         List.of(AppointmentStatus.CANCELLED,
                                                                                 AppointmentStatus.COMPLETED))
                                   .forEach(p -> publishClinicServiceDeactivatedNotification(p.getAppointment(),
@@ -186,6 +188,6 @@ public class ClinicServiceService {
                                                                               appointment.getPatient().getFirstName(),
                                                                               clinicService.getDentalService()
                                                                                            .getTitle()),
-                                            LocalDateTime.now()));
+                                            LocalDateTime.now(ZoneOffset.UTC)));
    }
 }

@@ -9,7 +9,7 @@ import org.bublapi.dent.clinic.repository.ClinicRepository;
 import org.bublapi.dent.clinic_service.repository.ClinicServiceRepository;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
-import org.bublapi.dent.logging.AdministrativeAuditService;
+import org.bublapi.dent.logging.audit.AdministrativeAuditService;
 import org.bublapi.dent.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +21,7 @@ import java.util.UUID;
 
 @Service
 public class ClinicService {
+   private static final String CLINIC_NOT_FOUND = "Clinic not found";
 
    private final ClinicRepository clinicRepository;
    private final UserRepository userRepository;
@@ -53,8 +54,7 @@ public class ClinicService {
 
    @Transactional
    public ClinicResponseDto update(UUID id, UpdateClinicRequestDto request) {
-      Clinic clinic = clinicRepository.findById(id)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+      Clinic clinic = clinicRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(CLINIC_NOT_FOUND));
 
       List<String> changedFields = getChangedFields(clinic, request);
 
@@ -67,8 +67,7 @@ public class ClinicService {
 
    @Transactional
    public ClinicResponseDto deactivate(UUID id) {
-      Clinic clinic = clinicRepository.findById(id)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+      Clinic clinic = clinicRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(CLINIC_NOT_FOUND));
 
       userRepository.disableAllByClinicId(clinic.getId());
       doctorRepository.disableAllByClinicId(clinic.getId());
@@ -83,8 +82,7 @@ public class ClinicService {
 
    @Transactional
    public ClinicResponseDto activate(UUID id) {
-      Clinic clinic = clinicRepository.findById(id)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Clinic not found"));
+      Clinic clinic = clinicRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(CLINIC_NOT_FOUND));
 
       clinic.setActive(true);
 

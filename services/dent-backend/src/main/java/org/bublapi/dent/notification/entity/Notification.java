@@ -11,6 +11,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Getter
@@ -87,7 +88,7 @@ public class Notification {
    @PrePersist
    void prePersist() {
       if (createdAt == null) {
-         createdAt = LocalDateTime.now();
+         createdAt = LocalDateTime.now(ZoneOffset.UTC);
       }
 
       if (status == null) {

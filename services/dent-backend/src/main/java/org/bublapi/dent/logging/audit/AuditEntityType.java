@@ -1,0 +1,16 @@
+package org.bublapi.dent.logging.audit;
+
+public enum AuditEntityType {
+   API_KEY,
+   USER,
+   PATIENT,
+   DOCTOR,
+   APPOINTMENT,
+   CLINIC,
+   CLINIC_SERVICE,
+   DENTAL_SERVICE,
+   NOTIFICATION,
+   DOCTOR_CLINIC_SERVICE,
+   DOCTOR_SCHEDULE_EXCEPTION,
+   DOCTOR_WORKING_HOURS,
+}

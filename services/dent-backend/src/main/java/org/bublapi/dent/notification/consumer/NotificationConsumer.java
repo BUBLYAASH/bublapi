@@ -35,11 +35,6 @@ public class NotificationConsumer {
 
       try {
          notificationService.create(command);
-      } catch (Exception e) {
-         log.error("Failed to handle notification: type={}, clinicId={}, appointmentId={}", command.type(),
-                   command.clinicId(), command.appointmentId(), e);
-
-         throw e;
       } finally {
          ClinicContext.clear();
       }

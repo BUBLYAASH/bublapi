@@ -8,7 +8,7 @@ import org.bublapi.dent.apikey.entity.ApiKey;
 import org.bublapi.dent.apikey.service.ApiKeyService;
 import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.bublapi.dent.logging.SecurityLogService;
+import org.bublapi.dent.logging.security.SecurityLogService;
 import org.slf4j.MDC;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

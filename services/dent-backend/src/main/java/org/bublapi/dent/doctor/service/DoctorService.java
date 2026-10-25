@@ -11,8 +11,8 @@ import org.bublapi.dent.doctor.dto.UpdateDoctorRequestDto;
 import org.bublapi.dent.doctor.entity.Doctor;
 import org.bublapi.dent.doctor.mapper.DoctorMapper;
 import org.bublapi.dent.doctor.repository.DoctorRepository;
-import org.bublapi.dent.logging.AdministrativeAuditService;
-import org.bublapi.dent.logging.UserAuditService;
+import org.bublapi.dent.logging.audit.AdministrativeAuditService;
+import org.bublapi.dent.logging.audit.UserAuditService;
 import org.bublapi.dent.role.entity.Role;
 import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.role.repository.RoleRepository;
@@ -29,6 +29,7 @@ import java.util.UUID;
 
 @Service
 public class DoctorService {
+   private static final String DOCTOR_NOT_FOUND = "Doctor not found";
 
    private final DoctorRepository doctorRepository;
    private final UserRepository userRepository;
@@ -68,7 +69,7 @@ public class DoctorService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor in clinic not found"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       List<String> changedFields = getChangedFields(doctor, request);
 
@@ -84,8 +85,7 @@ public class DoctorService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
-                                      .orElseThrow(
-                                              () -> new ResourceNotFoundException("Doctor not found in this clinic"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       doctor.setActive(false);
 
@@ -99,8 +99,7 @@ public class DoctorService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
-                                      .orElseThrow(
-                                              () -> new ResourceNotFoundException("Doctor not found in this clinic"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       doctor.setActive(true);
 
@@ -125,8 +124,7 @@ public class DoctorService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
-                                      .orElseThrow(
-                                              () -> new ResourceNotFoundException("Doctor not found in this clinic"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       return doctorMapper.toResponse(doctor);
    }
@@ -135,8 +133,7 @@ public class DoctorService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
-                                      .orElseThrow(
-                                              () -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       return doctorMapper.toResponse(doctor);
    }
@@ -156,8 +153,7 @@ public class DoctorService {
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
       Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinicId, doctorId)
-                                      .orElseThrow(
-                                              () -> new ResourceNotFoundException("Doctor not found or unavailable"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       Role doctorRole = roleRepository.findByName(RoleName.DOCTOR)
                                       .orElseThrow(() -> new ResourceNotFoundException("Role DOCTOR not found"));
@@ -185,7 +181,7 @@ public class DoctorService {
       UUID clinicId = ClinicContext.getClinicId();
 
       Doctor doctor = doctorRepository.findByClinic_IdAndId(clinicId, doctorId)
-                                      .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+                                      .orElseThrow(() -> new ResourceNotFoundException(DOCTOR_NOT_FOUND));
 
       User user = doctor.getUser();
 

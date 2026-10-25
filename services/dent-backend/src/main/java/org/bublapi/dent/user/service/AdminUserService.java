@@ -2,7 +2,7 @@ package org.bublapi.dent.user.service;
 
 import org.bublapi.dent.common.exception.BadRequestException;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
-import org.bublapi.dent.logging.AdministrativeAuditService;
+import org.bublapi.dent.logging.audit.AdministrativeAuditService;
 import org.bublapi.dent.role.entity.Role;
 import org.bublapi.dent.role.repository.RoleRepository;
 import org.bublapi.dent.user.dto.UserResponseDto;

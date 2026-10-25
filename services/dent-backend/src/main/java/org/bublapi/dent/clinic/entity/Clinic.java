@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Getter
@@ -43,12 +44,12 @@ public class Clinic {
 
    @PrePersist
    private void prePersist() {
-      this.createdAt = LocalDateTime.now();
-      this.updatedAt = LocalDateTime.now();
+      this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
+      this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
    }
 
    @PreUpdate
    private void preUpdate() {
-      this.updatedAt = LocalDateTime.now();
+      this.updatedAt = LocalDateTime.now(ZoneOffset.UTC);
    }
 }

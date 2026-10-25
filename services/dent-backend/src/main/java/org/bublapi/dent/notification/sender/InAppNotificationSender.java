@@ -14,5 +14,6 @@ public class InAppNotificationSender implements NotificationSender {
 
    @Override
    public void send(Notification notification, CreateNotificationCommand command) {
+      // IN_APP notifications require no additional delivery
    }
 }
