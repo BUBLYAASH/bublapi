@@ -17,6 +17,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.bublapi.dent.clinic.dto.ClinicOriginRequestDto;
+import org.bublapi.dent.clinic.dto.ClinicOriginResponseDto;
+import org.bublapi.dent.clinic.service.ClinicOriginService;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.HttpStatus;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -28,8 +35,10 @@ import java.util.UUID;
 public class AdminClinicController {
 
    private final ClinicService clinicService;
+   private final ClinicOriginService origins;
 
-   public AdminClinicController(ClinicService clinicService) {
+   public AdminClinicController(ClinicService clinicService, ClinicOriginService origins) {
+      this.origins = origins;
       this.clinicService = clinicService;
    }
 
@@ -63,4 +72,22 @@ public class AdminClinicController {
    public List<ClinicResponseDto> findAll() {
       return clinicService.findAll();
    }
+   @GetMapping("/{clinicId}/origins")
+   public List<ClinicOriginResponseDto> origins(@PathVariable UUID clinicId) {
+      return origins.list(clinicId);
+   }
+
+   @PostMapping("/{clinicId}/origins")
+   @Operation(summary = "Approve a website origin for a clinic (ADMIN only)")
+   public ClinicOriginResponseDto addOrigin(@PathVariable UUID clinicId,
+           @Valid @RequestBody ClinicOriginRequestDto request) {
+      return origins.add(clinicId, request.origin());
+   }
+
+   @DeleteMapping("/{clinicId}/origins/{originId}")
+   @ResponseStatus(HttpStatus.NO_CONTENT)
+   public void removeOrigin(@PathVariable UUID clinicId, @PathVariable UUID originId) {
+      origins.remove(clinicId, originId);
+   }
+
 }

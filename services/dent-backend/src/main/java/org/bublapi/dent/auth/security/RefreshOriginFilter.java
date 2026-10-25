@@ -8,12 +8,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Set;
 
 @Component
 public class RefreshOriginFilter extends OncePerRequestFilter {
-   private static final Set<String> ALLOWED_ORIGINS = Set.of("http://localhost:3000", "http://localhost:3001",
-                                                             "http://localhost:3002");
+   private final OriginPolicy originPolicy;
+
+   public RefreshOriginFilter(OriginPolicy originPolicy) {
+      this.originPolicy = originPolicy;
+   }
 
    @Override
    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -25,9 +27,7 @@ public class RefreshOriginFilter extends OncePerRequestFilter {
               "/api/v1/admin/auth/logout");
 
       if (protectedEndpoint && "POST".equalsIgnoreCase(request.getMethod())) {
-         String origin = request.getHeader("Origin");
-
-         if (origin == null || !ALLOWED_ORIGINS.contains(origin)) {
+         if (!originPolicy.allows(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
          }

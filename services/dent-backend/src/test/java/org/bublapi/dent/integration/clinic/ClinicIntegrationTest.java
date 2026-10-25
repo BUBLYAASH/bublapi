@@ -56,7 +56,7 @@ class ClinicIntegrationTest extends IntegrationTestBase {
 
 
       CreateClinicRequestDto request = new CreateClinicRequestDto("Dental Clinic", null, "Same address", "79991234567",
-                                                                  "clinic1@mail.com", null, "Europe/Moscow");
+                                                                  "clinic1@mail.com", "https://clinic.com", "Europe/Moscow");
 
 
       mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)
@@ -81,7 +81,7 @@ class ClinicIntegrationTest extends IntegrationTestBase {
 
 
       CreateClinicRequestDto request = new CreateClinicRequestDto("Active Clinic", null, "Some address", "79990000000",
-                                                                  "active@mail.com", null, "Europe/Moscow");
+                                                                  "active@mail.com", "https://active.clinic.com", "Europe/Moscow");
 
 
       mockMvc.perform(post("/api/v1/admin/clinics").header("Authorization", token)

@@ -24,6 +24,7 @@ public class ClinicService {
    private static final String CLINIC_NOT_FOUND = "Clinic not found";
 
    private final ClinicRepository clinicRepository;
+   private final ClinicOriginService origins;
    private final UserRepository userRepository;
    private final DoctorRepository doctorRepository;
    private final ClinicServiceRepository clinicServiceRepository;
@@ -32,7 +33,8 @@ public class ClinicService {
 
    public ClinicService(ClinicRepository clinicRepository, UserRepository userRepository,
                         DoctorRepository doctorRepository, ClinicServiceRepository clinicServiceRepository,
-                        ClinicMapper clinicMapper, AdministrativeAuditService administrativeAuditService) {
+                        ClinicMapper clinicMapper, AdministrativeAuditService administrativeAuditService, ClinicOriginService origins) {
+      this.origins = origins;
       this.clinicRepository = clinicRepository;
       this.userRepository = userRepository;
       this.doctorRepository = doctorRepository;
@@ -43,9 +45,11 @@ public class ClinicService {
 
    @Transactional
    public ClinicResponseDto create(CreateClinicRequestDto request) {
+      String initialOrigin = WebsiteOrigin.fromWebsite(request.website());
       Clinic clinic = clinicMapper.toEntity(request);
 
       Clinic saved = clinicRepository.save(clinic);
+      origins.add(saved.getId(), initialOrigin);
 
       administrativeAuditService.clinicCreated(saved.getId());
 
@@ -56,6 +60,7 @@ public class ClinicService {
    public ClinicResponseDto update(UUID id, UpdateClinicRequestDto request) {
       Clinic clinic = clinicRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(CLINIC_NOT_FOUND));
 
+      if (request.website() != null) WebsiteOrigin.fromWebsite(request.website());
       List<String> changedFields = getChangedFields(clinic, request);
 
       clinicMapper.updateEntity(request, clinic);

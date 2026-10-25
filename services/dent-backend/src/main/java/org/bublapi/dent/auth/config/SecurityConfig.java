@@ -3,6 +3,7 @@ package org.bublapi.dent.auth.config;
 
 import org.bublapi.dent.auth.security.ApiKeyFilter;
 import org.bublapi.dent.auth.security.JwtAuthenticationFilter;
+import org.bublapi.dent.auth.security.OriginPolicy;
 import org.bublapi.dent.auth.security.RefreshOriginFilter;
 import org.bublapi.dent.auth.security.RestAccessDeniedHandler;
 import org.bublapi.dent.auth.security.RestAuthenticationEntryPoint;
@@ -20,7 +21,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
@@ -28,6 +28,7 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+   private final OriginPolicy originPolicy;
    private final JwtAuthenticationFilter jwtAuthenticationFilter;
    private final ApiKeyFilter apiKeyFilter;
    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
@@ -35,7 +36,8 @@ public class SecurityConfig {
 
    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, ApiKeyFilter apiKeyFilter,
                          RestAuthenticationEntryPoint restAuthenticationEntryPoint,
-                         RestAccessDeniedHandler restAccessDeniedHandler) {
+                         RestAccessDeniedHandler restAccessDeniedHandler, OriginPolicy originPolicy) {
+      this.originPolicy = originPolicy;
       this.jwtAuthenticationFilter = jwtAuthenticationFilter;
       this.apiKeyFilter = apiKeyFilter;
       this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
@@ -62,6 +64,8 @@ public class SecurityConfig {
                                              .hasRole("ADMIN")
                                              .requestMatchers("/actuator/**")
                                              .denyAll()
+                                             .requestMatchers("/api/v1/admin/clinics", "/api/v1/admin/clinics/**")
+                                             .hasRole("ADMIN")
                                              .requestMatchers("/api/v1/public/**")
                                              .permitAll()
                                              .anyRequest()
@@ -77,20 +81,18 @@ public class SecurityConfig {
 
    @Bean
    public CorsConfigurationSource corsConfigurationSource() {
-      CorsConfiguration configuration = new CorsConfiguration();
+      return request -> {
+         CorsConfiguration configuration = new CorsConfiguration();
 
-      configuration.setAllowedOrigins(
-              List.of("http://localhost:3000", "http://localhost:3001", "http://localhost:3002"));
-      configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-      configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-API-KEY", "X-Request-ID"));
-      configuration.setExposedHeaders(List.of("X-Request-ID"));
-      configuration.setAllowCredentials(true);
+         configuration.setAllowedOrigins(
+                 originPolicy.allows(request) ? List.of(request.getHeader("Origin")) : List.of());
+         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-API-KEY", "X-Request-ID"));
+         configuration.setExposedHeaders(List.of("X-Request-ID"));
+         configuration.setAllowCredentials(true);
 
-      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-      source.registerCorsConfiguration("/**", configuration);
-
-      return source;
+         return configuration;
+      };
    }
 
    @Bean

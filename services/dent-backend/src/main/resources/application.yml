@@ -76,3 +76,6 @@ logging:
     json:
       add:
         service: ${spring.application.name}
+
+security:
+  admin-allowed-origins: ${ADMIN_ALLOWED_ORIGINS:http://localhost:3001}

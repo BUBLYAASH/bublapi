@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 036-create-clinic-allowed-origins
+      author: Gleb Kovalev
+      changes:
+        - createTable:
+            tableName: clinic_allowed_origins
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: clinic_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    referencedTableName: clinics
+                    referencedColumnNames: id
+                    foreignKeyName: fk_clinic_allowed_origins_clinic
+                    deleteCascade: true
+              - column:
+                  name: origin
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: clinic_allowed_origins
+            columnNames: clinic_id, origin
+            constraintName: uk_clinic_allowed_origin
+        - createIndex:
+            tableName: clinic_allowed_origins
+            indexName: idx_clinic_allowed_origin
+            columns:
+              - column:
+                  name: origin
+        - sql:
+            sql: |
+              INSERT INTO clinic_allowed_origins (id, clinic_id, origin)
+              SELECT md5(id::text || ':website-origin')::uuid, id,
+                regexp_replace(regexp_replace(substring(lower(trim(website)) from '^https?://[^/?#]+'),
+                  '^https://([^:]+):443$', 'https://\1'), '^http://([^:]+):80$', 'http://\1')
+              FROM clinics
+              WHERE trim(website) ~* '^https?://[a-z0-9]([a-z0-9.-]*[a-z0-9])?(:[1-9][0-9]{0,3})?([/?#][^[:space:]]*)?$';

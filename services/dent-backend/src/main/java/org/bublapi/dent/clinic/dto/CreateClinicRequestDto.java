@@ -26,6 +26,7 @@ public record CreateClinicRequestDto(
         @Size(max = 255)
         String email,
 
+        @NotBlank
         @Size(max = 255)
         String website,
 
