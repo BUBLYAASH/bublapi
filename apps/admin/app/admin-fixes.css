@@ -117,3 +117,10 @@
     padding: 20px 16px 28px !important;
   }
 }
+
+.clinic-origins { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+.clinic-origin-list { list-style: none; padding: 0; }
+.clinic-origin-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; }
+.clinic-origin-list li span { overflow-wrap: anywhere; min-width: 0; }
+.clinic-origin-list button { flex-shrink: 0; }
+.clinic-origins form { margin-top: 16px; }

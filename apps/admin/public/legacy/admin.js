@@ -5,8 +5,6 @@ import './phone.js';
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 
-// Админка обновляется только вручную. Периодическое обновление сбрасывало
-// выбранные роли и мешало редактированию форм.
 const AUTO_REFRESH_INTERVAL_MS = 0;
 const AUTO_REFRESH_VIEWS = new Set();
 
@@ -14,11 +12,7 @@ let autoRefreshTimer = null;
 let refreshInProgress = false;
 
 const caches = {
-    clinics: new Map(),
-    apiKeys: new Map(),
-    dentalServices: new Map(),
-    notifications: new Map(),
-    users: new Map()
+    clinics: new Map(), apiKeys: new Map(), dentalServices: new Map(), notifications: new Map(), users: new Map()
 };
 
 const ROLE_IDS = {
@@ -83,23 +77,28 @@ function applyAdminVisibility() {
 
     const activeView = $('.view.active');
 
-    if (
-        activeView?.dataset.adminOnly
-        && !authenticated
-    ) {
+    if (activeView?.dataset.adminOnly && !authenticated) {
         showView('admin-auth');
     }
 }
 
 const ADMIN_VIEW_ROUTES = {
-    'admin-auth': '/login', 'admin-clinics': '/dent/clinics', 'admin-catalog': '/dent/catalog',
-    'admin-api-keys': '/dent/api-keys', 'admin-notifications': '/dent/notifications', 'admin-users': '/dent/users',
-    'admin-docs': '/dent/docs', 'admin-system': '/dent/system'
+    'admin-auth': '/login',
+    'admin-clinics': '/dent/clinics',
+    'admin-catalog': '/dent/catalog',
+    'admin-api-keys': '/dent/api-keys',
+    'admin-notifications': '/dent/notifications',
+    'admin-users': '/dent/users',
+    'admin-docs': '/dent/docs',
+    'admin-system': '/dent/system'
 };
 const ADMIN_VIEW_TITLES = {
-    'admin-clinics': 'Клиники', 'admin-catalog': 'Каталог услуг',
-    'admin-api-keys': 'API-ключи', 'admin-notifications': 'Системные уведомления',
-    'admin-users': 'Пользователи и роли', 'admin-docs': 'API-документация',
+    'admin-clinics': 'Клиники',
+    'admin-catalog': 'Каталог услуг',
+    'admin-api-keys': 'API-ключи',
+    'admin-notifications': 'Системные уведомления',
+    'admin-users': 'Пользователи и роли',
+    'admin-docs': 'API-документация',
     'admin-system': 'Состояние системы'
 };
 const ADMIN_ROUTE_VIEWS = Object.fromEntries(Object.entries(ADMIN_VIEW_ROUTES).map(([v, p]) => [p, v]));
@@ -122,17 +121,13 @@ function showView(name, {updateUrl = true} = {}) {
     }
 
     $$('.view').forEach(view => {
-        view.classList.toggle(
-            'active',
-            view.id === `view-${name}`
-        );
+        view.classList.toggle('active', view.id === `view-${name}`);
     });
 
     $$('.nav-button').forEach(button => {
         const isActive = button.dataset.view === name;
         button.classList.toggle('active', isActive);
-        if (isActive) button.setAttribute('aria-current', 'page');
-        else button.removeAttribute('aria-current');
+        if (isActive) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
     });
 
     if (name === 'admin-docs') {
@@ -155,9 +150,7 @@ $$('.nav-button').forEach(button => {
 });
 
 function openModal(title, bodyHtml, actionsHtml = '') {
-    modalReturnFocus = document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
+    modalReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     $('#detailModalTitle').textContent = title;
     $('#detailModalBody').innerHTML = bodyHtml;
     $('#detailModalActions').innerHTML = actionsHtml;
@@ -191,14 +184,10 @@ function closeModal(result = false) {
 function confirmAction(title, message, confirmLabel) {
     return new Promise(resolve => {
         activeModalResolver = resolve;
-        openModal(
-            title,
-            `<p>${escapeHtml(message)}</p>`,
-            `
+        openModal(title, `<p>${escapeHtml(message)}</p>`, `
           <button class="btn btn-secondary" data-modal-close type="button">Отмена</button>
           <button class="btn btn-danger" id="confirmModalAction" type="button">${escapeHtml(confirmLabel)}</button>
-        `
-        );
+        `);
         $('#confirmModalAction').addEventListener('click', () => closeModal(true), {once: true});
     });
 }
@@ -215,9 +204,7 @@ document.addEventListener('keydown', event => {
     }
 
     if (event.key === 'Tab' && !$('#detailModal').classList.contains('hidden')) {
-        const focusable = [...$('#detailModal').querySelectorAll(
-            'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        )];
+        const focusable = [...$('#detailModal').querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')];
         if (!focusable.length) return;
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
@@ -271,9 +258,18 @@ function updateSession() {
 
 $('#adminLogout').addEventListener('click', async () => {
     let response;
-    try { response = await (await import('/session.js')).sessionLock(() => fetch('/api/v1/auth/logout', {method: 'POST', headers: {'Content-Type': 'application/json'}})); }
-    catch { toast('Не удалось завершить сессию. Повторите выход.', 'error'); return; }
-    if (!response.ok) { toast('Не удалось завершить сессию. Повторите выход.', 'error'); return; }
+    try {
+        response = await (await import('/session.js')).sessionLock(() => fetch('/api/v1/auth/logout', {
+            method: 'POST', headers: {'Content-Type': 'application/json'}
+        }));
+    } catch {
+        toast('Не удалось завершить сессию. Повторите выход.', 'error');
+        return;
+    }
+    if (!response.ok) {
+        toast('Не удалось завершить сессию. Повторите выход.', 'error');
+        return;
+    }
     adminAuthenticated = false;
     stopAutoRefresh();
     location.assign('/login');
@@ -283,20 +279,13 @@ $('#adminLoginForm').addEventListener('submit', async event => {
     event.preventDefault();
 
     try {
-        const result = await api(
-            '/api/v1/auth/login',
-            {
-                method: 'POST',
-                skipAuth: true,
-                body: formToObject(event.currentTarget)
-            },
-            'admin'
-        );
+        const result = await api('/api/v1/auth/login', {
+            method: 'POST', skipAuth: true, body: formToObject(event.currentTarget)
+        }, 'admin');
 
         if (!result.authenticated) throw new Error('Не удалось создать сессию');
         adminAuthenticated = true;
-        if (window.bublapiNavigate) window.bublapiNavigate('/apis', {replace: true});
-        else location.assign('/apis');
+        if (window.bublapiNavigate) window.bublapiNavigate('/apis', {replace: true}); else location.assign('/apis');
     } catch (error) {
         toast(error.message, 'error');
     }
@@ -311,10 +300,7 @@ async function loadSystemStatus() {
             $(target).textContent = error.message;
         }
     };
-    await Promise.all([
-        render('/api/v1/system/health', '#systemHealth'),
-        render('/api/v1/system/info', '#systemInfo')
-    ]);
+    await Promise.all([render('/api/v1/system/health', '#systemHealth'), render('/api/v1/system/info', '#systemInfo')]);
 }
 
 $('#loadSystemStatus')?.addEventListener('click', loadSystemStatus);
@@ -337,9 +323,7 @@ function renderTable(container, rows, columns, actions) {
         .map(row => {
             const cells = columns
                 .map(column => {
-                    const value = column.render
-                        ? column.render(row)
-                        : escapeHtml(row[column.key] ?? '—');
+                    const value = column.render ? column.render(row) : escapeHtml(row[column.key] ?? '—');
 
                     return `<td>${value}</td>`;
                 })
@@ -378,7 +362,7 @@ function clinicDetailsHtml(clinic) {
       ${detailItem('Адрес', clinic.address, true)}
       ${detailItem('Телефон', clinic.phone)}
       ${detailItem('Email', clinic.email)}
-      ${detailItem('Website', clinic.website, true)}
+      ${detailItem('Сайт клиники', clinic.website, true)}
       ${detailItem('Timezone', clinic.timezone)}
       ${detailItem('Описание', clinic.description, true)}
     </div>
@@ -386,81 +370,126 @@ function clinicDetailsHtml(clinic) {
 }
 
 function showClinicDetails(clinic) {
-    openModal(
-        clinic.title,
-        clinicDetailsHtml(clinic),
-        `
+    openModal(clinic.title, clinicDetailsHtml(clinic) + clinicOriginsHtml(clinic.id), `
         <button class="btn btn-primary clinic-edit-modal" data-id="${clinic.id}">
           Редактировать
         </button>
-      `
-    );
+      `);
+    refreshClinicOrigins(clinic.id);
 }
 
+function clinicOriginsHtml(clinicId) {
+    return `<section class="clinic-origins" data-clinic-id="${escapeHtml(clinicId)}" aria-labelledby="clinicOriginsTitle">
+      <h3 id="clinicOriginsTitle">Разрешённые сайты</h3>
+      <p class="muted">Адреса, одобренные ADMIN для доступа к API этой клиники. Протокол и порт имеют значение. Изменение сайта в карточке не меняет этот список.</p>
+      <div id="clinicOriginsList" aria-live="polite">Загрузка…</div>
+      <form id="clinicOriginForm" class="form-grid">
+        <label class="full">Адрес сайта<input name="origin" type="url" required maxlength="255" placeholder="https://clinic.ru" aria-describedby="clinicOriginHint"></label>
+        <p id="clinicOriginHint" class="muted full">Без пути и параметров. Добавляйте только проверенные вами сайты.</p>
+        <button class="btn btn-primary" type="submit">Разрешить сайт</button>
+      </form>
+      <p id="clinicOriginError" role="alert"></p>
+    </section>`;
+}
+
+async function refreshClinicOrigins(clinicId) {
+    const section = document.querySelector('.clinic-origins');
+    if (!section || section.dataset.clinicId !== clinicId) return;
+    const list = section.querySelector('#clinicOriginsList');
+    try {
+        const origins = await api(`/api/v1/admin/clinics/${clinicId}/origins`, {method: 'GET'}, 'admin');
+        if (!section.isConnected) return;
+        list.innerHTML = origins.length ? `<ul class="clinic-origin-list">${origins.map(item => `
+          <li><span>${escapeHtml(item.origin)}</span><button type="button" class="btn btn-secondary btn-sm clinic-origin-remove"
+            data-id="${escapeHtml(item.id)}" aria-label="Удалить разрешение для ${escapeHtml(item.origin)}">Удалить</button></li>`).join('')}</ul>` : '<p class="muted">Разрешённых сайтов пока нет. Запросы с Origin будут отклоняться.</p>';
+    } catch (error) {
+        list.textContent = 'Не удалось загрузить сайты.';
+        section.querySelector('#clinicOriginError').textContent = error.message;
+    }
+}
+
+document.addEventListener('submit', async event => {
+    if (event.target.id !== 'clinicOriginForm') return;
+    event.preventDefault();
+    const form = event.target;
+    if (!form.reportValidity()) return;
+    const section = form.closest('.clinic-origins');
+    const errorBox = section.querySelector('#clinicOriginError');
+    const button = form.querySelector('button');
+    button.disabled = true;
+    errorBox.textContent = '';
+    try {
+        await api(`/api/v1/admin/clinics/${section.dataset.clinicId}/origins`, {
+            method: 'POST', body: {origin: form.elements.origin.value.trim()}
+        }, 'admin');
+        form.reset();
+        await refreshClinicOrigins(section.dataset.clinicId);
+    } catch (error) {
+        errorBox.textContent = error.message;
+    } finally {
+        button.disabled = false;
+    }
+});
+
+document.addEventListener('click', async event => {
+    const button = event.target.closest('.clinic-origin-remove');
+    if (!button) return;
+    const section = button.closest('.clinic-origins');
+    button.disabled = true;
+    const errorBox = section.querySelector('#clinicOriginError');
+    errorBox.textContent = '';
+    try {
+        await api(`/api/v1/admin/clinics/${section.dataset.clinicId}/origins/${button.dataset.id}`, {method: 'DELETE'}, 'admin');
+        await refreshClinicOrigins(section.dataset.clinicId);
+    } catch (error) {
+        errorBox.textContent = error.message;
+        button.disabled = false;
+    }
+});
+
 function openClinicEdit(clinic) {
-    openModal(
-        'Редактировать клинику',
-        `
+    openModal('Редактировать клинику', `
         <form id="modalClinicEditForm" class="form-grid">
           <label>Название<input name="title" required value="${escapeHtml(clinic.title || '')}"></label>
           <label>Телефон<input name="phone" value="${escapeHtml(clinic.phone || '')}"></label>
           <label class="full">Адрес<input name="address" required value="${escapeHtml(clinic.address || '')}"></label>
           <label>Email<input name="email" type="email" value="${escapeHtml(clinic.email || '')}"></label>
-          <label>Website<input name="website" value="${escapeHtml(clinic.website || '')}"></label>
+          <label>Сайт клиники<input name="website" type="url" value="${escapeHtml(clinic.website || '')}"></label>
           <label>Timezone<input name="timezone" required value="${escapeHtml(clinic.timezone || '')}"></label>
           <label class="full">Описание<textarea name="description">${escapeHtml(clinic.description || '')}</textarea></label>
         </form>
-      `,
-        `
+        ${clinicOriginsHtml(clinic.id)}
+      `, `
         <button class="btn btn-primary clinic-save-modal" data-id="${clinic.id}">
           Сохранить
         </button>
-      `
-    );
+      `);
+    refreshClinicOrigins(clinic.id);
 }
 
 async function loadClinics({silent = false} = {}) {
     try {
-        const clinics = await api(
-            '/api/v1/admin/clinics',
-            {
-                method: 'GET'
-            },
-            'admin'
-        );
+        const clinics = await api('/api/v1/admin/clinics', {
+            method: 'GET'
+        }, 'admin');
 
-        caches.clinics = new Map(
-            clinics.map(clinic => [clinic.id, clinic])
-        );
+        caches.clinics = new Map(clinics.map(clinic => [clinic.id, clinic]));
 
-        renderTable(
-            $('#clinicsTable'),
-            clinics,
-            [
-                {
-                    label: 'Название',
-                    render: clinic => `
+        renderTable($('#clinicsTable'), clinics, [{
+            label: 'Название', render: clinic => `
               <button class="link-button clinic-details" data-id="${clinic.id}">
                 ${escapeHtml(clinic.title)}
               </button>
             `
-                },
-                {label: 'Адрес', key: 'address'},
-                {label: 'Email', key: 'email'},
-                {
-                    label: 'Статус',
-                    render: clinic => `
+        }, {label: 'Адрес', key: 'address'}, {label: 'Email', key: 'email'}, {
+            label: 'Статус', render: clinic => `
               <span class="badge ${clinic.active ? 'success' : 'danger'}">
                 ${clinic.active ? 'Активна' : 'Отключена'}
               </span>
             `
-                },
-                {
-                    label: 'Clinic ID',
-                    render: clinic => `<span class="code">${clinic.id}</span>`
-                }
-            ],
-            clinic => `
+        }, {
+            label: 'Clinic ID', render: clinic => `<span class="code">${clinic.id}</span>`
+        }], clinic => `
           <div class="actions">
             <button class="btn btn-primary btn-sm clinic-edit" data-id="${clinic.id}">
               Редактировать
@@ -469,8 +498,7 @@ async function loadClinics({silent = false} = {}) {
               ${clinic.active ? 'Отключить' : 'Активировать'}
             </button>
           </div>
-        `
-        );
+        `);
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -486,14 +514,9 @@ $('#createClinicForm').addEventListener('submit', async event => {
     event.preventDefault();
 
     try {
-        await api(
-            '/api/v1/admin/clinics',
-            {
-                method: 'POST',
-                body: formToObject(event.currentTarget)
-            },
-            'admin'
-        );
+        await api('/api/v1/admin/clinics', {
+            method: 'POST', body: formToObject(event.currentTarget)
+        }, 'admin');
 
         event.currentTarget.reset();
         toast('Клиника создана', 'success');
@@ -524,24 +547,13 @@ $('#clinicsTable').addEventListener('click', async event => {
         }
 
         if (toggle) {
-            const action = toggle.dataset.active === 'true'
-                ? 'deactivation'
-                : 'activation';
+            const action = toggle.dataset.active === 'true' ? 'deactivation' : 'activation';
 
-            await api(
-                `/api/v1/admin/clinics/${toggle.dataset.id}/${action}`,
-                {
-                    method: 'PATCH'
-                },
-                'admin'
-            );
+            await api(`/api/v1/admin/clinics/${toggle.dataset.id}/${action}`, {
+                method: 'PATCH'
+            }, 'admin');
 
-            toast(
-                action === 'deactivation'
-                    ? 'Клиника отключена'
-                    : 'Клиника активирована',
-                'success'
-            );
+            toast(action === 'deactivation' ? 'Клиника отключена' : 'Клиника активирована', 'success');
 
             await loadClinics();
         }
@@ -577,106 +589,66 @@ function renderDentalServiceStatus(service) {
 }
 
 async function getDentalServiceById(serviceId) {
-    const service = await api(
-        `/api/v1/admin/catalog/dental-services/${serviceId}`,
-        {
-            method: 'GET'
-        },
-        'admin'
-    );
+    const service = await api(`/api/v1/admin/catalog/dental-services/${serviceId}`, {
+        method: 'GET'
+    }, 'admin');
 
     caches.dentalServices.set(service.id, service);
 
-    openModal(
-        service.title,
-        `
+    openModal(service.title, `
         <div class="detail-grid">
           ${detailItem('ID', service.id, true)}
           ${detailItem('Категория', service.category)}
           ${detailItem('Длительность', `${service.defaultDurationMinutes} мин`)}
-          ${detailItem(
-            'Статус',
-            dentalServiceActive(service) === null
-                ? 'Не передан API'
-                : dentalServiceActive(service)
-                    ? 'Активна'
-                    : 'Отключена'
-        )}
+          ${detailItem('Статус', dentalServiceActive(service) === null ? 'Не передан API' : dentalServiceActive(service) ? 'Активна' : 'Отключена')}
           ${detailItem('Описание', service.description, true)}
         </div>
-      `,
-        `
+      `, `
         <button class="btn btn-primary catalog-edit-modal" data-id="${service.id}">
           Редактировать
         </button>
-      `
-    );
+      `);
 }
 
 function openDentalServiceEdit(service) {
-    openModal(
-        'Редактировать услугу каталога',
-        `
+    openModal('Редактировать услугу каталога', `
         <form id="modalCatalogEditForm" class="form-grid">
           <label>Название<input name="title" required value="${escapeHtml(service.title || '')}"></label>
           <label>Категория<input name="category" required value="${escapeHtml(service.category || '')}"></label>
           <label>Длительность<input name="defaultDurationMinutes" required type="number" min="5" value="${service.defaultDurationMinutes ?? ''}"></label>
           <label class="full">Описание<textarea name="description">${escapeHtml(service.description || '')}</textarea></label>
         </form>
-      `,
-        `
+      `, `
         <button class="btn btn-primary catalog-save-modal" data-id="${service.id}">
           Сохранить
         </button>
-      `
-    );
+      `);
 }
 
 async function loadCatalog({silent = false} = {}) {
     try {
-        const services = await api(
-            '/api/v1/admin/catalog/dental-services',
-            {
-                method: 'GET'
-            },
-            'admin'
-        );
+        const services = await api('/api/v1/admin/catalog/dental-services', {
+            method: 'GET'
+        }, 'admin');
 
-        caches.dentalServices = new Map(
-            services.map(service => [service.id, service])
-        );
+        caches.dentalServices = new Map(services.map(service => [service.id, service]));
 
-        renderTable(
-            $('#catalogTable'),
-            services,
-            [
-                {
-                    label: 'Название',
-                    render: service => `
+        renderTable($('#catalogTable'), services, [{
+            label: 'Название', render: service => `
               <button class="link-button catalog-details" data-id="${service.id}">
                 ${escapeHtml(service.title)}
               </button>
             `
-                },
-                {label: 'Категория', key: 'category'},
-                {
-                    label: 'Длительность',
-                    render: service => `${service.defaultDurationMinutes} мин`
-                },
-                {label: 'Описание', key: 'description'},
-                {
-                    label: 'Статус',
-                    render: renderDentalServiceStatus
-                },
-                {
-                    label: 'ID',
-                    render: service => `<span class="code">${service.id}</span>`
-                }
-            ],
-            service => {
-                const active = dentalServiceActive(service);
+        }, {label: 'Категория', key: 'category'}, {
+            label: 'Длительность', render: service => `${service.defaultDurationMinutes} мин`
+        }, {label: 'Описание', key: 'description'}, {
+            label: 'Статус', render: renderDentalServiceStatus
+        }, {
+            label: 'ID', render: service => `<span class="code">${service.id}</span>`
+        }], service => {
+            const active = dentalServiceActive(service);
 
-                return `
+            return `
             <div class="actions">
               <button class="btn btn-primary btn-sm catalog-edit" data-id="${service.id}">
                 Редактировать
@@ -693,8 +665,7 @@ async function loadCatalog({silent = false} = {}) {
               ` : ''}
             </div>
           `;
-            }
-        );
+        });
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -713,14 +684,9 @@ $('#createCatalogServiceForm').addEventListener('submit', async event => {
     body.defaultDurationMinutes = Number(body.defaultDurationMinutes);
 
     try {
-        await api(
-            '/api/v1/admin/catalog/dental-services',
-            {
-                method: 'POST',
-                body
-            },
-            'admin'
-        );
+        await api('/api/v1/admin/catalog/dental-services', {
+            method: 'POST', body
+        }, 'admin');
 
         event.currentTarget.reset();
         toast('Услуга создана', 'success');
@@ -749,22 +715,14 @@ $('#catalogTable').addEventListener('click', async event => {
         }
 
         if (deactivate) {
-            await api(
-                `/api/v1/admin/catalog/dental-services/${deactivate.dataset.id}/deactivation`,
-                {method: 'PATCH'},
-                'admin'
-            );
+            await api(`/api/v1/admin/catalog/dental-services/${deactivate.dataset.id}/deactivation`, {method: 'PATCH'}, 'admin');
 
             toast('Услуга отключена', 'error');
             await loadCatalog();
         }
 
         if (activate) {
-            await api(
-                `/api/v1/admin/catalog/dental-services/${activate.dataset.id}/activation`,
-                {method: 'PATCH'},
-                'admin'
-            );
+            await api(`/api/v1/admin/catalog/dental-services/${activate.dataset.id}/activation`, {method: 'PATCH'}, 'admin');
 
             toast('Услуга активирована', 'success');
             await loadCatalog();
@@ -781,16 +739,11 @@ $('#createApiKeyForm').addEventListener('submit', async event => {
     setButtonBusy(submitButton, true, 'Создаём…');
 
     try {
-        const result = await api(
-            `/api/v1/admin/api-keys/${values.clinicId}`,
-            {
-                method: 'POST',
-                body: {
-                    name: values.name
-                }
-            },
-            'admin'
-        );
+        const result = await api(`/api/v1/admin/api-keys/${values.clinicId}`, {
+            method: 'POST', body: {
+                name: values.name
+            }
+        }, 'admin');
 
         revealApiKey(result.rawKey);
         event.currentTarget.reset();
@@ -825,40 +778,24 @@ async function loadApiKeys({silent = false} = {}) {
     }
 
     try {
-        const apiKeys = await api(
-            '/api/v1/admin/api-keys',
-            {method: 'GET'},
-            'admin'
-        );
+        const apiKeys = await api('/api/v1/admin/api-keys', {method: 'GET'}, 'admin');
 
         caches.apiKeys = new Map(apiKeys.map(apiKey => [apiKey.id, apiKey]));
 
-        renderTable(
-            container,
-            apiKeys,
-            [
-                {label: 'Название', key: 'name'},
-                {
-                    label: 'Клиника',
-                    render: apiKey => `<span class="code">${escapeHtml(apiKey.clinicId)}</span>`
-                },
-                {
-                    label: 'Префикс',
-                    render: apiKey => `<span class="code">${escapeHtml(apiKey.prefix)}</span>`
-                },
-                {label: 'Истекает', render: apiKey => formatDate(apiKey.expiresAt)},
-                {label: 'Льготный период', render: apiKey => formatDate(apiKey.graceUntil)},
-                {
-                    label: 'Статус',
-                    render: apiKey => `
+        renderTable(container, apiKeys, [{label: 'Название', key: 'name'}, {
+            label: 'Клиника', render: apiKey => `<span class="code">${escapeHtml(apiKey.clinicId)}</span>`
+        }, {
+            label: 'Префикс', render: apiKey => `<span class="code">${escapeHtml(apiKey.prefix)}</span>`
+        }, {label: 'Истекает', render: apiKey => formatDate(apiKey.expiresAt)}, {
+            label: 'Льготный период',
+            render: apiKey => formatDate(apiKey.graceUntil)
+        }, {
+            label: 'Статус', render: apiKey => `
               <span class="badge ${apiKey.active ? 'success' : 'danger'}">
                 ${apiKey.active ? 'Активен' : 'Отозван'}
               </span>
             `
-                }
-            ],
-            apiKey => apiKey.active
-                ? `
+        }], apiKey => apiKey.active ? `
               <div class="actions">
                 <button class="btn btn-secondary btn-sm api-key-renew" data-clinic-id="${apiKey.clinicId}">
                   Продлить
@@ -870,9 +807,7 @@ async function loadApiKeys({silent = false} = {}) {
                   Отозвать
                 </button>
               </div>
-            `
-                : '<span class="muted">Нет доступных действий</span>'
-        );
+            ` : '<span class="muted">Нет доступных действий</span>');
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -898,50 +833,30 @@ $('#apiKeysTable').addEventListener('click', async event => {
     try {
         if (renew) {
             setButtonBusy(actionButton, true, 'Продлеваем…');
-            await api(
-                `/api/v1/admin/api-keys/${renew.dataset.clinicId}/renew`,
-                {method: 'PATCH'},
-                'admin'
-            );
+            await api(`/api/v1/admin/api-keys/${renew.dataset.clinicId}/renew`, {method: 'PATCH'}, 'admin');
             toast('API-ключ продлён', 'success');
         }
 
         if (rotate) {
-            const confirmed = await confirmAction(
-                'Сменить API-ключ?',
-                'Текущий ключ сразу перестанет работать. После смены сохраните новый ключ.',
-                'Сменить ключ'
-            );
+            const confirmed = await confirmAction('Сменить API-ключ?', 'Текущий ключ сразу перестанет работать. После смены сохраните новый ключ.', 'Сменить ключ');
             if (!confirmed) {
                 return;
             }
 
             setButtonBusy(actionButton, true, 'Меняем…');
-            const result = await api(
-                `/api/v1/admin/api-keys/${rotate.dataset.clinicId}/rotate`,
-                {method: 'POST'},
-                'admin'
-            );
+            const result = await api(`/api/v1/admin/api-keys/${rotate.dataset.clinicId}/rotate`, {method: 'POST'}, 'admin');
             revealApiKey(result.rawKey);
             toast('API-ключ сменён. Сохраните новый ключ', 'success');
         }
 
         if (revoke) {
-            const confirmed = await confirmAction(
-                'Отозвать API-ключ?',
-                'Клиника потеряет доступ к API. Это действие нельзя отменить.',
-                'Отозвать ключ'
-            );
+            const confirmed = await confirmAction('Отозвать API-ключ?', 'Клиника потеряет доступ к API. Это действие нельзя отменить.', 'Отозвать ключ');
             if (!confirmed) {
                 return;
             }
 
             setButtonBusy(actionButton, true, 'Отзываем…');
-            await api(
-                `/api/v1/admin/api-keys/${revoke.dataset.id}`,
-                {method: 'DELETE'},
-                'admin'
-            );
+            await api(`/api/v1/admin/api-keys/${revoke.dataset.id}`, {method: 'DELETE'}, 'admin');
             toast('API-ключ отозван', 'success');
         }
 
@@ -954,17 +869,11 @@ $('#apiKeysTable').addEventListener('click', async event => {
 });
 
 async function getNotificationById(notificationId) {
-    const notification = await api(
-        `/api/v1/admin/notifications/${notificationId}`,
-        {
-            method: 'GET'
-        },
-        'admin'
-    );
+    const notification = await api(`/api/v1/admin/notifications/${notificationId}`, {
+        method: 'GET'
+    }, 'admin');
 
-    openModal(
-        notification.title,
-        `
+    openModal(notification.title, `
         <div class="detail-grid">
           ${detailItem('ID', notification.id, true)}
           ${detailItem('Request ID', notification.requestId, true)}
@@ -979,77 +888,53 @@ async function getNotificationById(notificationId) {
           ${detailItem('Сообщение', notification.message, true)}
           ${detailItem('Ошибка', notification.errorMessage, true)}
         </div>
-      `
-    );
+      `);
 }
 
 async function loadNotifications({silent = false} = {}) {
     try {
-        const notifications = await api(
-            '/api/v1/admin/notifications',
-            {
-                method: 'GET'
-            },
-            'admin'
-        );
+        const notifications = await api('/api/v1/admin/notifications', {
+            method: 'GET'
+        }, 'admin');
 
-        caches.notifications = new Map(
-            notifications.map(item => [item.id, item])
-        );
+        caches.notifications = new Map(notifications.map(item => [item.id, item]));
 
-        renderTable(
-            $('#adminNotifications'),
-            notifications,
-            [
-                {
-                    label: 'Создано',
-                    render: notification => formatDate(notification.createdAt)
-                },
-                {label: 'Тип', key: 'type'},
-                {label: 'Канал', key: 'channel'},
-                {
-                    label: 'Статус',
-                    render: notification => {
-                        let badgeClass = 'warning';
+        renderTable($('#adminNotifications'), notifications, [{
+            label: 'Создано', render: notification => formatDate(notification.createdAt)
+        }, {label: 'Тип', key: 'type'}, {label: 'Канал', key: 'channel'}, {
+            label: 'Статус', render: notification => {
+                let badgeClass = 'warning';
 
-                        if (notification.status === 'SENT') {
-                            badgeClass = 'success';
-                        }
+                if (notification.status === 'SENT') {
+                    badgeClass = 'success';
+                }
 
-                        if (notification.status === 'FAILED') {
-                            badgeClass = 'danger';
-                        }
+                if (notification.status === 'FAILED') {
+                    badgeClass = 'danger';
+                }
 
-                        return `
+                return `
                 <span class="badge ${badgeClass}">
                   ${notification.status}
                 </span>
               `;
-                    }
-                },
-                {
-                    label: 'Заголовок',
-                    render: notification => `
+            }
+        }, {
+            label: 'Заголовок', render: notification => `
               <button class="link-button notification-details" data-id="${notification.id}">
                 ${escapeHtml(notification.title)}
               </button>
             `
-                },
-                {
-                    label: 'Clinic/User',
-                    render: notification => `
+        }, {
+            label: 'Clinic/User', render: notification => `
               <span class="code">
                 ${notification.clinicId}<br>
                 ${notification.userId || '—'}
               </span>
             `
-                },
-                {
-                    label: 'ID',
-                    render: notification => `<span class="code">${notification.id}</span>`
-                }
-            ]
-        );
+        }, {
+            label: 'ID', render: notification => `<span class="code">${notification.id}</span>`
+        }]);
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -1077,15 +962,9 @@ $('#adminNotifications').addEventListener('click', async event => {
 
 
 async function getAdminUserById(userId) {
-    const user = await api(
-        `/api/v1/admin/users/${userId}`,
-        {method: 'GET'},
-        'admin'
-    );
+    const user = await api(`/api/v1/admin/users/${userId}`, {method: 'GET'}, 'admin');
 
-    openModal(
-        `${user.lastName ?? ''} ${user.firstName ?? ''}`.trim() || 'Пользователь',
-        `
+    openModal(`${user.lastName ?? ''} ${user.firstName ?? ''}`.trim() || 'Пользователь', `
         <div class="detail-grid">
           ${detailItem('User ID', user.id, true)}
           ${detailItem('Email', user.email)}
@@ -1094,8 +973,7 @@ async function getAdminUserById(userId) {
           ${detailItem('Статус', user.enabled ? 'Активен' : 'Отключён')}
           ${detailItem('Clinic ID', user.clinicId, true)}
         </div>
-      `
-    );
+      `);
 }
 
 function roleOptionsHtml(user) {
@@ -1120,37 +998,23 @@ function renderAdminUsers(users) {
         resultLabel.textContent = `Найдено: ${users.length}`;
     }
 
-    caches.users = new Map(
-        users.map(user => [user.id, user])
-    );
+    caches.users = new Map(users.map(user => [user.id, user]));
 
-    renderTable(
-        $('#adminUsers'),
-        users,
-        [
-            {
-                label: 'ФИО',
-                render: user => `
+    renderTable($('#adminUsers'), users, [{
+        label: 'ФИО', render: user => `
             <button class="link-button admin-user-details" data-id="${user.id}">
               ${escapeHtml(user.lastName ?? '')} ${escapeHtml(user.firstName ?? '')}
             </button>
           `
-            },
-            {label: 'Email', key: 'email'},
-            {
-                label: 'Роли',
-                render: user => escapeHtml((user.roles || []).join(', ') || '—')
-            },
-            {
-                label: 'Статус',
-                render: user => `
+    }, {label: 'Email', key: 'email'}, {
+        label: 'Роли', render: user => escapeHtml((user.roles || []).join(', ') || '—')
+    }, {
+        label: 'Статус', render: user => `
             <span class="badge ${user.enabled ? 'success' : 'danger'}">
               ${user.enabled ? 'Активен' : 'Отключён'}
             </span>
           `
-            }
-        ],
-        user => `
+    }], user => `
         <div class="role-manager" data-user-id="${user.id}">
           <select class="admin-role-select" data-user-id="${user.id}">
             ${roleOptionsHtml(user)}
@@ -1162,8 +1026,7 @@ function renderAdminUsers(users) {
             Удалить
           </button>
         </div>
-      `
-    );
+      `);
 }
 
 function filterAdminUsersByEmail() {
@@ -1186,11 +1049,7 @@ function filterAdminUsersByEmail() {
 
 async function loadAdminUsers({silent = false} = {}) {
     try {
-        loadedAdminUsers = await api(
-            '/api/v1/admin/users',
-            {method: 'GET'},
-            'admin'
-        );
+        loadedAdminUsers = await api('/api/v1/admin/users', {method: 'GET'}, 'admin');
 
         filterAdminUsersByEmail();
     } catch (error) {
@@ -1257,20 +1116,11 @@ $('#adminUsers').addEventListener('click', async event => {
             return;
         }
 
-        await api(
-            `/api/v1/users/${userId}/roles/${roleId}`,
-            {
-                method: assign ? 'POST' : 'DELETE'
-            },
-            'admin'
-        );
+        await api(`/api/v1/users/${userId}/roles/${roleId}`, {
+            method: assign ? 'POST' : 'DELETE'
+        }, 'admin');
 
-        toast(
-            assign
-                ? `Роль ${roleName} назначена`
-                : `Роль ${roleName} удалена`,
-            'success'
-        );
+        toast(assign ? `Роль ${roleName} назначена` : `Роль ${roleName} удалена`, 'success');
 
         // Сохраняем выбор до перерисовки таблицы после ответа API.
         selectedAdminRoles.set(String(userId), roleName);
@@ -1295,14 +1145,10 @@ $('#detailModalActions').addEventListener('click', async event => {
         }
 
         if (clinicSave) {
-            await api(
-                `/api/v1/admin/clinics/${clinicSave.dataset.id}`,
-                {
-                    method: 'PATCH',
-                    body: formToObject($('#modalClinicEditForm'))
-                },
-                'admin'
-            );
+            if (!$('#modalClinicEditForm').reportValidity()) return;
+            await api(`/api/v1/admin/clinics/${clinicSave.dataset.id}`, {
+                method: 'PATCH', body: formToObject($('#modalClinicEditForm'))
+            }, 'admin');
 
             closeModal();
             toast('Клиника обновлена', 'success');
@@ -1323,14 +1169,9 @@ $('#detailModalActions').addEventListener('click', async event => {
                 body.defaultDurationMinutes = Number(body.defaultDurationMinutes);
             }
 
-            await api(
-                `/api/v1/admin/catalog/dental-services/${catalogSave.dataset.id}`,
-                {
-                    method: 'PATCH',
-                    body
-                },
-                'admin'
-            );
+            await api(`/api/v1/admin/catalog/dental-services/${catalogSave.dataset.id}`, {
+                method: 'PATCH', body
+            }, 'admin');
 
             closeModal();
             toast('Услуга обновлена', 'success');
@@ -1353,25 +1194,15 @@ const viewLoaders = {
 function getCurrentViewName() {
     const activeView = $('.view.active');
 
-    return activeView
-        ? activeView.id.replace('view-', '')
-        : null;
+    return activeView ? activeView.id.replace('view-', '') : null;
 }
 
 function isAdminEditing() {
     const activeElement = document.activeElement;
     const modalIsOpen = !$('#detailModal').classList.contains('hidden');
     const activeView = $('.view.active');
-    const formControlIsFocused = Boolean(
-        activeElement
-        && activeView?.contains(activeElement)
-        && activeElement.matches(
-            'input, select, textarea, button, [contenteditable="true"]'
-        )
-    );
-    const dirtyFormExists = Boolean(
-        activeView?.querySelector('form[data-user-dirty="true"]')
-    );
+    const formControlIsFocused = Boolean(activeElement && activeView?.contains(activeElement) && activeElement.matches('input, select, textarea, button, [contenteditable="true"]'));
+    const dirtyFormExists = Boolean(activeView?.querySelector('form[data-user-dirty="true"]'));
 
     return modalIsOpen || formControlIsFocused || dirtyFormExists;
 }
@@ -1401,23 +1232,13 @@ function bindAdminDirtyFormTracking() {
 }
 
 async function refreshCurrentView({automatic = false} = {}) {
-    if (
-        refreshInProgress
-        || document.hidden
-        || !isAdminAuthenticated()
-    ) {
+    if (refreshInProgress || document.hidden || !isAdminAuthenticated()) {
         return;
     }
 
     const viewName = getCurrentViewName();
 
-    if (
-        automatic
-        && (
-            !AUTO_REFRESH_VIEWS.has(viewName)
-            || isAdminEditing()
-        )
-    ) {
+    if (automatic && (!AUTO_REFRESH_VIEWS.has(viewName) || isAdminEditing())) {
         return;
     }
 
@@ -1434,12 +1255,7 @@ async function refreshCurrentView({automatic = false} = {}) {
             silent: automatic
         });
     } catch (error) {
-        console.error(
-            automatic
-                ? 'Ошибка автоматического обновления:'
-                : 'Ошибка загрузки раздела:',
-            error
-        );
+        console.error(automatic ? 'Ошибка автоматического обновления:' : 'Ошибка загрузки раздела:', error);
     } finally {
         refreshInProgress = false;
     }
@@ -1479,8 +1295,7 @@ function initialize() {
 }
 
 window.bublapiAdminWorkspace = {
-    showView: name => showView(name, {updateUrl: false}),
-    suspend: stopAutoRefresh
+    showView: name => showView(name, {updateUrl: false}), suspend: stopAutoRefresh
 };
 window.dispatchEvent(new Event('bublapi:admin-ready'));
 

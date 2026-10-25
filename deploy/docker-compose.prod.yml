@@ -64,6 +64,7 @@ services:
 
     environment:
       SERVER_PORT: 8080
+      ADMIN_ALLOWED_ORIGINS: ${ADMIN_ALLOWED_ORIGINS:-https://admin.bublapi.ru}
 
       DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       DB_USERNAME: ${POSTGRES_USER}
@@ -111,6 +112,7 @@ services:
       PORT: 3000
       SPRING_API_URL: http://backend:8080
       CLINIC_API_KEY: ${CLINIC_API_KEY}
+      PUBLIC_ORIGIN: https://demo.dent.bublapi.ru
 
     depends_on:
       - backend

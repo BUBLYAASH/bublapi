@@ -119,6 +119,7 @@ services:
       PORT: 3000
 
       SPRING_API_URL: http://backend:8080
+      PUBLIC_ORIGIN: http://localhost:3000
       CLINIC_API_KEY: ${CLINIC_API_KEY:-replace_with_local_clinic_api_key}
 
       LIVE_APPOINTMENTS_POLL_MS: ${LIVE_APPOINTMENTS_POLL_MS:-1000}
