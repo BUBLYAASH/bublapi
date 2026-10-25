@@ -26,7 +26,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/notifications")
 @SecurityRequirement(name = "bearerAuth")
 @SecurityRequirement(name = "apiKey")
-@PreAuthorize("hasRole('PATIENT')")
+@PreAuthorize("hasRole('PATIENT') and @clinicSecurity.hasAccess(authentication)")
 public class PatientNotificationController {
    private final NotificationService notificationService;
 

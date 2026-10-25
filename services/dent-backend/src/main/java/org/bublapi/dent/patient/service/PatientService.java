@@ -44,12 +44,15 @@ public class PatientService {
    @Transactional
    public PatientResponseDto create(CreatePatientRequestDto request) {
       Clinic clinic = ClinicContext.get();
-      String email = request.email().trim().toLowerCase(Locale.ROOT);
+      String email = request.email() == null ? null : request.email().trim().toLowerCase(Locale.ROOT);
       String phone = request.phone().trim();
 
       Patient patient = patientMapper.toEntity(request);
 
-      if (!email.isBlank() || !phone.isBlank()) {
+      patient.setEmail(email);
+      patient.setPhone(phone);
+
+      if ((email != null && !email.isBlank()) || !phone.isBlank()) {
          userRepository.findByEmailOrPhoneInClinic(email, phone, clinic.getId()).ifPresent(u -> {
             if (patientRepository.findByClinic_IdAndUser_Id(clinic.getId(), u.getId()).isEmpty()) {
                patient.setUser(u);

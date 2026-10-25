@@ -6,11 +6,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,16 @@ public class GlobalExceptionHandler {
    @ExceptionHandler(BadRequestException.class)
    public ResponseEntity<ApiErrorResponse> handleBadRequest(BadRequestException e) {
       return errorResponse(HttpStatus.BAD_REQUEST, "Bad request", e.getMessage());
+   }
+
+   @ExceptionHandler(HttpMessageNotReadableException.class)
+   public ResponseEntity<ApiErrorResponse> handleUnreadableMessage() {
+      return errorResponse(HttpStatus.BAD_REQUEST, "Bad request", "Request body is missing or malformed");
+   }
+
+   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+   public ResponseEntity<ApiErrorResponse> handleArgumentTypeMismatch() {
+      return errorResponse(HttpStatus.BAD_REQUEST, "Bad request", "Request parameter has an invalid value");
    }
 
    @ExceptionHandler(MethodArgumentNotValidException.class)

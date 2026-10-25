@@ -257,8 +257,18 @@ public class AppointmentService {
                                                                       "Clinic service not found"));
 
          resolvedServices.add(new ResolvedAppointmentService(clinicService, serviceRequest.quantity()));
-         totalPrice += clinicService.getPrice() * serviceRequest.quantity();
-         totalDuration += clinicService.getDurationMinutes() * serviceRequest.quantity();
+         try {
+            totalPrice = Math.addExact(totalPrice,
+                                       Math.multiplyExact(clinicService.getPrice(), serviceRequest.quantity()));
+            totalDuration = Math.addExact(totalDuration, Math.multiplyExact(clinicService.getDurationMinutes(),
+                                                                            serviceRequest.quantity()));
+         } catch (ArithmeticException e) {
+            throw new BadRequestException("Appointment price or duration exceeds the supported limit");
+         }
+      }
+
+      if (totalPrice < 0 || totalDuration <= 0) {
+         throw new BadRequestException("Appointment price must be non-negative and duration must be positive");
       }
 
       LocalDateTime scheduledAt = request.scheduledAt();

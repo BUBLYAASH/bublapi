@@ -110,6 +110,8 @@ public class ClinicServiceService {
                                                                         LocalDateTime.now(ZoneOffset.UTC),
                                                                         List.of(AppointmentStatus.CANCELLED,
                                                                                 AppointmentStatus.COMPLETED))
+                                  .stream()
+                                  .filter(p -> p.getAppointment().getPatient().getUser() != null)
                                   .forEach(p -> publishClinicServiceDeactivatedNotification(p.getAppointment(),
                                                                                             p.getAppointment()
                                                                                              .getPatient()

@@ -79,6 +79,10 @@ public class ApiKeyService {
          throw new ResourceNotFoundException("API Key disabled");
       }
 
+      if (!apiKey.getClinic().isActive()) {
+         throw new ResourceNotFoundException("Clinic disabled");
+      }
+
       LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
       boolean expired = apiKey.getExpiresAt().isBefore(now);
       boolean graceExpired = apiKey.getGraceUntil().isBefore(now);
