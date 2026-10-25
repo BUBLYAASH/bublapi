@@ -1,126 +1,151 @@
 :root {
-  --admin-topbar-height: 67px;
-  --admin-mobile-nav-height: 62px;
+    --admin-topbar-height: 67px;
+    --admin-mobile-nav-height: 62px;
 }
 
 [data-admin-ssr-ready="true"] {
-  min-height: 100dvh;
+    min-height: 100dvh;
 }
 
 @media (max-width: 900px) {
-  input,
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
 
-  .topbar {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 60 !important;
-  }
+    .topbar {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 60 !important;
+    }
 
-  .layout {
-    display: block !important;
-    min-height: calc(100dvh - var(--admin-topbar-height));
-  }
+    .layout {
+        display: block !important;
+        min-height: calc(100dvh - var(--admin-topbar-height));
+    }
 
-  .sidebar {
-    position: sticky !important;
-    /* +1px prevents a subpixel seam/overlap on mobile Safari/Chrome. */
-    top: calc(var(--admin-topbar-height, 67px) + 1px) !important;
-    z-index: 45 !important;
+    .sidebar {
+        position: sticky !important;
+        /* +1px prevents a subpixel seam/overlap on mobile Safari/Chrome. */
+        top: calc(var(--admin-topbar-height, 67px) + 1px) !important;
+        z-index: 45 !important;
 
-    display: flex !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
 
-    width: 100% !important;
-    height: var(--admin-mobile-nav-height) !important;
-    min-height: var(--admin-mobile-nav-height) !important;
-    max-height: var(--admin-mobile-nav-height) !important;
+        width: 100% !important;
+        height: var(--admin-mobile-nav-height) !important;
+        min-height: var(--admin-mobile-nav-height) !important;
+        max-height: var(--admin-mobile-nav-height) !important;
 
-    padding: 7px 10px !important;
-    border-right: 0 !important;
-    border-bottom: 1px solid var(--border) !important;
+        padding: 7px 10px !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid var(--border) !important;
 
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
 
-    background: color-mix(in srgb, var(--surface) 96%, transparent) !important;
-    backdrop-filter: blur(14px);
+        background: color-mix(in srgb, var(--surface) 96%, transparent) !important;
+        backdrop-filter: blur(14px);
 
-    /* Layout/paint containment on a sticky element causes incorrect sticky
-       offsets in some mobile engines when the header height changes. */
-    contain: none !important;
-  }
+        /* Layout/paint containment on a sticky element causes incorrect sticky
+           offsets in some mobile engines when the header height changes. */
+        contain: none !important;
+    }
 
-  .sidebar::-webkit-scrollbar {
-    display: none;
-  }
+    .sidebar::-webkit-scrollbar {
+        display: none;
+    }
 
-  .sidebar .nav-group {
-    display: flex !important;
-    align-items: center !important;
-    flex: 0 0 auto !important;
-    flex-wrap: nowrap !important;
-    gap: 6px !important;
+    .sidebar .nav-group {
+        display: flex !important;
+        align-items: center !important;
+        flex: 0 0 auto !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
 
-    width: max-content !important;
-    height: 48px !important;
-    min-height: 48px !important;
-    max-height: 48px !important;
+        width: max-content !important;
+        height: 48px !important;
+        min-height: 48px !important;
+        max-height: 48px !important;
 
-    margin: 0 !important;
-    padding: 0 !important;
-  }
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 
-  .sidebar .nav-title {
-    display: none !important;
-  }
+    .sidebar .nav-title {
+        display: none !important;
+    }
 
-  .sidebar .nav-button {
-    flex: 0 0 auto !important;
-    display: inline-flex !important;
-    align-items: center !important;
+    .sidebar .nav-button {
+        flex: 0 0 auto !important;
+        display: inline-flex !important;
+        align-items: center !important;
 
-    width: auto !important;
-    min-width: max-content !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
+        width: auto !important;
+        min-width: max-content !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        max-height: 44px !important;
 
-    margin: 0 !important;
-    padding: 9px 13px !important;
-    white-space: nowrap !important;
-    line-height: 1.15 !important;
-  }
+        margin: 0 !important;
+        padding: 9px 13px !important;
+        white-space: nowrap !important;
+        line-height: 1.15 !important;
+    }
 
-  .sidebar .nav-button.hidden {
-    display: none !important;
-  }
+    .sidebar .nav-button.hidden {
+        display: none !important;
+    }
 
-  .main {
-    padding-top: 22px;
-  }
+    .main {
+        padding-top: 22px;
+    }
 }
 
 @media (max-width: 640px) {
-  .topbar {
-    min-height: 0 !important;
-  }
+    .topbar {
+        min-height: 0 !important;
+    }
 
-  .main {
-    padding: 20px 16px 28px !important;
-  }
+    .main {
+        padding: 20px 16px 28px !important;
+    }
 }
 
-.clinic-origins { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
-.clinic-origin-list { list-style: none; padding: 0; }
-.clinic-origin-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; }
-.clinic-origin-list li span { overflow-wrap: anywhere; min-width: 0; }
-.clinic-origin-list button { flex-shrink: 0; }
-.clinic-origins form { margin-top: 16px; }
+.clinic-origins {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.clinic-origin-list {
+    list-style: none;
+    padding: 0;
+}
+
+.clinic-origin-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.clinic-origin-list li span {
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+
+.clinic-origin-list button {
+    flex-shrink: 0;
+}
+
+.clinic-origins form {
+    margin-top: 16px;
+}

@@ -1,9 +1,5 @@
 import {
     api,
-    restoreSession,
-    logoutSession,
-    refreshSession,
-    sessionToken,
     clearToken,
     detailItem,
     escapeHtml,
@@ -12,7 +8,11 @@ import {
     formToObject,
     getAccessProfile,
     getToken,
+    logoutSession,
     probeAccess,
+    refreshSession,
+    restoreSession,
+    sessionToken,
     setAccessProfile,
     setToken,
     setupRequiredFieldMarkers,
@@ -1005,7 +1005,9 @@ function ensureSidebarContextControls() {
 }
 
 function syncSidebarContext(viewName = $('.view.active')?.id.replace('view-', '') || 'home') {
-    const staffMode = viewName.startsWith('staff-');
+    const target = $(`#view-${viewName}`);
+    const staffMode = viewName.startsWith('staff-') && hasStaffAccess()
+        && Boolean(target && hasAccess(target.dataset.access));
     document.body.dataset.sidebarMode = staffMode ? 'staff' : 'patient';
     $('.sidebar')?.setAttribute('aria-label', staffMode ? 'Навигация панели сотрудника' : 'Навигация пациента');
 
@@ -1014,6 +1016,10 @@ function syncSidebarContext(viewName = $('.view.active')?.id.replace('view-', ''
 
     const exit = $('.sidebar-context-exit');
     if (exit) exit.classList.toggle('hidden', !staffMode);
+
+    const workspace = $('.sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry)');
+    if (workspace) workspace.classList.toggle('hidden', !staffMode);
+    document.documentElement.dataset.staffNavReady = 'true';
 }
 
 function applyAccessVisibility() {
@@ -1039,6 +1045,7 @@ function applyAccessVisibility() {
     }
 
     syncSidebarContext();
+    document.documentElement.dataset.authReady = 'true';
 }
 
 async function resolveAccessProfile() {
@@ -1114,6 +1121,8 @@ function showView(name, {updateUrl = true, load = true} = {}) {
 
     if (target.dataset.access && !hasAccess(target.dataset.access)) {
         toast('Для этого раздела недостаточно прав', 'error');
+        showView('home', {updateUrl: false, load: false});
+        history.replaceState({view: 'home'}, '', '/');
         return;
     }
 
@@ -1137,6 +1146,7 @@ function showView(name, {updateUrl = true, load = true} = {}) {
         });
 
         syncSidebarContext(name);
+        document.documentElement.dataset.routeReady = 'true';
 
         if (updateUrl) {
             const targetPath = VIEW_ROUTES[name] || '/';
@@ -1483,8 +1493,12 @@ window.addEventListener('user:unauthorized', () => {
 });
 
 $('#logoutBtn').addEventListener('click', async () => {
-    try { await logoutSession(); }
-    catch (error) { toast(error.message, 'error'); return; }
+    try {
+        await logoutSession();
+    } catch (error) {
+        toast(error.message, 'error');
+        return;
+    }
     accessProfile = {};
     stopAutoRefresh();
     stopAppointmentLiveUpdates();
@@ -2620,7 +2634,10 @@ async function loadStaffCalendarSchedulesForDate({force = false} = {}) {
         await Promise.all(missing.map(async doctor => {
             const cacheBuster = force ? `?refresh=${Date.now()}` : '';
             const [hoursResult, availabilityResult] = await Promise.allSettled([
-                api(`/api/v1/public/doctors/${doctor.id}/working-hours${cacheBuster}`, {method: 'GET', cache: 'no-store'}),
+                api(`/api/v1/public/doctors/${doctor.id}/working-hours${cacheBuster}`, {
+                    method: 'GET',
+                    cache: 'no-store'
+                }),
                 api(`/api/v1/public/doctors/${doctor.id}/availability?durationMinutes=30&days=60${force ? `&refresh=${Date.now()}` : ''}`, {
                     method: 'GET',
                     cache: 'no-store'
@@ -4984,7 +5001,7 @@ async function initialize() {
         console.warn('Required-field markers were not initialized:', error);
     }
     ensureSidebarContextControls();
-    syncSidebarContext(viewFromPathname());
+    syncSidebarContext();
     bindDirtyFormTracking();
 
     bindAppointmentAvailability('patient');
@@ -4994,8 +5011,11 @@ async function initialize() {
 
     // Сначала восстанавливаем сохранённую сессию и права, затем рисуем UI.
     // Access token lives in memory; only the HttpOnly refresh cookie survives reload.
-    try { await restoreSession(); }
-    catch (error) { toast(error.message, 'error'); }
+    try {
+        await restoreSession();
+    } catch (error) {
+        toast(error.message, 'error');
+    }
     await checkConnection();
     await resolveAccessProfile();
     updateAuthState();
@@ -5109,8 +5129,12 @@ function scheduleAppointmentLiveReconnect(generation) {
 
 async function startAppointmentLiveUpdates() {
     let token;
-    try { token = await sessionToken(); }
-    catch { scheduleAppointmentLiveReconnect(appointmentLiveGeneration); return; }
+    try {
+        token = await sessionToken();
+    } catch {
+        scheduleAppointmentLiveReconnect(appointmentLiveGeneration);
+        return;
+    }
     if (!token || !(accessProfile['staff-core'] || accessProfile['staff-appointments'])) {
         stopAppointmentLiveUpdates();
         return;
@@ -5147,7 +5171,10 @@ async function startAppointmentLiveUpdates() {
         });
 
         if (!response.ok || !response.body) {
-            if (response.status === 403) { stopAppointmentLiveUpdates(); return; }
+            if (response.status === 403) {
+                stopAppointmentLiveUpdates();
+                return;
+            }
             if (response.status === 401) await refreshSession(token);
             throw new Error(`Live stream HTTP ${response.status}`);
         }
@@ -5175,7 +5202,10 @@ async function startAppointmentLiveUpdates() {
                 } else if (eventName === 'auth-error') {
                     const raw = block.split('\n').find(line => line.startsWith('data:'))?.slice(5);
                     const status = raw ? JSON.parse(raw).status : 401;
-                    if (status === 403) { stopAppointmentLiveUpdates(); return; }
+                    if (status === 403) {
+                        stopAppointmentLiveUpdates();
+                        return;
+                    }
                     await refreshSession(token);
                     throw new Error('Live stream authorization failed');
                 }
@@ -5193,3 +5223,4 @@ async function startAppointmentLiveUpdates() {
 initialize().then(() => {
     startAppointmentLiveUpdates();
 });
+

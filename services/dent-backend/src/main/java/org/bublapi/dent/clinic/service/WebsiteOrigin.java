@@ -6,9 +6,6 @@ import java.net.IDN;
 import java.net.URI;
 import java.util.Locale;
 
-/**
- * Stores browser origins, never arbitrary URLs, credentials or wildcard hosts.
- */
 public final class WebsiteOrigin {
    private WebsiteOrigin() {
    }

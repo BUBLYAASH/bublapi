@@ -9,31 +9,31 @@
    ------------------------------------------------------------------------- */
 html:not([data-staff-nav-ready="true"]) .sidebar-context-entry,
 html:not([data-staff-nav-ready="true"])
-  .sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry),
+.sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry),
 html:not([data-staff-nav-ready="true"]) .sidebar-context-exit {
-  display: none !important;
+    display: none !important;
 }
 
 html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"]
-  .sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry),
+.sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry),
 html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"] .sidebar-context-exit {
-  display: none !important;
+    display: none !important;
 }
 
 html[data-staff-nav-ready="true"] body[data-sidebar-mode="staff"] .sidebar-context-entry {
-  display: none !important;
+    display: none !important;
 }
 
 html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"]
-  .sidebar-context-entry:not(.hidden) {
-  display: block !important;
+.sidebar-context-entry:not(.hidden) {
+    display: block !important;
 }
 
 @media (max-width: 1050px) {
-  html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"]
+    html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"]
     .sidebar-context-entry:not(.hidden) {
-    display: flex !important;
-  }
+        display: flex !important;
+    }
 }
 
 /* -------------------------------------------------------------------------
@@ -45,43 +45,43 @@ html[data-staff-nav-ready="true"] body[data-sidebar-mode="patient"]
 #staffAppointmentForm label,
 #staffAppointmentForm input,
 #staffAppointmentForm select {
-  min-width: 0;
-  max-width: 100%;
+    min-width: 0;
+    max-width: 100%;
 }
 
 #staffAppointmentDate {
-  display: block;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  box-sizing: border-box;
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
 }
 
 @media (max-width: 700px) {
-  #staffAppointmentForm .form-grid {
-    width: 100%;
-    overflow: hidden;
-  }
+    #staffAppointmentForm .form-grid {
+        width: 100%;
+        overflow: hidden;
+    }
 
-  #staffAppointmentDate {
-    -webkit-appearance: none;
-    appearance: none;
-  }
+    #staffAppointmentDate {
+        -webkit-appearance: none;
+        appearance: none;
+    }
 
-  #staffAppointmentForm .booking-date-quick-list {
-    max-width: 100%;
-    overflow-x: auto;
-  }
+    #staffAppointmentForm .booking-date-quick-list {
+        max-width: 100%;
+        overflow-x: auto;
+    }
 }
 
 /* Disabled/past calendar slots are visibly non-interactive. */
 #staffDashboardCalendar [data-calendar-slot].hotfix-past-slot {
-  opacity: .28 !important;
-  cursor: not-allowed !important;
-  pointer-events: none !important;
+    opacity: .28 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
 }
 
 #staffBookingDates [data-booking-date].hotfix-past-date,
 #patientBookingDates [data-booking-date].hotfix-past-date {
-  display: none !important;
+    display: none !important;
 }

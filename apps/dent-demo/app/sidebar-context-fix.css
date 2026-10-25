@@ -6,24 +6,24 @@
  */
 
 body[data-sidebar-mode="patient"] .sidebar-context-entry:not(.hidden) {
-  display: block !important;
+    display: block !important;
 }
 
 body[data-sidebar-mode="patient"] .sidebar-context-exit {
-  display: none !important;
+    display: none !important;
 }
 
 body[data-sidebar-mode="patient"]
-  .sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry) {
-  display: none !important;
+.sidebar > .nav-group[data-access="staff-core,staff-appointments"]:not(.sidebar-context-entry) {
+    display: none !important;
 }
 
 body[data-sidebar-mode="staff"] .sidebar-context-entry {
-  display: none !important;
+    display: none !important;
 }
 
 @media (max-width: 1050px) {
-  body[data-sidebar-mode="patient"] .sidebar-context-entry:not(.hidden) {
-    display: flex !important;
-  }
+    body[data-sidebar-mode="patient"] .sidebar-context-entry:not(.hidden) {
+        display: flex !important;
+    }
 }

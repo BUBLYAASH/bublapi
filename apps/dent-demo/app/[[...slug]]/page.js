@@ -1,12 +1,12 @@
 import Script from 'next/script';
-import { notFound } from 'next/navigation';
-import { demoShell } from '../../lib/shells';
-import { withThemeToggle } from '../../lib/theme-toggle';
+import {notFound} from 'next/navigation';
+import {demoShell} from '../../lib/shells';
+import {withThemeToggle} from '../../lib/theme-toggle';
 import {
-  loadInitialPublicCatalog,
-  renderDoctorsHtml,
-  renderServicesHtml,
-  serializeCatalogSeed
+    loadInitialPublicCatalog,
+    renderDoctorsHtml,
+    renderServicesHtml,
+    serializeCatalogSeed
 } from '../../lib/public-catalog';
 
 export const dynamic = 'force-dynamic';
@@ -266,118 +266,232 @@ const STAFF_WORKFLOW_MODAL = `
 
 
 const PAGES = {
-  '': { view:'home', title:'Стоматологическая клиника BublAPI Dent', description:'Онлайн-запись в стоматологическую клинику: врачи, услуги, актуальное расписание и личный кабинет пациента.', index:true, image:'/og-image.png' },
-  'doctors': { view:'public-doctors', title:'Врачи стоматологической клиники', description:'Познакомьтесь со специалистами клиники, их специализациями и актуальным расписанием приёма.', index:true, image:'/og-image-doctors.png' },
-  'services': { view:'public-services', title:'Услуги и цены стоматологии', description:'Стоматологические услуги клиники, стоимость и длительность приёма.', index:true, image:'/og-image-services.png' },
-  'login': { view:'login', navView:'login', title:'Вход в личный кабинет', description:'Вход в личный кабинет пациента стоматологической клиники.', index:false, image:'/og-image.png' },
-  'register': { view:'register', navView:'login', title:'Регистрация пациента', description:'Регистрация личного кабинета пациента стоматологической клиники.', index:false, image:'/og-image.png' },
-  'profile': { view:'profile', title:'Личный кабинет', description:'Профиль пользователя клиники.', index:false, image:'/og-image.png' },
-  'patient/card': { view:'patient-card', title:'Моя медицинская карточка', description:'Медицинская карточка пациента.', index:false, image:'/og-image.png' },
-  'patient/appointments': { view:'patient-appointments', title:'Мои записи', description:'Записи пациента на приём.', index:false, image:'/og-image.png' },
-  'patient/notifications': { view:'patient-notifications', title:'Мои уведомления', description:'Уведомления пациента клиники.', index:false, image:'/og-image.png' },
-  'staff': { view:'staff-dashboard', title:'Рабочий стол клиники', description:'Рабочий стол сотрудника клиники.', index:false, image:'/og-image.png' },
-  'staff/patients': { view:'staff-patients', title:'Пациенты клиники', description:'Рабочий раздел сотрудников клиники.', index:false, image:'/og-image.png' },
-  'staff/doctors': { view:'staff-doctors', title:'Врачи и расписания', description:'Рабочий раздел сотрудников клиники.', index:false, image:'/og-image.png' },
-  'staff/services': { view:'staff-services', title:'Услуги клиники', description:'Рабочий раздел сотрудников клиники.', index:false, image:'/og-image.png' },
-  'staff/appointments': { view:'staff-appointments', title:'Записи клиники', description:'Рабочий раздел сотрудников клиники.', index:false, image:'/og-image.png' },
-  'staff/users': { view:'staff-users', title:'Пользователи клиники', description:'Рабочий раздел сотрудников клиники.', index:false, image:'/og-image.png' }
+    '': {
+        view: 'home',
+        title: 'Стоматологическая клиника BublAPI Dent',
+        description: 'Онлайн-запись в стоматологическую клинику: врачи, услуги, актуальное расписание и личный кабинет пациента.',
+        index: true,
+        image: '/og-image.png'
+    },
+    'doctors': {
+        view: 'public-doctors',
+        title: 'Врачи стоматологической клиники',
+        description: 'Познакомьтесь со специалистами клиники, их специализациями и актуальным расписанием приёма.',
+        index: true,
+        image: '/og-image-doctors.png'
+    },
+    'services': {
+        view: 'public-services',
+        title: 'Услуги и цены стоматологии',
+        description: 'Стоматологические услуги клиники, стоимость и длительность приёма.',
+        index: true,
+        image: '/og-image-services.png'
+    },
+    'login': {
+        view: 'login',
+        navView: 'login',
+        title: 'Вход в личный кабинет',
+        description: 'Вход в личный кабинет пациента стоматологической клиники.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'register': {
+        view: 'register',
+        navView: 'login',
+        title: 'Регистрация пациента',
+        description: 'Регистрация личного кабинета пациента стоматологической клиники.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'profile': {
+        view: 'profile',
+        title: 'Личный кабинет',
+        description: 'Профиль пользователя клиники.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'patient/card': {
+        view: 'patient-card',
+        title: 'Моя медицинская карточка',
+        description: 'Медицинская карточка пациента.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'patient/appointments': {
+        view: 'patient-appointments',
+        title: 'Мои записи',
+        description: 'Записи пациента на приём.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'patient/notifications': {
+        view: 'patient-notifications',
+        title: 'Мои уведомления',
+        description: 'Уведомления пациента клиники.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'staff': {
+        view: 'staff-dashboard',
+        title: 'Рабочий стол клиники',
+        description: 'Рабочий стол сотрудника клиники.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'staff/patients': {
+        view: 'staff-patients',
+        title: 'Пациенты клиники',
+        description: 'Рабочий раздел сотрудников клиники.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'staff/doctors': {
+        view: 'staff-doctors',
+        title: 'Врачи и расписания',
+        description: 'Рабочий раздел сотрудников клиники.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'staff/services': {
+        view: 'staff-services',
+        title: 'Услуги клиники',
+        description: 'Рабочий раздел сотрудников клиники.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'staff/appointments': {
+        view: 'staff-appointments',
+        title: 'Записи клиники',
+        description: 'Рабочий раздел сотрудников клиники.',
+        index: false,
+        image: '/og-image.png'
+    },
+    'staff/users': {
+        view: 'staff-users',
+        title: 'Пользователи клиники',
+        description: 'Рабочий раздел сотрудников клиники.',
+        index: false,
+        image: '/og-image.png'
+    }
 };
 
 async function resolvePage(params) {
-  const resolved = await params;
-  const key = (resolved?.slug || []).join('/');
-  return { key, config: PAGES[key] };
+    const resolved = await params;
+    const key = (resolved?.slug || []).join('/');
+    return {key, config: PAGES[key]};
 }
 
-export async function generateMetadata({ params }) {
-  const { key, config } = await resolvePage(params);
-  if (!config) return {};
-  const path = key ? `/${key}` : '/';
-  return {
-    title: config.title,
-    description: config.description,
-    alternates: { canonical: path },
-    robots: config.index ? { index:true, follow:true, googleBot:{ index:true, follow:true, 'max-image-preview':'large', 'max-snippet':-1 } } : { index:false, follow:false, nocache:true },
-    openGraph: { type:'website', locale:'ru_RU', url:path, siteName:'BublAPI Dent', title:config.title, description:config.description, images:[{ url:config.image, width:1200, height:630, alt:config.title }] },
-    twitter: { card:'summary_large_image', title:config.title, description:config.description, images:[config.image] }
-  };
+export async function generateMetadata({params}) {
+    const {key, config} = await resolvePage(params);
+    if (!config) return {};
+    const path = key ? `/${key}` : '/';
+    return {
+        title: config.title,
+        description: config.description,
+        alternates: {canonical: path},
+        robots: config.index ? {
+            index: true,
+            follow: true,
+            googleBot: {index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1}
+        } : {index: false, follow: false, nocache: true},
+        openGraph: {
+            type: 'website',
+            locale: 'ru_RU',
+            url: path,
+            siteName: 'BublAPI Dent',
+            title: config.title,
+            description: config.description,
+            images: [{url: config.image, width: 1200, height: 630, alt: config.title}]
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: config.title,
+            description: config.description,
+            images: [config.image]
+        }
+    };
 }
 
-export default async function DemoRoute({ params }) {
-  const { key, config } = await resolvePage(params);
-  if (!config) notFound();
+export default async function DemoRoute({params}) {
+    const {key, config} = await resolvePage(params);
+    if (!config) notFound();
 
-  const publicCatalog = await loadInitialPublicCatalog(config.view);
+    const publicCatalog = await loadInitialPublicCatalog(config.view);
 
-  const structuredData = config.index ? {
-    '@context':'https://schema.org',
-    '@type': key === 'doctors' ? 'MedicalBusiness' : 'Dentist',
-    name:'BublAPI Dent',
-    url:`${SITE}${key ? `/${key}` : '/'}`,
-    description:config.description
-  } : null;
+    const structuredData = config.index ? {
+        '@context': 'https://schema.org',
+        '@type': key === 'doctors' ? 'MedicalBusiness' : 'Dentist',
+        name: 'BublAPI Dent',
+        url: `${SITE}${key ? `/${key}` : '/'}`,
+        description: config.description
+    } : null;
 
-  let initialShell = withThemeToggle(demoShell)
-    .replace('Вход / регистрация', 'Войти')
-    .replace('data-view="auth">Авторизация', 'data-view="login">Войти')
-    .replace('data-go="auth">Войти в систему', 'data-go="login">Войти в систему')
-    .replace(/<section class="view" id="view-auth">[\s\S]*?<\/section>/, AUTH_SECTIONS)
-    .replace(/<section class="view hidden" data-access="patient" id="view-patient-appointments">[\s\S]*?<\/section>/, PATIENT_BOOKING_SECTION)
-    .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-dashboard">[\s\S]*?<\/section>/, STAFF_DASHBOARD_SECTION)
-    .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-patients">[\s\S]*?<\/section>/, STAFF_PATIENTS_SECTION)
-    .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-doctors">[\s\S]*?<\/section>/, STAFF_DOCTORS_SECTION)
-    .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-services">[\s\S]*?<\/section>/, STAFF_SERVICES_SECTION)
-    .replace(/<section class="view hidden" data-access="staff-appointments" id="view-staff-appointments">[\s\S]*?<\/section>/, STAFF_APPOINTMENTS_SECTION)
-    .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-users">[\s\S]*?<\/section>/, STAFF_USERS_SECTION)
-    .replace('</main>\n</div>\n<div class="toast-container"></div>', `</main>\n</div>\n${STAFF_WORKFLOW_MODAL}\n<div class="toast-container"></div>`)
-    .replace(
-      '<div class="nav-group hidden" data-access="staff-core,staff-appointments">',
-      `${SIDEBAR_CONTEXT_CONTROLS}<div class="nav-group hidden" data-access="staff-core,staff-appointments">`
-    )
-    .replace('class=\"view active\" id=\"view-home\"', 'class=\"view\" id=\"view-home\"');
-  if (['home','public-doctors','public-services','login','register'].includes(config.view)) {
-    initialShell = initialShell.replace(`class=\"view\" id=\"view-${config.view}\"`, `class=\"view active\" id=\"view-${config.view}\"`);
-    initialShell = initialShell.replace(/class=\"nav-button active\" data-view=\"home\"/, 'class=\"nav-button\" data-view=\"home\"');
-    initialShell = initialShell.replace(`class=\"nav-button\" data-view=\"${config.navView || config.view}\"`, `class=\"nav-button active\" data-view=\"${config.navView || config.view}\"`);
-  } else {
-    initialShell = initialShell.replace('class=\"view\" id=\"view-home\"', 'class=\"view active\" id=\"view-home\"');
-  }
+    let initialShell = withThemeToggle(demoShell)
+        .replace('Вход / регистрация', 'Войти')
+        .replace('data-view="auth">Авторизация', 'data-view="login">Войти')
+        .replace('data-go="auth">Войти в систему', 'data-go="login">Войти в систему')
+        .replace(/<section class="view" id="view-auth">[\s\S]*?<\/section>/, AUTH_SECTIONS)
+        .replace(/<section class="view hidden" data-access="patient" id="view-patient-appointments">[\s\S]*?<\/section>/, PATIENT_BOOKING_SECTION)
+        .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-dashboard">[\s\S]*?<\/section>/, STAFF_DASHBOARD_SECTION)
+        .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-patients">[\s\S]*?<\/section>/, STAFF_PATIENTS_SECTION)
+        .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-doctors">[\s\S]*?<\/section>/, STAFF_DOCTORS_SECTION)
+        .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-services">[\s\S]*?<\/section>/, STAFF_SERVICES_SECTION)
+        .replace(/<section class="view hidden" data-access="staff-appointments" id="view-staff-appointments">[\s\S]*?<\/section>/, STAFF_APPOINTMENTS_SECTION)
+        .replace(/<section class="view hidden" data-access="staff-core" id="view-staff-users">[\s\S]*?<\/section>/, STAFF_USERS_SECTION)
+        .replace('</main>\n</div>\n<div class="toast-container"></div>', `</main>\n</div>\n${STAFF_WORKFLOW_MODAL}\n<div class="toast-container"></div>`)
+        .replace(
+            '<div class="nav-group hidden" data-access="staff-core,staff-appointments">',
+            `${SIDEBAR_CONTEXT_CONTROLS}<div class="nav-group hidden" data-access="staff-core,staff-appointments">`
+        )
+        .replace('class=\"view active\" id=\"view-home\"', 'class=\"view\" id=\"view-home\"');
+    if (['home', 'public-doctors', 'public-services', 'login', 'register'].includes(config.view)) {
+        initialShell = initialShell.replace(`class=\"view\" id=\"view-${config.view}\"`, `class=\"view active\" id=\"view-${config.view}\"`);
+        initialShell = initialShell.replace(/class=\"nav-button active\" data-view=\"home\"/, 'class=\"nav-button\" data-view=\"home\"');
+        initialShell = initialShell.replace(`class=\"nav-button\" data-view=\"${config.navView || config.view}\"`, `class=\"nav-button active\" data-view=\"${config.navView || config.view}\"`);
+    } else {
+        initialShell = initialShell.replace('class=\"view\" id=\"view-home\"', 'class=\"view active\" id=\"view-home\"');
+    }
 
-  if (publicCatalog.doctors?.loaded) {
-    initialShell = initialShell.replace(
-      '<div class="grid grid-3" id="publicDoctors"></div>',
-      `<div class="grid grid-3" id="publicDoctors">${renderDoctorsHtml(publicCatalog.doctors.items)}</div>`
-    );
-  } else if (publicCatalog.doctors) {
-    initialShell = initialShell.replace(
-      '<div class="grid grid-3" id="publicDoctors"></div>',
-      '<div class="grid grid-3" id="publicDoctors"><div class="card empty">Не удалось загрузить врачей. Попробуйте обновить страницу.</div></div>'
-    );
-  }
+    if (publicCatalog.doctors?.loaded) {
+        initialShell = initialShell.replace(
+            '<div class="grid grid-3" id="publicDoctors"></div>',
+            `<div class="grid grid-3" id="publicDoctors">${renderDoctorsHtml(publicCatalog.doctors.items)}</div>`
+        );
+    } else if (publicCatalog.doctors) {
+        initialShell = initialShell.replace(
+            '<div class="grid grid-3" id="publicDoctors"></div>',
+            '<div class="grid grid-3" id="publicDoctors"><div class="card empty">Не удалось загрузить врачей. Попробуйте обновить страницу.</div></div>'
+        );
+    }
 
-  if (publicCatalog.services?.loaded) {
-    initialShell = initialShell.replace(
-      '<div class="grid grid-3" id="publicServices"></div>',
-      `<div class="grid grid-3" id="publicServices">${renderServicesHtml(publicCatalog.services.items)}</div>`
-    );
-  } else if (publicCatalog.services) {
-    initialShell = initialShell.replace(
-      '<div class="grid grid-3" id="publicServices"></div>',
-      '<div class="grid grid-3" id="publicServices"><div class="card empty">Не удалось загрузить услуги. Попробуйте обновить страницу.</div></div>'
-    );
-  }
+    if (publicCatalog.services?.loaded) {
+        initialShell = initialShell.replace(
+            '<div class="grid grid-3" id="publicServices"></div>',
+            `<div class="grid grid-3" id="publicServices">${renderServicesHtml(publicCatalog.services.items)}</div>`
+        );
+    } else if (publicCatalog.services) {
+        initialShell = initialShell.replace(
+            '<div class="grid grid-3" id="publicServices"></div>',
+            '<div class="grid grid-3" id="publicServices"><div class="card empty">Не удалось загрузить услуги. Попробуйте обновить страницу.</div></div>'
+        );
+    }
 
-  return <>
-    {structuredData && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />}
-    <div data-initial-view={config.view} dangerouslySetInnerHTML={{ __html: initialShell }} />
-    {(publicCatalog.doctors || publicCatalog.services) && (
-      <script
-        id="publicCatalogSsrData"
-        type="application/json"
-        dangerouslySetInnerHTML={{ __html: serializeCatalogSeed(publicCatalog) }}
-      />
-    )}
-    <noscript><div style={{padding:'24px',maxWidth:'900px',margin:'0 auto'}}>Для работы личного кабинета требуется JavaScript.</div></noscript>
-    <Script src="/legacy/app.js" type="module" strategy="afterInteractive" />
-  </>;
+    return <>
+        {structuredData &&
+            <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(structuredData)}}/>}
+        <div data-initial-view={config.view} dangerouslySetInnerHTML={{__html: initialShell}}/>
+        {(publicCatalog.doctors || publicCatalog.services) && (
+            <script
+                id="publicCatalogSsrData"
+                type="application/json"
+                dangerouslySetInnerHTML={{__html: serializeCatalogSeed(publicCatalog)}}
+            />
+        )}
+        <noscript>
+            <div style={{padding: '24px', maxWidth: '900px', margin: '0 auto'}}>Для работы личного кабинета требуется
+                JavaScript.
+            </div>
+        </noscript>
+        <Script src="/legacy/app.js" type="module" strategy="afterInteractive"/>
+    </>;
 }

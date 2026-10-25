@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import {NextResponse} from 'next/server';
 import {
-  adminToken,
-  API_BASE,
-  copyResponseHeaders,
-  requestHasSameOrigin,
-  upstreamHeaders
+    adminToken,
+    API_BASE,
+    copyResponseHeaders,
+    requestHasSameOrigin,
+    upstreamHeaders
 } from '../../../../../lib/upstream';
 
 export const runtime = 'nodejs';
@@ -17,62 +17,62 @@ export const dynamic = 'force-dynamic';
  * Proxy those calls to the dedicated global-admin endpoint instead.
  */
 async function proxy(request, context) {
-  const token = adminToken(request);
+    const token = adminToken(request);
 
-  if (!token) {
-    return NextResponse.json(
-      { message: 'Требуется вход администратора' },
-      { status: 401 }
-    );
-  }
+    if (!token) {
+        return NextResponse.json(
+            {message: 'Требуется вход администратора'},
+            {status: 401}
+        );
+    }
 
-  if (!['GET', 'HEAD'].includes(request.method) && !requestHasSameOrigin(request)) {
-    return NextResponse.json(
-      { message: 'Недопустимый источник запроса' },
-      { status: 403 }
-    );
-  }
+    if (!['GET', 'HEAD'].includes(request.method) && !requestHasSameOrigin(request)) {
+        return NextResponse.json(
+            {message: 'Недопустимый источник запроса'},
+            {status: 403}
+        );
+    }
 
-  const { path = [] } = await context.params;
-  const incoming = new URL(request.url);
-  const suffix = Array.isArray(path) && path.length
-    ? `/${path.map(part => encodeURIComponent(part)).join('/')}`
-    : '';
+    const {path = []} = await context.params;
+    const incoming = new URL(request.url);
+    const suffix = Array.isArray(path) && path.length
+        ? `/${path.map(part => encodeURIComponent(part)).join('/')}`
+        : '';
 
-  const target = new URL(`${API_BASE}/api/v1/admin/users${suffix}`);
-  target.search = incoming.search;
+    const target = new URL(`${API_BASE}/api/v1/admin/users${suffix}`);
+    target.search = incoming.search;
 
-  const init = {
-    method: request.method,
-    headers: upstreamHeaders(request, token),
-    redirect: 'manual',
-    cache: 'no-store'
-  };
+    const init = {
+        method: request.method,
+        headers: upstreamHeaders(request, token),
+        redirect: 'manual',
+        cache: 'no-store'
+    };
 
-  if (!['GET', 'HEAD'].includes(request.method)) {
-    init.body = await request.arrayBuffer();
-  }
+    if (!['GET', 'HEAD'].includes(request.method)) {
+        init.body = await request.arrayBuffer();
+    }
 
-  try {
-    const upstream = await fetch(target, init);
-    const response = new NextResponse(upstream.body, {
-      status: upstream.status,
-      headers: copyResponseHeaders(upstream)
-    });
+    try {
+        const upstream = await fetch(target, init);
+        const response = new NextResponse(upstream.body, {
+            status: upstream.status,
+            headers: copyResponseHeaders(upstream)
+        });
 
 
-    return response;
-  } catch (error) {
-    console.error('Admin users proxy error', {
-      target: target.toString(),
-      error
-    });
+        return response;
+    } catch (error) {
+        console.error('Admin users proxy error', {
+            target: target.toString(),
+            error
+        });
 
-    return NextResponse.json(
-      { message: 'Spring Boot API недоступен' },
-      { status: 502 }
-    );
-  }
+        return NextResponse.json(
+            {message: 'Spring Boot API недоступен'},
+            {status: 502}
+        );
+    }
 }
 
 export const GET = proxy;
