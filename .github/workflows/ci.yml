@@ -120,32 +120,100 @@ jobs:
         run:
           docker push "$IMAGE:$GITHUB_SHA"
   admin:
-    name: Build admin
+    name: Build and publish admin
     needs: changes
     if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.admin == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Prepare image metadata
+        id: image
+        shell: bash
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}-admin"
+          printf 'name=%s\n' "$IMAGE" >> "$GITHUB_OUTPUT"
+
       - name: Build admin image
-        run: docker build --tag bublapi-admin:ci ./apps/admin
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+        run: |
+          docker build \
+            --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            --tag "$IMAGE:$GITHUB_SHA" \
+            ./apps/admin
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" |
+            docker login ghcr.io \
+              --username "$GITHUB_ACTOR" \
+              --password-stdin
+
+      - name: Publish admin image
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+        run: docker push "$IMAGE:$GITHUB_SHA"
 
   demo:
-    name: Build demo
+    name: Build and publish demo
     needs: changes
     if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.demo == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Prepare image metadata
+        id: image
+        shell: bash
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}-demo"
+          printf 'name=%s\n' "$IMAGE" >> "$GITHUB_OUTPUT"
+
       - name: Build demo image
-        run: docker build --tag bublapi-demo:ci ./apps/dent-demo
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+        run: |
+          docker build \
+            --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            --tag "$IMAGE:$GITHUB_SHA" \
+            ./apps/dent-demo
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" |
+            docker login ghcr.io \
+              --username "$GITHUB_ACTOR" \
+              --password-stdin
+
+      - name: Publish demo image
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+        run: docker push "$IMAGE:$GITHUB_SHA"
 
   deploy:
     name: Deploy to server
