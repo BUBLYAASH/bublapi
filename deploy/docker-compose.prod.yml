@@ -53,11 +53,7 @@ services:
 
 
   backend:
-    build:
-      context: ../services/dent-backend
-      dockerfile: Dockerfile
-      args:
-        APP_VERSION: ${APP_VERSION}
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE is required}
 
     container_name: bublapi-backend
     restart: unless-stopped
@@ -100,9 +96,7 @@ services:
       - /opt/bublapi/repo/services/dent-backend/logs:/app/logs
 
   demo:
-    build:
-      context: ../apps/dent-demo
-      dockerfile: Dockerfile
+    image: ${DEMO_IMAGE:?DEMO_IMAGE is required}
 
     container_name: bublapi-demo
     restart: unless-stopped
@@ -128,9 +122,7 @@ services:
 
 
   admin:
-    build:
-      context: ../apps/admin
-      dockerfile: Dockerfile
+    image: ${ADMIN_IMAGE:?ADMIN_IMAGE is required}
 
     container_name: bublapi-admin
     restart: unless-stopped
