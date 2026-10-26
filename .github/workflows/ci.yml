@@ -163,7 +163,7 @@ jobs:
             REMOTE_COMMAND+=" admin"
           fi
           
-          if [[ "$demo_RESULT" == "success" ]]; then
+          if [[ "$DEMO_RESULT" == "success" ]]; then
             REMOTE_COMMAND+=" demo"
           fi
           
