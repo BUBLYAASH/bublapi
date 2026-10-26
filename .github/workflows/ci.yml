@@ -271,11 +271,11 @@ jobs:
         always() &&
         !cancelled() &&
         github.ref == 'refs/heads/main' &&
-        github.event_name == 'workflow_dispatch' &&
+        (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
         needs.changes.result == 'success' &&
-        needs.backend.result == 'success' &&
-        needs.admin.result == 'success' &&
-        needs.demo.result == 'success'
+        contains(fromJSON('["success","skipped"]'), needs.backend.result) &&
+        contains(fromJSON('["success","skipped"]'), needs.admin.result) &&
+        contains(fromJSON('["success","skipped"]'), needs.demo.result)
       }}
 
     runs-on: ubuntu-24.04
