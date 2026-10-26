@@ -12,12 +12,16 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface DoctorWorkingHoursMapper {
+   @Mapping(target = "id", ignore = true)
    @Mapping(target = "doctor", ignore = true)
    DoctorWorkingHours toEntity(SetDoctorWorkingHoursRequestDto request);
 
    @Mapping(target = "doctorId", source = "doctor.id")
    DoctorWorkingHoursResponseDto toResponse(DoctorWorkingHours entity);
 
+   @Mapping(target = "id", ignore = true)
+   @Mapping(target = "doctor", ignore = true)
+   @Mapping(target = "dayOfWeek", ignore = true)
    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
    void updateEntity(UpdateDoctorWorkingHoursRequestDto request, @MappingTarget DoctorWorkingHours entity);
 }

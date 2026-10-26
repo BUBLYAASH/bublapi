@@ -13,6 +13,11 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface DoctorMapper {
 
+   @Mapping(target = "id", ignore = true)
+   @Mapping(target = "createdAt", ignore = true)
+   @Mapping(target = "updatedAt", ignore = true)
+   @Mapping(target = "active", ignore = true)
+   @Mapping(target = "disabledByClinic", ignore = true)
    @Mapping(target = "clinic", ignore = true)
    @Mapping(target = "user", ignore = true)
    Doctor toEntity(CreateDoctorRequestDto response);
@@ -21,6 +26,11 @@ public interface DoctorMapper {
    @Mapping(target = "userId", source = "user.id")
    DoctorResponseDto toResponse(Doctor entity);
 
+   @Mapping(target = "id", ignore = true)
+   @Mapping(target = "createdAt", ignore = true)
+   @Mapping(target = "updatedAt", ignore = true)
+   @Mapping(target = "active", ignore = true)
+   @Mapping(target = "disabledByClinic", ignore = true)
    @Mapping(target = "clinic", ignore = true)
    @Mapping(target = "user", ignore = true)
    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

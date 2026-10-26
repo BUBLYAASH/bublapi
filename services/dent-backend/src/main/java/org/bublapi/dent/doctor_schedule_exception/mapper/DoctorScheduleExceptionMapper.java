@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface DoctorScheduleExceptionMapper {
+   @Mapping(target = "id", ignore = true)
    @Mapping(target = "doctor", ignore = true)
    DoctorScheduleException toEntity(SetDoctorScheduleExceptionRequestDto request);
 

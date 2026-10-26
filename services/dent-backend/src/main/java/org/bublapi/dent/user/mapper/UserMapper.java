@@ -15,6 +15,12 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
+   @Mapping(target = "id", ignore = true)
+   @Mapping(target = "joinedAt", ignore = true)
+   @Mapping(target = "updatedAt", ignore = true)
+   @Mapping(target = "enabled", ignore = true)
+   @Mapping(target = "disabledByClinic", ignore = true)
+   @Mapping(target = "roles", ignore = true)
    @Mapping(target = "clinic", ignore = true)
    @Mapping(target = "passwordHash", ignore = true)
    @Mapping(target = "lastLogin", ignore = true)
@@ -23,6 +29,12 @@ public interface UserMapper {
    @Mapping(target = "clinicId", source = "clinic.id")
    UserResponseDto toResponse(User user);
 
+   @Mapping(target = "id", ignore = true)
+   @Mapping(target = "joinedAt", ignore = true)
+   @Mapping(target = "updatedAt", ignore = true)
+   @Mapping(target = "enabled", ignore = true)
+   @Mapping(target = "disabledByClinic", ignore = true)
+   @Mapping(target = "roles", ignore = true)
    @Mapping(target = "clinic", ignore = true)
    @Mapping(target = "passwordHash", ignore = true)
    @Mapping(target = "lastLogin", ignore = true)
