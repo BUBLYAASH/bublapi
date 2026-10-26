@@ -266,7 +266,17 @@ jobs:
     name: Deploy to server
     needs: [ changes, backend, admin, demo ]
 
-    if: ${{false}}
+    if: >-
+      ${{
+        always() &&
+        !cancelled() &&
+        github.ref == 'refs/heads/main' &&
+        github.event_name == 'workflow_dispatch' &&
+        needs.changes.result == 'success' &&
+        needs.backend.result == 'success' &&
+        needs.admin.result == 'success' &&
+        needs.demo.result == 'success'
+      }}
 
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -286,9 +296,9 @@ jobs:
           DEPLOY_SSH_KEY: ${{secrets.DEPLOY_SSH_KEY}}
           DEPLOY_KNOWN_HOSTS: ${{secrets.DEPLOY_KNOWN_HOSTS}}
           TARGET_SHA: ${{github.sha}}
-          BACKEND_RESULT: ${{needs.backend.result}}
-          ADMIN_RESULT: ${{needs.admin.result}}
-          DEMO_RESULT: ${{needs.demo.result}}
+          BACKEND_IMAGE: ${{ needs.backend.outputs.image }}
+          ADMIN_IMAGE: ${{ needs.admin.outputs.image }}
+          DEMO_IMAGE: ${{ needs.demo.outputs.image }}
 
         run: |
           set -euo pipefail
@@ -305,19 +315,27 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > "$SSH_DIR/key"
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$SSH_DIR/known_hosts"
           
-          REMOTE_COMMAND="deploy $TARGET_SHA"
-          
-          if [[ "$BACKEND_RESULT" == "success" ]]; then
-            REMOTE_COMMAND+=" backend"
-          fi
-          
-          if [[ "$ADMIN_RESULT" == "success" ]]; then
-            REMOTE_COMMAND+=" admin"
-          fi
-          
-          if [[ "$DEMO_RESULT" == "success" ]]; then
-            REMOTE_COMMAND+=" demo"
-          fi
+            validate_image() {
+            local service="$1"
+            local image="$2"
+            local pattern="^ghcr\\.io/bublyaash/bublapi-${service}@sha256:[0-9a-f]{64}$"
+
+            if [[ -n "$image" && ! "$image" =~ $pattern ]]; then
+              echo "ERROR: invalid image reference for $service" >&2
+              exit 1
+            fi
+          }
+
+          [[ "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]
+
+          validate_image backend "$BACKEND_IMAGE"
+          validate_image admin "$ADMIN_IMAGE"
+          validate_image demo "$DEMO_IMAGE"
+
+          REMOTE_COMMAND="deploy-images $TARGET_SHA"
+          REMOTE_COMMAND+=" ${BACKEND_IMAGE:--}"
+          REMOTE_COMMAND+=" ${ADMIN_IMAGE:--}"
+          REMOTE_COMMAND+=" ${DEMO_IMAGE:--}"
           
           ssh -T \
             -i "$SSH_DIR/key" \
