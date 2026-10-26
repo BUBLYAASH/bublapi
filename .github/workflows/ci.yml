@@ -53,6 +53,9 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
 
     defaults:
       run:
@@ -75,6 +78,47 @@ jobs:
       - name: Run tests and build
         run: bash ./gradlew build --no-daemon
 
+      - name: Prepare image metadata
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}-backend"
+          APP_VERSION="$(tr -d '[:space:]' < ../../VERSION)"
+          
+          test -n "$APP_VERSION"
+          
+          printf 'name=%s\n' "$IMAGE" >> "$GITHUB_OUTPUT"
+          printf 'version=%s\n' "$APP_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build backend image
+        env:
+          IMAGE: ${{steps.image.outputs.name}}
+          APP_VERSION: ${{steps.image.outputs.version}}
+        run: |
+          docker build --build-arg "APP_VERSION=$APP_VERSION" \
+          --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+          --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+          --tag "$IMAGE:$GITHUB_SHA" \
+          .
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GHCR_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          printf '%s' "$GHCR_TOKEN" |
+            docker login ghcr.io \
+              --username "$GITHUB_ACTOR"\
+              --password-stdin
+
+      - name: Publish backend image
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          IMAGE: ${{steps.image.outputs.name}}
+        run:
+          docker push "$IMAGE:$GITHUB_SHA"
   admin:
     name: Build admin
     needs: changes
@@ -107,14 +151,7 @@ jobs:
     name: Deploy to server
     needs: [ changes, backend, admin, demo ]
 
-    if: >-
-      ${{
-        always() && !cancelled() && github.ref == 'refs/heads/main' &&
-        github.event_name == 'workflow_dispatch' && needs.changes.result == 'success' &&
-        contains(fromJSON('["success", "skipped"]'), needs.backend.result) &&
-        contains(fromJSON('["success", "skipped"]'), needs.admin.result) &&
-        contains(fromJSON('["success", "skipped"]'), needs.demo.result)
-      }}
+    if: ${{false}}
 
     runs-on: ubuntu-24.04
     timeout-minutes: 30
