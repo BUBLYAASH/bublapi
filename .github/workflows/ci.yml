@@ -102,3 +102,80 @@ jobs:
 
       - name: Build demo image
         run: docker build --tag bublapi-demo:ci ./apps/dent-demo
+
+  deploy:
+    name: Deploy to server
+    needs: [ changes, backend, admin, demo ]
+
+    if: >-
+      ${{
+        always() && !cancelled() && github.ref == 'refs/heads/main' &&
+        github.event_name == 'workflow_dispatch' && needs.changes.result == 'success' &&
+        contains(fromJSON('["success", "skipped"]'), needs.backend.result) &&
+        contains(fromJSON('["success", "skipped"]'), needs.admin.result) &&
+        contains(fromJSON('["success", "skipped"]'), needs.demo.result)
+      }}
+
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    permissions: { }
+
+    concurrency:
+      group: bublapi-production-deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Deploy checked commit
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{secrets.DEPLOY_HOST}}
+          DEPLOY_USER: ${{secrets.DEPLOY_USER}}
+          DEPLOY_SSH_KEY: ${{secrets.DEPLOY_SSH_KEY}}
+          DEPLOY_KNOWN_HOSTS: ${{secrets.DEPLOY_KNOWN_HOSTS}}
+          TARGET_SHA: ${{github.sha}}
+          BACKEND_RESULT: ${{needs.backend.result}}
+          ADMIN_RESULT: ${{needs.admin.result}}
+          DEMO_RESULT: ${{needs.demo.result}}
+
+        run: |
+          set -euo pipefail
+          umask 077
+          
+          : "${DEPLOY_HOST:?Missing DEPLOY_HOST}"
+          : "${DEPLOY_USER:?Missing DEPLOY_USER}"
+          : "${DEPLOY_SSH_KEY:?Missing DEPLOY_SSH_KEY}"
+          : "${DEPLOY_KNOWN_HOSTS:?Missing DEPLOY_KNOWN_HOSTS}"
+          
+          SSH_DIR="$(mktemp -d)"
+          trap 'rm -rf "$SSH_DIR"' EXIT
+          
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$SSH_DIR/key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$SSH_DIR/known_hosts"
+          
+          REMOTE_COMMAND="deploy $TARGET_SHA"
+          
+          if [[ "$BACKEND_RESULT" == "success" ]]; then
+            REMOTE_COMMAND+=" backend"
+          fi
+          
+          if [[ "$ADMIN_RESULT" == "success" ]]; then
+            REMOTE_COMMAND+=" admin"
+          fi
+          
+          if [[ "$demo_RESULT" == "success" ]]; then
+            REMOTE_COMMAND+=" demo"
+          fi
+          
+          ssh -T \
+            -i "$SSH_DIR/key" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$SSH_DIR/known_hosts" \
+            -o HostKeyAlgorithms=ssh-ed25519 \
+            -o ConnectTimeout=15 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=4 \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "$REMOTE_COMMAND"
