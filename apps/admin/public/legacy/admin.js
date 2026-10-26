@@ -787,8 +787,7 @@ async function loadApiKeys({silent = false} = {}) {
         }, {
             label: 'Префикс', render: apiKey => `<span class="code">${escapeHtml(apiKey.prefix)}</span>`
         }, {label: 'Истекает', render: apiKey => formatDate(apiKey.expiresAt)}, {
-            label: 'Льготный период',
-            render: apiKey => formatDate(apiKey.graceUntil)
+            label: 'Льготный период', render: apiKey => formatDate(apiKey.graceUntil)
         }, {
             label: 'Статус', render: apiKey => `
               <span class="badge ${apiKey.active ? 'success' : 'danger'}">
@@ -971,6 +970,7 @@ async function getAdminUserById(userId) {
           ${detailItem('Телефон', user.phone)}
           ${detailItem('Роли', (user.roles || []).join(', '), true)}
           ${detailItem('Статус', user.enabled ? 'Активен' : 'Отключён')}
+          ${detailItem('Последний вход', user.lastLogin ? formatDate(user.lastLogin + 'Z') : 'Нет данных')}
           ${detailItem('Clinic ID', user.clinicId, true)}
         </div>
       `);
@@ -1007,6 +1007,8 @@ function renderAdminUsers(users) {
             </button>
           `
     }, {label: 'Email', key: 'email'}, {
+        label: 'Последний вход', render: user => user.lastLogin ? formatDate(user.lastLogin + 'Z') : 'Нет данных'
+    }, {
         label: 'Роли', render: user => escapeHtml((user.roles || []).join(', ') || '—')
     }, {
         label: 'Статус', render: user => `
@@ -1023,10 +1025,58 @@ function renderAdminUsers(users) {
             Назначить
           </button>
           <button class="btn btn-danger btn-sm admin-role-remove" data-user-id="${user.id}">
-            Удалить
+            Снять роль
           </button>
+          <button class="btn btn-danger btn-sm admin-user-erase" data-user-id="${user.id}">Удалить данные</button>
         </div>
       `);
+}
+
+function openUserErasure(user) {
+    if (!user) return;
+    openModal('Удалить данные пользователя', `
+      <p>Будут удалены профиль, карточка пациента, сессии, уведомления и незавершённые запланированные записи. В истории посещений останутся врач, дата, услуги и стоимость; связь с пациентом и комментарии будут удалены.</p>
+      <p>Аккаунты со связанным профилем врача требуют отдельной проверки и не удаляются этим действием.</p>
+      <p><strong>Отменить действие нельзя.</strong> В резервных копиях данные сохраняются до окончания срока хранения. Восстановление старой копии может вернуть данные.</p>
+      <p>${escapeHtml(user.lastName || '')} ${escapeHtml(user.firstName || '')} · ${escapeHtml(user.email)}</p>
+      <form id="userErasureForm" class="form-grid">
+        <label class="full"><span>Для подтверждения введите ID: <code>${escapeHtml(user.id)}</code></span>
+          <input name="confirmationUserId" required autocomplete="off" aria-describedby="erasureError"></label>
+        <label class="full erasure-retention"><input name="retentionReviewed" type="checkbox" required><span>Подтверждаю полномочия, проверку оснований и отсутствие обязанности дальнейшего хранения удаляемых данных.</span></label>
+        <p id="erasureError" class="full" role="alert"></p>
+        <button type="submit" class="btn btn-danger">Удалить без возможности отмены</button>
+      </form>
+    `);
+    const form = $('#userErasureForm');
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const errorBox = form.querySelector('[role="alert"]');
+        const confirmation = form.elements.confirmationUserId.value.trim();
+        if (confirmation !== user.id || !form.reportValidity()) {
+            errorBox.textContent = 'Введите точный ID пользователя и подтвердите проверку оснований.';
+            return;
+        }
+        const button = form.querySelector('button[type="submit"]');
+        if (button.disabled) return;
+        button.disabled = true;
+        button.textContent = 'Удаление…';
+        errorBox.textContent = '';
+        try {
+            const result = await api(`/api/v1/admin/users/${user.id}/erasure`, {
+                method: 'POST',
+                body: {confirmationUserId: confirmation, clinicId: user.clinicId, retentionReviewed: true}
+            }, 'admin');
+            loadedAdminUsers = loadedAdminUsers.filter(item => item.id !== user.id);
+            selectedAdminRoles.delete(String(user.id));
+            caches.notifications.clear();
+            filterAdminUsersByEmail();
+            openModal('Данные удалены', `<p>${escapeHtml(result.backupNotice)}</p><p>Удалено записей: ${result.deletedAppointments}. Сохранено посещений без данных пациента: ${result.anonymizedAppointments}.</p>`);
+        } catch (error) {
+            errorBox.textContent = error.message;
+            button.disabled = false;
+            button.textContent = 'Удалить без возможности отмены';
+        }
+    });
 }
 
 function filterAdminUsersByEmail() {
@@ -1089,8 +1139,13 @@ $('#adminUsers').addEventListener('click', async event => {
     const details = event.target.closest('.admin-user-details');
     const assign = event.target.closest('.admin-role-assign');
     const remove = event.target.closest('.admin-role-remove');
+    const erase = event.target.closest('.admin-user-erase');
 
     try {
+        if (erase) {
+            openUserErasure(caches.users.get(erase.dataset.userId));
+            return;
+        }
         if (details) {
             await getAdminUserById(details.dataset.id);
             return;
@@ -1122,7 +1177,6 @@ $('#adminUsers').addEventListener('click', async event => {
 
         toast(assign ? `Роль ${roleName} назначена` : `Роль ${roleName} удалена`, 'success');
 
-        // Сохраняем выбор до перерисовки таблицы после ответа API.
         selectedAdminRoles.set(String(userId), roleName);
         await loadAdminUsers();
     } catch (error) {
@@ -1262,8 +1316,6 @@ async function refreshCurrentView({automatic = false} = {}) {
 }
 
 function startAutoRefresh() {
-    // Только первоначальная загрузка. Дальнейшее обновление выполняется кнопками
-    // «Обновить», чтобы не терять выбранные значения и несохранённые изменения.
     stopAutoRefresh();
     refreshCurrentView();
 }
@@ -1275,15 +1327,11 @@ function stopAutoRefresh() {
     }
 }
 
-// Возврат на вкладку не перерисовывает админку автоматически.
-
 function initialize() {
     setupRequiredFieldMarkers();
     bindAdminDirtyFormTracking();
     updateSession();
 
-    // На /apis DOM админки уже подготовлен, но скрыт. Данные Dent загружаются
-    // только после клиентского перехода в продукт.
     if (location.pathname.replace(/\/+$/, '') === '/apis') return;
 
     const initialView = adminViewFromPath();

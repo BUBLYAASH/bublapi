@@ -1,16 +1,24 @@
 package org.bublapi.dent.user.repository;
 
+import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
+
+   @Transactional
+   @Modifying
+   @Query("UPDATE User u SET u.lastLogin = :time WHERE u.id = :id AND (u.lastLogin IS NULL OR u.lastLogin < :time)")
+   int recordLogin(@Param("id") UUID id, @Param("time") LocalDateTime time);
 
    List<User> findAllByClinic_IdAndEnabledTrue(UUID clinicId);
 
@@ -43,9 +51,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
            LEFT JOIN FETCH u.roles r
            WHERE lower(u.email) = lower(:email)
            AND u.clinic IS NULL
-           AND r.name = org.bublapi.dent.role.entity.RoleName.ADMIN
+           AND r.name = :role
            """)
-   Optional<User> findAdminByEmailWithRoles(@Param("email") String email);
+   Optional<User> findPlatformUserByEmailWithRole(@Param("email") String email,
+                                                  @Param("role") RoleName role);
+
+   default Optional<User> findAdminByEmailWithRoles(String email) {
+      return findPlatformUserByEmailWithRole(email, RoleName.ADMIN);
+   }
 
    @Modifying
    @Query("""

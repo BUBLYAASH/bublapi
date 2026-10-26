@@ -5,6 +5,7 @@ import org.bublapi.dent.dental_service.dto.UpdateDentalServiceRequestDto;
 import org.bublapi.dent.dental_service.entity.DentalService;
 import org.bublapi.dent.dental_service.entity.ServiceCategory;
 import org.bublapi.dent.integration.IntegrationTestSupport;
+import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.user.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -78,7 +79,7 @@ class DentalServiceAdminBehaviorIntegrationTest extends IntegrationTestSupport {
 
    @Test
    void staffShouldSeeOnlyActiveDentalServices() throws Exception {
-      TestClinicData data = createClinicData(org.bublapi.dent.role.entity.RoleName.OWNER);
+      TestClinicData data = createClinicData(RoleName.OWNER);
       DentalService active = dataFactory.createDentalService();
       DentalService inactive = dataFactory.createDentalService();
       User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");

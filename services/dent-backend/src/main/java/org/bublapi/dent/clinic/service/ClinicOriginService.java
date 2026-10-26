@@ -55,7 +55,7 @@ public class ClinicOriginService {
       entry = origins.saveAndFlush(entry);
 
       audit.clinicUpdated(clinicId, List.of("allowedOrigins"));
-      
+
       return new ClinicOriginResponseDto(entry.getId(), entry.getOrigin());
    }
 

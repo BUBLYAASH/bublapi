@@ -3,14 +3,19 @@ package org.bublapi.dent.user.controller.admin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.bublapi.dent.user.dto.UserErasureRequestDto;
+import org.bublapi.dent.user.dto.UserErasureResponseDto;
 import org.bublapi.dent.user.dto.UserResponseDto;
 import org.bublapi.dent.user.dto.UserRoleResponseDto;
 import org.bublapi.dent.user.service.AdminUserService;
+import org.bublapi.dent.user.service.UserErasureService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,9 +30,20 @@ import java.util.UUID;
 public class AdminUserController {
 
    private final AdminUserService adminUserService;
+   private final UserErasureService erasureService;
 
-   public AdminUserController(AdminUserService adminUserService) {
+   public AdminUserController(AdminUserService adminUserService,
+                              UserErasureService erasureService) {
       this.adminUserService = adminUserService;
+      this.erasureService = erasureService;
+   }
+
+   @PostMapping("/{userId}/erasure")
+   public UserErasureResponseDto erase(
+           @PathVariable UUID userId,
+           @Valid @RequestBody
+           UserErasureRequestDto request) {
+      return erasureService.erase(userId, request);
    }
 
    @Operation(summary = "Get clinic users", description = "Returns users from all managed clinics")

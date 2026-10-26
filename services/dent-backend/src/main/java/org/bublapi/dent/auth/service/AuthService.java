@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -70,6 +72,8 @@ public class AuthService {
       String accessToken = jwtService.generateToken(user.getId());
       String refreshToken = refreshTokenService.create(user, RefreshTokenType.USER);
 
+      userRepository.recordLogin(user.getId(), LocalDateTime.now(ZoneOffset.UTC));
+
       return new AuthTokens(accessToken, refreshToken);
    }
 
@@ -100,6 +104,8 @@ public class AuthService {
 
       String accessToken = jwtService.generateToken(user.getId());
       String refreshToken = refreshTokenService.create(user, RefreshTokenType.ADMIN);
+
+      userRepository.recordLogin(user.getId(), LocalDateTime.now(ZoneOffset.UTC));
 
       return new AuthTokens(accessToken, refreshToken);
    }

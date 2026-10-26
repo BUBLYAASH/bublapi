@@ -5,9 +5,12 @@ import org.bublapi.dent.integration.IntegrationTestBase;
 import org.bublapi.dent.integration.security.TestJwtHelper;
 import org.bublapi.dent.integration.testdata.TestDataFactory;
 import org.bublapi.dent.role.entity.RoleName;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -80,7 +83,7 @@ class ClinicOriginsIntegrationTest extends IntegrationTestBase {
                                                 .contentType(MediaType.APPLICATION_JSON)
                                                 .content("{\"origin\":\"https://clinic.test\"}"))
                 .andExpect(status().isForbidden());
-         mockMvc.perform(delete(base + "/origins/" + java.util.UUID.randomUUID()).header("Authorization", token))
+         mockMvc.perform(delete(base + "/origins/" + UUID.randomUUID()).header("Authorization", token))
                 .andExpect(status().isForbidden());
       }
    }
@@ -126,7 +129,7 @@ class ClinicOriginsIntegrationTest extends IntegrationTestBase {
                             .andReturn().getResponse();
          String cookieName = admin ? "admin_refresh_token" : "refresh_token";
          var cookie = login.getCookie(cookieName);
-         org.junit.jupiter.api.Assertions.assertNotNull(cookie);
+         Assertions.assertNotNull(cookie);
          var refresh = mockMvc.perform(post(base + "/refresh").header("Origin", origin).header("X-API-KEY", key)
                                                               .cookie(cookie))
                               .andExpect(status().isOk())

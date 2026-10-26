@@ -2,6 +2,7 @@ package org.bublapi.dent.integration.appointment;
 
 import org.bublapi.dent.appointment.dto.AppointmentServiceRequestDto;
 import org.bublapi.dent.appointment.dto.CreateAppointmentRequestDto;
+import org.bublapi.dent.appointment.entity.AppointmentStatus;
 import org.bublapi.dent.appointment.repository.AppointmentRepository;
 import org.bublapi.dent.appointment.service.AppointmentService;
 import org.bublapi.dent.appointment_service.repository.AppointmentServiceRepository;
@@ -11,6 +12,7 @@ import org.bublapi.dent.role.entity.RoleName;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -35,7 +37,7 @@ class AppointmentTransactionIntegrationTest extends IntegrationTestSupport {
    AppointmentServiceRepository items;
 
    @Autowired
-   org.springframework.jdbc.core.JdbcTemplate jdbc;
+   JdbcTemplate jdbc;
 
    @AfterEach
    void cleanContext() {
@@ -96,7 +98,7 @@ class AppointmentTransactionIntegrationTest extends IntegrationTestSupport {
              .andExpect(status().isNotFound());
       ClinicContext.set(foreign.clinic());
       assertThat(appointments.findById(id).orElseThrow().getStatus()).isEqualTo(
-              org.bublapi.dent.appointment.entity.AppointmentStatus.CREATED);
+              AppointmentStatus.CREATED);
    }
 
    @Test

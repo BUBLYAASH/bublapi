@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 037-user-login-and-erasure
+      author: Gleb Kovalev
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: last_login
+                  type: timestamp
+        - dropNotNullConstraint:
+            tableName: appointments
+            columnName: patient_id
+            columnDataType: uuid

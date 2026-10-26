@@ -17,6 +17,7 @@ public interface UserMapper {
 
    @Mapping(target = "clinic", ignore = true)
    @Mapping(target = "passwordHash", ignore = true)
+   @Mapping(target = "lastLogin", ignore = true)
    User toEntity(CreateUserRequestDto request);
 
    @Mapping(target = "clinicId", source = "clinic.id")
@@ -24,6 +25,7 @@ public interface UserMapper {
 
    @Mapping(target = "clinic", ignore = true)
    @Mapping(target = "passwordHash", ignore = true)
+   @Mapping(target = "lastLogin", ignore = true)
    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
    void updateEntity(UpdateUserRequestDto request, @MappingTarget User user);
 

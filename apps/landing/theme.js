@@ -37,8 +37,6 @@
         });
     }
 
-    // Used during page bootstrap and OS-theme changes. It deliberately has no
-    // View Transition / CSS transition so a reload never flashes light first.
     function applyImmediately(theme, {persist = false} = {}) {
         root.dataset.theme = theme;
         root.style.colorScheme = theme;
@@ -55,8 +53,6 @@
     function applyAnimated(theme, event) {
         const update = () => applyImmediately(theme, {persist: true});
 
-        // Keyboard activation should be immediate: frequent keyboard actions must
-        // never wait for a spatial animation to finish.
         if (event?.detail === 0) {
             update();
             return;
@@ -79,13 +75,10 @@
         transition.finished.finally(() => delete root.dataset.themeTransition);
     }
 
-    // The server already reads the cookie. CSS handles the system preference
-    // before JS. This only reconciles legacy localStorage values without animation.
     const stored = savedTheme();
     const initial = stored || root.dataset.theme || systemTheme();
     applyImmediately(initial, {persist: Boolean(stored)});
 
-    // Client-side navigation can replace the controls without reloading this script.
     const buttonObserver = new MutationObserver(records => {
         const hasNewButton = records.some(record => [...record.addedNodes].some(node =>
                 node instanceof Element && (

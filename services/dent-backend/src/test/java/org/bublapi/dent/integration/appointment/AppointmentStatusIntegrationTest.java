@@ -7,6 +7,7 @@ import org.bublapi.dent.role.entity.RoleName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -116,9 +117,9 @@ class AppointmentStatusIntegrationTest extends IntegrationTestSupport {
       return extractId(result);
    }
 
-   private org.springframework.test.web.servlet.ResultActions changeStatus(AppointmentContext context,
-                                                                           UUID appointmentId,
-                                                                           AppointmentStatus status) throws
+   private ResultActions changeStatus(AppointmentContext context,
+                                      UUID appointmentId,
+                                      AppointmentStatus status) throws
            Exception {
       ChangeAppointmentStatusRequestDto request = new ChangeAppointmentStatusRequestDto(status);
 

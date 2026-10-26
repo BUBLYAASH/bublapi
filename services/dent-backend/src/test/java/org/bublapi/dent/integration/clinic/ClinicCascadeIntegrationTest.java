@@ -8,6 +8,8 @@ import org.bublapi.dent.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -21,8 +23,8 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
    @Test
    void shouldDisableClinicUsersWhenClinicDeactivated() throws Exception {
       Clinic clinic = dataFactory.createClinic();
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
-      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + java.util.UUID.randomUUID() + "@test.com",
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
+      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + UUID.randomUUID() + "@test.com",
                                                    RoleName.OWNER);
 
       mockMvc.perform(patch("/api/v1/admin/clinics/{clinicId}/deactivation", clinic.getId()).header("Authorization",
@@ -38,8 +40,8 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
    @Test
    void shouldEnableClinicUsersWhenClinicActivated() throws Exception {
       Clinic clinic = dataFactory.createClinic();
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
-      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + java.util.UUID.randomUUID() + "@test.com",
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
+      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + UUID.randomUUID() + "@test.com",
                                                    RoleName.OWNER);
 
       assertThat(admin.getRoles())
@@ -80,8 +82,8 @@ class ClinicCascadeIntegrationTest extends IntegrationTestSupport {
    @Test
    void deactivatedClinicApiKeyShouldNotAllowAccess() throws Exception {
       Clinic clinic = dataFactory.createClinic();
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
-      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + java.util.UUID.randomUUID() + "@test.com",
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
+      User owner = dataFactory.createUserWithRoles(clinic, "owner-" + UUID.randomUUID() + "@test.com",
                                                    RoleName.OWNER);
       String apiKey = dataFactory.createApiKey(clinic).rawKey();
 

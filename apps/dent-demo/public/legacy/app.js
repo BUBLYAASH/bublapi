@@ -25,19 +25,7 @@ const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 
 const AUTO_REFRESH_INTERVAL_MS = 15000;
-const AUTO_REFRESH_VIEWS = new Set([
-    'public-doctors',
-    'public-services',
-    'patient-card',
-    'patient-appointments',
-    'patient-notifications',
-    'staff-dashboard',
-    'staff-patients',
-    'staff-doctors',
-    'staff-services',
-    'staff-appointments',
-    'staff-users'
-]);
+const AUTO_REFRESH_VIEWS = new Set(['public-doctors', 'public-services', 'patient-card', 'patient-appointments', 'patient-notifications', 'staff-dashboard', 'staff-patients', 'staff-doctors', 'staff-services', 'staff-appointments', 'staff-users']);
 
 const DAY_OF_WEEK_NAMES = {
     MONDAY: 'ПОНЕДЕЛЬНИК',
@@ -62,13 +50,11 @@ function formatTime24(value) {
 }
 
 const appointmentAvailability = {
-    patient: new Map(),
-    staff: new Map()
+    patient: new Map(), staff: new Map()
 };
 
 const availabilityRequestVersion = {
-    patient: 0,
-    staff: 0
+    patient: 0, staff: 0
 };
 
 function formatDateOption(dateValue) {
@@ -79,10 +65,7 @@ function formatDateOption(dateValue) {
     }
 
     return new Intl.DateTimeFormat('ru-RU', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
     }).format(date);
 }
 
@@ -170,9 +153,7 @@ function getSelectedService(kind) {
         return null;
     }
 
-    return kind === 'patient'
-        ? caches.publicServices.get(serviceId)
-        : caches.services.get(serviceId);
+    return kind === 'patient' ? caches.publicServices.get(serviceId) : caches.services.get(serviceId);
 }
 
 function getRequestedDurationMinutes(kind) {
@@ -204,10 +185,7 @@ function populateAvailableTimes(kind, dateValue) {
 
 async function loadAppointmentAvailability(kind, {silent = false} = {}) {
     const {
-        doctorSelect,
-        serviceSelect,
-        dateSelect,
-        timeSelect
+        doctorSelect, serviceSelect, dateSelect, timeSelect
     } = getAppointmentFormElements(kind);
 
     const doctorId = doctorSelect?.value;
@@ -230,21 +208,13 @@ async function loadAppointmentAvailability(kind, {silent = false} = {}) {
     timeSelect.innerHTML = '<option value="">Сначала выберите дату</option>';
 
     try {
-        const availability = await api(
-            `/api/v1/public/doctors/${doctorId}/availability?durationMinutes=${durationMinutes}&days=60`,
-            {method: 'GET'}
-        );
+        const availability = await api(`/api/v1/public/doctors/${doctorId}/availability?durationMinutes=${durationMinutes}&days=60`, {method: 'GET'});
 
         if (requestVersion !== availabilityRequestVersion[kind]) {
             return;
         }
 
-        appointmentAvailability[kind] = new Map(
-            availability.map(item => [
-                item.date,
-                filterPastTodaySlots(item.date, (item.slots ?? []).map(formatTime24))
-            ])
-        );
+        appointmentAvailability[kind] = new Map(availability.map(item => [item.date, filterPastTodaySlots(item.date, (item.slots ?? []).map(formatTime24))]));
 
         const dates = [...appointmentAvailability[kind].keys()]
             .filter(date => (appointmentAvailability[kind].get(date) ?? []).length);
@@ -255,8 +225,7 @@ async function loadAppointmentAvailability(kind, {silent = false} = {}) {
             dateSelect.max = dates[dates.length - 1];
         }
 
-        if (previouslySelectedDate && appointmentAvailability[kind].has(previouslySelectedDate)
-            && (appointmentAvailability[kind].get(previouslySelectedDate) ?? []).length) {
+        if (previouslySelectedDate && appointmentAvailability[kind].has(previouslySelectedDate) && (appointmentAvailability[kind].get(previouslySelectedDate) ?? []).length) {
             dateSelect.value = previouslySelectedDate;
             populateAvailableTimes(kind, previouslySelectedDate);
 
@@ -285,15 +254,11 @@ async function loadAppointmentAvailability(kind, {silent = false} = {}) {
 }
 
 function getAllAppointmentDoctors(kind) {
-    return kind === 'patient'
-        ? [...caches.publicDoctors.values()]
-        : [...caches.doctors.values()];
+    return kind === 'patient' ? [...caches.publicDoctors.values()] : [...caches.doctors.values()];
 }
 
 function getAllAppointmentServices(kind) {
-    return kind === 'patient'
-        ? [...caches.publicServices.values()]
-        : [...caches.services.values()];
+    return kind === 'patient' ? [...caches.publicServices.values()] : [...caches.services.values()];
 }
 
 function relationToService(relation, fallbackServices) {
@@ -320,27 +285,17 @@ function relationToDoctor(relation, fallbackDoctors) {
 function renderAppointmentDoctorSelect(kind, doctors, selectedId = '') {
     const {doctorSelect} = getAppointmentFormElements(kind);
 
-    populateSelect(
-        doctorSelect,
-        doctors,
-        {
-            placeholder: doctors.length
-                ? 'Выберите врача'
-                : 'Нет врачей для выбранной услуги',
-            getValue: doctor => doctor.id,
-            getLabel: doctor => {
-                const fullName = [
-                    doctor.lastName,
-                    doctor.firstName,
-                    doctor.middleName
-                ]
-                    .filter(Boolean)
-                    .join(' ');
+    populateSelect(doctorSelect, doctors, {
+        placeholder: doctors.length ? 'Выберите врача' : 'Нет врачей для выбранной услуги',
+        getValue: doctor => doctor.id,
+        getLabel: doctor => {
+            const fullName = [doctor.lastName, doctor.firstName, doctor.middleName]
+                .filter(Boolean)
+                .join(' ');
 
-                return `${fullName} — ${doctor.specialty ?? 'специализация не указана'}`;
-            }
+            return `${fullName} — ${doctor.specialty ?? 'специализация не указана'}`;
         }
-    );
+    });
 
     if (doctors.some(doctor => String(doctor.id) === String(selectedId))) {
         doctorSelect.value = selectedId;
@@ -352,20 +307,14 @@ function renderAppointmentDoctorSelect(kind, doctors, selectedId = '') {
 function renderAppointmentServiceSelect(kind, services, selectedId = '') {
     const {serviceSelect} = getAppointmentFormElements(kind);
 
-    populateSelect(
-        serviceSelect,
-        services,
-        {
-            placeholder: services.length
-                ? 'Выберите услугу'
-                : 'Нет услуг для выбранного врача',
-            getValue: service => service.id,
-            getLabel: service => {
-                const title = service.title ?? `Услуга ${service.id}`;
-                return `${title} — ${service.price} ₽, ${service.durationMinutes} мин`;
-            }
+    populateSelect(serviceSelect, services, {
+        placeholder: services.length ? 'Выберите услугу' : 'Нет услуг для выбранного врача',
+        getValue: service => service.id,
+        getLabel: service => {
+            const title = service.title ?? `Услуга ${service.id}`;
+            return `${title} — ${service.price} ₽, ${service.durationMinutes} мин`;
         }
-    );
+    });
 
     if (services.some(service => String(service.id) === String(selectedId))) {
         serviceSelect.value = selectedId;
@@ -385,10 +334,7 @@ async function filterServicesByDoctor(kind, doctorId, {silent = false} = {}) {
     }
 
     try {
-        const relations = await api(
-            `/api/v1/public/doctors/${doctorId}/services`,
-            {method: 'GET'}
-        );
+        const relations = await api(`/api/v1/public/doctors/${doctorId}/services`, {method: 'GET'});
 
         const services = relations
             .map(relation => relationToService(relation, allServices))
@@ -415,10 +361,7 @@ async function filterDoctorsByService(kind, clinicServiceId, {silent = false} = 
     }
 
     try {
-        const relations = await api(
-            `/api/v1/public/services/${clinicServiceId}/doctors`,
-            {method: 'GET'}
-        );
+        const relations = await api(`/api/v1/public/services/${clinicServiceId}/doctors`, {method: 'GET'});
 
         const doctors = relations
             .map(relation => relationToDoctor(relation, allDoctors))
@@ -436,19 +379,13 @@ async function filterDoctorsByService(kind, clinicServiceId, {silent = false} = 
 
 function bindAppointmentAvailability(kind) {
     const {
-        doctorSelect,
-        serviceSelect,
-        dateSelect,
-        quantityInput
+        doctorSelect, serviceSelect, dateSelect, quantityInput
     } = getAppointmentFormElements(kind);
 
     doctorSelect?.addEventListener('change', async event => {
         resetAvailabilityControls(kind);
 
-        await filterServicesByDoctor(
-            kind,
-            event.currentTarget.value
-        );
+        await filterServicesByDoctor(kind, event.currentTarget.value);
 
         await loadAppointmentAvailability(kind);
     });
@@ -456,10 +393,7 @@ function bindAppointmentAvailability(kind) {
     serviceSelect?.addEventListener('change', async event => {
         resetAvailabilityControls(kind);
 
-        await filterDoctorsByService(
-            kind,
-            event.currentTarget.value
-        );
+        await filterDoctorsByService(kind, event.currentTarget.value);
 
         await loadAppointmentAvailability(kind);
     });
@@ -526,12 +460,8 @@ function rebuildPatientBookingChoices(type) {
     target.innerHTML = options.map(option => {
         const selected = String(option.value) === String(select.value);
         const cached = isService ? caches.publicServices.get(option.value) : caches.publicDoctors.get(option.value);
-        const title = isService
-            ? (cached?.title ?? option.textContent.split(' — ')[0])
-            : ([cached?.lastName, cached?.firstName, cached?.middleName].filter(Boolean).join(' ') || option.textContent.split(' — ')[0]);
-        const meta = isService
-            ? `${cached?.price ?? ''}${cached?.price != null ? ' ₽' : ''}${cached?.durationMinutes ? ` · ${cached.durationMinutes} мин` : ''}`
-            : (cached?.specialty ?? option.textContent.split(' — ')[1] ?? 'Специалист');
+        const title = isService ? (cached?.title ?? option.textContent.split(' — ')[0]) : ([cached?.lastName, cached?.firstName, cached?.middleName].filter(Boolean).join(' ') || option.textContent.split(' — ')[0]);
+        const meta = isService ? `${cached?.price ?? ''}${cached?.price != null ? ' ₽' : ''}${cached?.durationMinutes ? ` · ${cached.durationMinutes} мин` : ''}` : (cached?.specialty ?? option.textContent.split(' — ')[1] ?? 'Специалист');
         return `<button class="booking-choice-card ${selected ? 'selected' : ''}" type="button" data-booking-choice="${type}" data-value="${escapeHtml(option.value)}">
       <span class="booking-choice-icon" aria-hidden="true">${isService ? '✦' : '◉'}</span>
       <span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(meta)}</small></span>
@@ -591,8 +521,7 @@ function showPatientBookingStep(step) {
     });
     updatePatientBookingSummary();
     document.querySelector('#view-patient-appointments .booking-stepper')?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+        behavior: 'smooth', block: 'start'
     });
 }
 
@@ -676,9 +605,7 @@ function combineDateAndTime(date, time) {
 }
 
 function getDoctorDisplayName(source) {
-    const directName = source.doctorFullName
-        ?? source.doctorName
-        ?? source.fullName;
+    const directName = source.doctorFullName ?? source.doctorName ?? source.fullName;
 
     if (directName) {
         return directName;
@@ -686,18 +613,13 @@ function getDoctorDisplayName(source) {
 
     const nestedDoctor = source.doctor ?? {};
 
-    const parts = [
-        source.doctorLastName ?? nestedDoctor.lastName,
-        source.doctorFirstName ?? nestedDoctor.firstName,
-        source.doctorMiddleName ?? nestedDoctor.middleName
-    ].filter(Boolean);
+    const parts = [source.doctorLastName ?? nestedDoctor.lastName, source.doctorFirstName ?? nestedDoctor.firstName, source.doctorMiddleName ?? nestedDoctor.middleName].filter(Boolean);
 
     if (parts.length) {
         return parts.join(' ');
     }
 
-    const cachedDoctor = caches.doctors.get(source.doctorId)
-        ?? caches.publicDoctors.get(source.doctorId);
+    const cachedDoctor = caches.doctors.get(source.doctorId) ?? caches.publicDoctors.get(source.doctorId);
 
     if (cachedDoctor) {
         return [cachedDoctor.lastName, cachedDoctor.firstName, cachedDoctor.middleName]
@@ -792,8 +714,7 @@ function setupDoctorAvatarForm(form, submitButton, {initialSnapshot = null} = {}
 
     form.addEventListener('input', updateButtonState);
     form.addEventListener('change', event => {
-        if (event.target === fileInput) updatePreview();
-        else updateButtonState();
+        if (event.target === fileInput) updatePreview(); else updateButtonState();
     });
 
     form.addEventListener('reset', () => {
@@ -834,31 +755,21 @@ function hydratePublicCatalogFromSsr() {
             resetOpaqueRefsByPrefix('publicDoctor');
             seed.doctors.items.forEach((doctor, index) => {
                 opaqueRefs.set(`publicDoctor_ssr_${index}`, doctor.id);
-                doctorScheduleCache.set(
-                    String(doctor.id),
-                    Array.isArray(doctor.workingHours) ? doctor.workingHours : []
-                );
+                doctorScheduleCache.set(String(doctor.id), Array.isArray(doctor.workingHours) ? doctor.workingHours : []);
             });
-            caches.publicDoctors = new Map(
-                seed.doctors.items.map(doctor => [doctor.id, doctor])
-            );
+            caches.publicDoctors = new Map(seed.doctors.items.map(doctor => [doctor.id, doctor]));
             hydrated.doctors = true;
         }
 
         if (seed.services?.loaded && Array.isArray(seed.services.items)) {
             resetOpaqueRefsByPrefix('publicService');
-            const groupedServices = [
-                ['active', seed.services.items.filter(service => service.active !== false)],
-                ['inactive', seed.services.items.filter(service => service.active === false)]
-            ];
+            const groupedServices = [['active', seed.services.items.filter(service => service.active !== false)], ['inactive', seed.services.items.filter(service => service.active === false)]];
             groupedServices.forEach(([status, services]) => {
                 services.forEach((service, index) => {
                     opaqueRefs.set(`publicService_ssr_${status}_${index}`, service.id);
                 });
             });
-            caches.publicServices = new Map(
-                seed.services.items.map(service => [service.id, service])
-            );
+            caches.publicServices = new Map(seed.services.items.map(service => [service.id, service]));
             hydrated.services = true;
         }
 
@@ -872,15 +783,9 @@ function hydratePublicCatalogFromSsr() {
     return hydrated;
 }
 
-function populateSelect(
-    select,
-    items,
-    {
-        placeholder,
-        getValue,
-        getLabel
-    }
-) {
+function populateSelect(select, items, {
+    placeholder, getValue, getLabel
+}) {
     if (!select) {
         return;
     }
@@ -920,17 +825,9 @@ function populatePatientAppointmentSelects() {
     renderAppointmentServiceSelect('patient', services, selectedServiceId);
 
     if (selectedDoctorId) {
-        filterServicesByDoctor(
-            'patient',
-            selectedDoctorId,
-            {silent: true}
-        ).then(() => loadAppointmentAvailability('patient', {silent: true}));
+        filterServicesByDoctor('patient', selectedDoctorId, {silent: true}).then(() => loadAppointmentAvailability('patient', {silent: true}));
     } else if (selectedServiceId) {
-        filterDoctorsByService(
-            'patient',
-            selectedServiceId,
-            {silent: true}
-        ).then(() => loadAppointmentAvailability('patient', {silent: true}));
+        filterDoctorsByService('patient', selectedServiceId, {silent: true}).then(() => loadAppointmentAvailability('patient', {silent: true}));
     } else {
         resetAvailabilityControls('patient');
     }
@@ -944,17 +841,9 @@ function populateStaffAppointmentSelects(doctors, services) {
     renderAppointmentServiceSelect('staff', services, selectedServiceId);
 
     if (selectedDoctorId) {
-        filterServicesByDoctor(
-            'staff',
-            selectedDoctorId,
-            {silent: true}
-        ).then(() => loadAppointmentAvailability('staff', {silent: true}));
+        filterServicesByDoctor('staff', selectedDoctorId, {silent: true}).then(() => loadAppointmentAvailability('staff', {silent: true}));
     } else if (selectedServiceId) {
-        filterDoctorsByService(
-            'staff',
-            selectedServiceId,
-            {silent: true}
-        ).then(() => loadAppointmentAvailability('staff', {silent: true}));
+        filterDoctorsByService('staff', selectedServiceId, {silent: true}).then(() => loadAppointmentAvailability('staff', {silent: true}));
     } else {
         resetAvailabilityControls('staff');
     }
@@ -1006,8 +895,7 @@ function ensureSidebarContextControls() {
 
 function syncSidebarContext(viewName = $('.view.active')?.id.replace('view-', '') || 'home') {
     const target = $(`#view-${viewName}`);
-    const staffMode = viewName.startsWith('staff-') && hasStaffAccess()
-        && Boolean(target && hasAccess(target.dataset.access));
+    const staffMode = viewName.startsWith('staff-') && hasStaffAccess() && Boolean(target && hasAccess(target.dataset.access));
     document.body.dataset.sidebarMode = staffMode ? 'staff' : 'patient';
     $('.sidebar')?.setAttribute('aria-label', staffMode ? 'Навигация панели сотрудника' : 'Навигация пациента');
 
@@ -1036,11 +924,7 @@ function applyAccessVisibility() {
 
     const activeView = $('.view.active');
 
-    if (
-        activeView
-        && activeView.dataset.access
-        && !hasAccess(activeView.dataset.access)
-    ) {
+    if (activeView && activeView.dataset.access && !hasAccess(activeView.dataset.access)) {
         showView('home');
     }
 
@@ -1056,16 +940,10 @@ async function resolveAccessProfile() {
         return;
     }
 
-    const [patient, staffCore, staffAppointments] = await Promise.all([
-        probeAccess('/api/v1/notifications/unread-count'),
-        probeAccess('/api/v1/patients'),
-        probeAccess('/api/v1/appointments')
-    ]);
+    const [patient, staffCore, staffAppointments] = await Promise.all([probeAccess('/api/v1/notifications/unread-count'), probeAccess('/api/v1/patients'), probeAccess('/api/v1/appointments')]);
 
     accessProfile = {
-        patient,
-        'staff-core': staffCore,
-        'staff-appointments': staffAppointments
+        patient, 'staff-core': staffCore, 'staff-appointments': staffAppointments
     };
 
     setAccessProfile(accessProfile);
@@ -1132,17 +1010,13 @@ function showView(name, {updateUrl = true, load = true} = {}) {
 
     const commitView = () => {
         $$('.view').forEach(view => {
-            view.classList.toggle(
-                'active',
-                view.id === `view-${name}`
-            );
+            view.classList.toggle('active', view.id === `view-${name}`);
         });
 
         $$('.nav-button').forEach(button => {
             const active = button.dataset.view === name || (name === 'register' && button.dataset.view === 'login');
             button.classList.toggle('active', active);
-            if (active) button.setAttribute('aria-current', 'page');
-            else button.removeAttribute('aria-current');
+            if (active) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
         });
 
         syncSidebarContext(name);
@@ -1163,9 +1037,6 @@ function showView(name, {updateUrl = true, load = true} = {}) {
         commitView();
     }
 
-    // Переход в раздел всегда сразу запускает его загрузчик.
-    // Это не зависит от таймера автообновления и не блокируется фокусом
-    // в формах: пользователь должен увидеть данные сразу после открытия страницы.
     if (load) {
         void loadView(name, {silent: false});
     }
@@ -1381,11 +1252,7 @@ $('#detailModal').addEventListener('click', async event => {
 
     linkButton.disabled = true;
     try {
-        await linkDoctorToUser(
-            linkButton.dataset.doctorId,
-            linkButton.dataset.userEmail,
-            linkButton.dataset.userPhone
-        );
+        await linkDoctorToUser(linkButton.dataset.doctorId, linkButton.dataset.userEmail, linkButton.dataset.userPhone);
         closeModal();
         toast('Пользователь привязан к врачу', 'success');
         await loadStaffDoctors();
@@ -1416,17 +1283,13 @@ function renderTable(container, rows, columns, actions) {
         .map(row => {
             const cells = columns
                 .map(column => {
-                    const value = column.render
-                        ? column.render(row)
-                        : escapeHtml(row[column.key] ?? '—');
+                    const value = column.render ? column.render(row) : escapeHtml(row[column.key] ?? '—');
 
                     return `<td>${value}</td>`;
                 })
                 .join('');
 
-            const actionCell = actions
-                ? `<td>${actions(row)}</td>`
-                : '';
+            const actionCell = actions ? `<td>${actions(row)}</td>` : '';
 
             return `<tr>${cells}${actionCell}</tr>`;
         })
@@ -1448,9 +1311,7 @@ function renderTable(container, rows, columns, actions) {
 }
 
 function renderCards(container, items, renderer) {
-    container.innerHTML = items?.length
-        ? items.map(renderer).join('')
-        : '<div class="card empty">Данных пока нет</div>';
+    container.innerHTML = items?.length ? items.map(renderer).join('') : '<div class="card empty">Данных пока нет</div>';
 }
 
 function updateAuthState() {
@@ -1515,8 +1376,7 @@ $('#loginForm').addEventListener('submit', async event => {
 
     try {
         const result = await api('/api/v1/auth/login', {
-            method: 'POST',
-            body: formToObject(form)
+            method: 'POST', body: formToObject(form)
         });
 
         const token = result?.accessToken;
@@ -1531,9 +1391,6 @@ $('#loginForm').addEventListener('submit', async event => {
         startAutoRefresh();
         startAppointmentLiveUpdates();
 
-        // После входа уводим пользователя с формы авторизации. Иначе адрес
-        // остаётся с #auth, и после обновления страницы кажется, что вход пропал,
-        // хотя вход уже выполнен.
         if (accessProfile.patient) {
             showView('profile');
         } else {
@@ -1558,8 +1415,7 @@ $('#registerForm').addEventListener('submit', async event => {
 
     try {
         const result = await api('/api/v1/auth/register', {
-            method: 'POST',
-            body: registrationData
+            method: 'POST', body: registrationData
         });
 
         const authInfo = $('#authInfo');
@@ -1568,10 +1424,7 @@ $('#registerForm').addEventListener('submit', async event => {
             authInfo.classList.add('hidden');
         }
 
-        toast(
-            result.patientCardMessage || 'Регистрация завершена',
-            'success'
-        );
+        toast(result.patientCardMessage || 'Регистрация завершена', 'success');
         form.reset();
         const loginEmail = $('#loginForm input[name="email"]');
         if (loginEmail) loginEmail.value = registrationData.email || '';
@@ -1607,16 +1460,11 @@ async function getPublicDoctorById(doctorId) {
         method: 'GET'
     });
 
-    const hours = await api(
-        `/api/v1/public/doctors/${doctorId}/working-hours`,
-        {
-            method: 'GET'
-        }
-    );
+    const hours = await api(`/api/v1/public/doctors/${doctorId}/working-hours`, {
+        method: 'GET'
+    });
 
-    openModal(
-        `${doctor.lastName} ${doctor.firstName}`,
-        `
+    openModal(`${doctor.lastName} ${doctor.firstName}`, `
         <div class="doctor-profile-head">
           ${doctorAvatarHtml(doctor, 'doctor-avatar doctor-avatar-large')}
           <div>
@@ -1633,16 +1481,12 @@ async function getPublicDoctorById(doctorId) {
             ${renderWorkingHours(hours)}
           </div>
         </div>
-      `
-    );
+      `);
 }
 
 
 const APPOINTMENT_STATUS_SINGLE = {
-    CREATED: 'Создана',
-    CONFIRMED: 'Подтверждена',
-    COMPLETED: 'Завершена',
-    CANCELLED: 'Отменена'
+    CREATED: 'Создана', CONFIRMED: 'Подтверждена', COMPLETED: 'Завершена', CANCELLED: 'Отменена'
 };
 
 function appointmentStatusLabel(status) {
@@ -1650,30 +1494,14 @@ function appointmentStatusLabel(status) {
 }
 
 const APPOINTMENT_STATUS_LABELS = {
-    CREATED: 'Созданные',
-    CONFIRMED: 'Подтверждённые',
-    COMPLETED: 'Завершённые',
-    CANCELLED: 'Отменённые'
+    CREATED: 'Созданные', CONFIRMED: 'Подтверждённые', COMPLETED: 'Завершённые', CANCELLED: 'Отменённые'
 };
 
-const APPOINTMENT_STATUS_ORDER = [
-    'CREATED',
-    'CONFIRMED',
-    'COMPLETED',
-    'CANCELLED'
-];
+const APPOINTMENT_STATUS_ORDER = ['CREATED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
 
-function renderAppointmentGroups(
-    container,
-    appointments,
-    columns,
-    actions,
-    openByDefault = ['CREATED', 'CONFIRMED']
-) {
-    const previouslyOpened = new Set(
-        [...container.querySelectorAll('.appointment-group[open]')]
-            .map(group => group.dataset.status)
-    );
+function renderAppointmentGroups(container, appointments, columns, actions, openByDefault = ['CREATED', 'CONFIRMED']) {
+    const previouslyOpened = new Set([...container.querySelectorAll('.appointment-group[open]')]
+        .map(group => group.dataset.status));
 
     const grouped = new Map();
 
@@ -1684,12 +1512,9 @@ function renderAppointmentGroups(
         grouped.set(status, items);
     });
 
-    const statuses = [
-        ...APPOINTMENT_STATUS_ORDER,
-        ...[...grouped.keys()].filter(status => {
-            return !APPOINTMENT_STATUS_ORDER.includes(status);
-        })
-    ];
+    const statuses = [...APPOINTMENT_STATUS_ORDER, ...[...grouped.keys()].filter(status => {
+        return !APPOINTMENT_STATUS_ORDER.includes(status);
+    })];
 
     container.innerHTML = '';
 
@@ -1708,10 +1533,7 @@ function renderAppointmentGroups(
         details.className = 'appointment-group';
         details.dataset.status = status;
 
-        if (
-            previouslyOpened.has(status)
-            || (!previouslyOpened.size && openByDefault.includes(status))
-        ) {
+        if (previouslyOpened.has(status) || (!previouslyOpened.size && openByDefault.includes(status))) {
             details.open = true;
         }
 
@@ -1727,12 +1549,7 @@ function renderAppointmentGroups(
         details.append(summary, content);
         container.append(details);
 
-        renderTable(
-            content,
-            items,
-            columns,
-            actions
-        );
+        renderTable(content, items, columns, actions);
     });
 
     if (!renderedAnyGroup) {
@@ -1747,35 +1564,27 @@ async function loadPublicDoctors({silent = false} = {}) {
             method: 'GET'
         });
 
-        const doctorsWithHours = await Promise.all(
-            doctors.map(async doctor => {
-                try {
-                    const hours = await api(
-                        `/api/v1/public/doctors/${doctor.id}/working-hours`,
-                        {method: 'GET', cache: 'no-store'}
-                    );
+        const doctorsWithHours = await Promise.all(doctors.map(async doctor => {
+            try {
+                const hours = await api(`/api/v1/public/doctors/${doctor.id}/working-hours`, {
+                    method: 'GET', cache: 'no-store'
+                });
 
-                    const normalizedHours = Array.isArray(hours) ? hours : [];
-                    doctorScheduleCache.set(String(doctor.id), normalizedHours);
-                    return {...doctor, workingHours: normalizedHours};
-                } catch {
-                    return {...doctor, workingHours: []};
-                }
-            })
-        );
+                const normalizedHours = Array.isArray(hours) ? hours : [];
+                doctorScheduleCache.set(String(doctor.id), normalizedHours);
+                return {...doctor, workingHours: normalizedHours};
+            } catch {
+                return {...doctor, workingHours: []};
+            }
+        }));
 
-        caches.publicDoctors = new Map(
-            doctorsWithHours.map(doctor => [doctor.id, doctor])
-        );
+        caches.publicDoctors = new Map(doctorsWithHours.map(doctor => [doctor.id, doctor]));
 
         populatePatientAppointmentSelects();
 
-        renderCards(
-            $('#publicDoctors'),
-            doctorsWithHours,
-            doctor => {
-                const ref = makeOpaqueRef('publicDoctor', doctor.id);
-                return `
+        renderCards($('#publicDoctors'), doctorsWithHours, doctor => {
+            const ref = makeOpaqueRef('publicDoctor', doctor.id);
+            return `
           <article class="card clickable-card public-doctor-card" data-ref="${ref}">
             <div class="doctor-card-layout">
               ${doctorAvatarHtml(doctor)}
@@ -1799,8 +1608,7 @@ async function loadPublicDoctors({silent = false} = {}) {
             </div>
           </article>
         `;
-            }
-        );
+        });
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -1831,17 +1639,14 @@ async function getPublicServiceById(serviceId) {
         method: 'GET'
     });
 
-    openModal(
-        service.title || 'Услуга',
-        `
+    openModal(service.title || 'Услуга', `
         <div class="detail-grid">
           ${service.description ? detailItem('Описание', service.description, true) : ''}
           ${detailItem('Цена', `${service.price} ₽`)}
           ${detailItem('Длительность', `${service.durationMinutes} мин`)}
           ${detailItem('Статус', service.active === false ? 'Отключена' : 'Активна')}
         </div>
-      `
-    );
+      `);
 }
 
 async function loadPublicServices({silent = false} = {}) {
@@ -1851,23 +1656,15 @@ async function loadPublicServices({silent = false} = {}) {
             method: 'GET'
         });
 
-        caches.publicServices = new Map(
-            services.map(service => [service.id, service])
-        );
+        caches.publicServices = new Map(services.map(service => [service.id, service]));
 
         populatePatientAppointmentSelects();
 
-        renderServiceStatusGroups(
-            $('#publicServices'),
-            services,
-            (container, groupServices) => {
-                container.classList.add('grid', 'grid-3');
-                renderCards(
-                    container,
-                    groupServices,
-                    service => {
-                        const ref = makeOpaqueRef('publicService', service.id);
-                        return `
+        renderServiceStatusGroups($('#publicServices'), services, (container, groupServices) => {
+            container.classList.add('grid', 'grid-3');
+            renderCards(container, groupServices, service => {
+                const ref = makeOpaqueRef('publicService', service.id);
+                return `
                 <article class="card clickable-card public-service-card" data-ref="${ref}">
                   <span class="badge ${service.active === false ? 'danger' : 'success'}">
                     ${service.active === false ? 'Отключена' : 'Активна'}
@@ -1882,10 +1679,8 @@ async function loadPublicServices({silent = false} = {}) {
                   <p class="muted">${escapeHtml(service.description || 'Подробности можно уточнить при записи.')}</p>
                 </article>
               `;
-                    }
-                );
-            }
-        );
+            });
+        });
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -1945,8 +1740,7 @@ $('#loadPatientCard').addEventListener('click', () => {
 $('#createPatientCard').addEventListener('click', async () => {
     try {
         await api('/api/v1/patient/patient-card', {
-            method: 'POST',
-            body: formToObject($('#patientCardForm'))
+            method: 'POST', body: formToObject($('#patientCardForm'))
         });
 
         toast('Карточка создана', 'success');
@@ -1959,8 +1753,7 @@ $('#createPatientCard').addEventListener('click', async () => {
 $('#updatePatientCard').addEventListener('click', async () => {
     try {
         await api('/api/v1/patient/patient-card', {
-            method: 'PATCH',
-            body: formToObject($('#patientCardForm'))
+            method: 'PATCH', body: formToObject($('#patientCardForm'))
         });
 
         toast('Карточка обновлена', 'success');
@@ -1972,25 +1765,16 @@ $('#updatePatientCard').addEventListener('click', async () => {
 
 function appointmentBody(form) {
     const values = formToObject(form);
-    const scheduledAt = combineDateAndTime(
-        values.appointmentDate,
-        values.appointmentTime
-    );
+    const scheduledAt = combineDateAndTime(values.appointmentDate, values.appointmentTime);
 
     if (!scheduledAt) {
         throw new Error('Выберите дату и время записи');
     }
 
     return {
-        doctorId: values.doctorId,
-        scheduledAt,
-        services: [
-            {
-                clinicServiceId: values.clinicServiceId,
-                quantity: Number(values.quantity || 1)
-            }
-        ],
-        comment: values.comment || null
+        doctorId: values.doctorId, scheduledAt, services: [{
+            clinicServiceId: values.clinicServiceId, quantity: Number(values.quantity || 1)
+        }], comment: values.comment || null
     };
 }
 
@@ -2002,25 +1786,19 @@ function appointmentDetailsHtml(appointment) {
       ${detailItem('Врач', getDoctorDisplayName(appointment))}
       ${detailItem('Статус', appointmentStatusLabel(appointment.status))}
       ${detailItem('Цена', `${appointment.totalPrice ?? 0} ₽`)}
+      ${!appointment.patientId ? detailItem('Пациент', 'Данные удалены', true) : ''}
       ${detailItem('Комментарий', appointment.comment, true)}
-      ${detailItem(
-        'Услуги',
-        (appointment.services || [])
-            .map(service => `${service.title} ×${service.quantity}`)
-            .join(', '),
-        true
-    )}
+      ${detailItem('Услуги', (appointment.services || [])
+        .map(service => `${service.title} ×${service.quantity}`)
+        .join(', '), true)}
     </div>
   `;
 }
 
 async function getPatientAppointmentById(appointmentId) {
-    const appointment = await api(
-        `/api/v1/patient/appointments/${appointmentId}`,
-        {
-            method: 'GET'
-        }
-    );
+    const appointment = await api(`/api/v1/patient/appointments/${appointmentId}`, {
+        method: 'GET'
+    });
 
     openModal('Запись пациента', appointmentDetailsHtml(appointment));
 }
@@ -2032,53 +1810,34 @@ async function loadPatientAppointments({silent = false} = {}) {
             method: 'GET'
         });
 
-        renderAppointmentGroups(
-            $('#patientAppointments'),
-            appointments,
-            [
-                {
-                    label: 'Дата',
-                    render: appointment => {
-                        const ref = makeOpaqueRef('patientAppointment', appointment.id);
-                        return `
+        renderAppointmentGroups($('#patientAppointments'), appointments, [{
+            label: 'Дата', render: appointment => {
+                const ref = makeOpaqueRef('patientAppointment', appointment.id);
+                return `
               <button class="link-button patient-appointment-link" data-ref="${ref}">
                 ${escapeHtml(formatDate(appointment.scheduledAt))}
               </button>
             `;
-                    }
-                },
-                {
-                    label: 'Врач',
-                    render: appointment => escapeHtml(getDoctorDisplayName(appointment))
-                },
-                {
-                    label: 'Услуги',
-                    render: appointment => escapeHtml(
-                        (appointment.services || [])
-                            .map(service => `${service.title} ×${service.quantity}`)
-                            .join(', ')
-                    )
-                },
-                {
-                    label: 'Цена',
-                    render: appointment => `${appointment.totalPrice ?? 0} ₽`
-                },
-                {
-                    label: 'Статус',
-                    render: appointment => `<span class="badge">${escapeHtml(appointmentStatusLabel(appointment.status))}</span>`
-                }
-            ],
-            appointment => {
-                const ref = makeOpaqueRef('patientAppointment', appointment.id);
-                return String(appointment.status || '').toUpperCase() === 'CANCELLED'
-                    ? ''
-                    : `
+            }
+        }, {
+            label: 'Врач', render: appointment => escapeHtml(getDoctorDisplayName(appointment))
+        }, {
+            label: 'Услуги', render: appointment => escapeHtml((appointment.services || [])
+                .map(service => `${service.title} ×${service.quantity}`)
+                .join(', '))
+        }, {
+            label: 'Цена', render: appointment => `${appointment.totalPrice ?? 0} ₽`
+        }, {
+            label: 'Статус',
+            render: appointment => `<span class="badge">${escapeHtml(appointmentStatusLabel(appointment.status))}</span>`
+        }], appointment => {
+            const ref = makeOpaqueRef('patientAppointment', appointment.id);
+            return String(appointment.status || '').toUpperCase() === 'CANCELLED' ? '' : `
               <button class="btn btn-danger btn-sm patient-cancel" data-ref="${ref}">
                 Отменить
               </button>
             `;
-            }
-        );
+        });
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -2097,8 +1856,7 @@ $('#patientAppointmentForm').addEventListener('submit', async event => {
 
     try {
         await api('/api/v1/patient/appointments', {
-            method: 'POST',
-            body: appointmentBody(form)
+            method: 'POST', body: appointmentBody(form)
         });
 
         toast('Запись создана', 'success');
@@ -2125,12 +1883,9 @@ $('#patientAppointments').addEventListener('click', async event => {
         }
 
         if (cancelButton) {
-            await api(
-                `/api/v1/patient/appointments/${resolveOpaqueRef(cancelButton.dataset.ref)}/cancel`,
-                {
-                    method: 'PATCH'
-                }
-            );
+            await api(`/api/v1/patient/appointments/${resolveOpaqueRef(cancelButton.dataset.ref)}/cancel`, {
+                method: 'PATCH'
+            });
 
             toast('Запись отменена', 'error');
             await loadPatientAppointments();
@@ -2145,37 +1900,26 @@ async function getNotificationById(notificationId) {
         method: 'GET'
     });
 
-    openModal(
-        notification.title,
-        `
+    openModal(notification.title, `
         <div class="detail-grid">
           ${detailItem('Отправлено', formatDate(notification.sentAt))}
           ${detailItem('Сообщение', notification.message, true)}
         </div>
-      `
-    );
+      `);
 }
 
 async function loadNotifications({silent = false} = {}) {
     try {
         resetOpaqueRefsByPrefix('notification');
-        const [notifications, unread] = await Promise.all([
-            api('/api/v1/notifications', {method: 'GET'}),
-            api('/api/v1/notifications/unread-count', {method: 'GET'})
-        ]);
+        const [notifications, unread] = await Promise.all([api('/api/v1/notifications', {method: 'GET'}), api('/api/v1/notifications/unread-count', {method: 'GET'})]);
 
-        caches.notifications = new Map(
-            notifications.map(item => [item.id, item])
-        );
+        caches.notifications = new Map(notifications.map(item => [item.id, item]));
 
         $('#unreadBadge').textContent = `${unread.count} непрочитанных`;
 
-        renderCards(
-            $('#notifications'),
-            notifications,
-            notification => {
-                const ref = makeOpaqueRef('notification', notification.id);
-                return `
+        renderCards($('#notifications'), notifications, notification => {
+            const ref = makeOpaqueRef('notification', notification.id);
+            return `
           <article class="card clickable-card notification-card" data-ref="${ref}">
             <div class="section-head">
               <div>
@@ -2198,8 +1942,7 @@ async function loadNotifications({silent = false} = {}) {
             </div>
           </article>
         `;
-            }
-        );
+        });
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -2310,8 +2053,7 @@ function updateProfileDirtyState() {
     });
 
     saveProfileButton.disabled = !changed;
-    if (changed) profileForm.dataset.userDirty = 'true';
-    else delete profileForm.dataset.userDirty;
+    if (changed) profileForm.dataset.userDirty = 'true'; else delete profileForm.dataset.userDirty;
 }
 
 async function loadProfile({silent = false} = {}) {
@@ -2349,8 +2091,7 @@ profileForm.addEventListener('submit', async event => {
 
     try {
         const updated = await api('/api/v1/profile', {
-            method: 'PATCH',
-            body
+            method: 'PATCH', body
         });
 
         if (updated) {
@@ -2398,11 +2139,7 @@ function dashboardDateKey(value) {
 }
 
 function getAppointmentDateValue(appointment) {
-    return appointment.scheduledAt
-        ?? appointment.appointmentDate
-        ?? appointment.startAt
-        ?? appointment.dateTime
-        ?? appointment.date;
+    return appointment.scheduledAt ?? appointment.appointmentDate ?? appointment.startAt ?? appointment.dateTime ?? appointment.date;
 }
 
 function getPatientCreatedValue(patient) {
@@ -2420,9 +2157,7 @@ function renderDashboardOccupancy(appointments) {
         const date = new Date(today);
         date.setDate(today.getDate() - offset);
         days.push({
-            date,
-            key: dashboardDateKey(date),
-            count: 0
+            date, key: dashboardDateKey(date), count: 0
         });
     }
 
@@ -2465,33 +2200,13 @@ function isDoctorWorkingNow(hours, now = new Date()) {
 function isDoctorAvailableForWork(doctor) {
     if (doctor.active === false) return false;
 
-    const unavailableBooleanFields = [
-        'onVacation',
-        'onLeave',
-        'dayOff',
-        'absent',
-        'temporarilyUnavailable'
-    ];
+    const unavailableBooleanFields = ['onVacation', 'onLeave', 'dayOff', 'absent', 'temporarilyUnavailable'];
 
     if (unavailableBooleanFields.some(field => doctor[field] === true)) return false;
 
-    const status = String(
-        doctor.workStatus
-        ?? doctor.availabilityStatus
-        ?? doctor.status
-        ?? ''
-    ).toUpperCase();
+    const status = String(doctor.workStatus ?? doctor.availabilityStatus ?? doctor.status ?? '').toUpperCase();
 
-    return ![
-        'VACATION',
-        'ON_VACATION',
-        'ON_LEAVE',
-        'DAY_OFF',
-        'ABSENT',
-        'SICK_LEAVE',
-        'UNAVAILABLE',
-        'INACTIVE'
-    ].includes(status);
+    return !['VACATION', 'ON_VACATION', 'ON_LEAVE', 'DAY_OFF', 'ABSENT', 'SICK_LEAVE', 'UNAVAILABLE', 'INACTIVE'].includes(status);
 }
 
 async function countDoctorsWorkingNow(doctors) {
@@ -2508,13 +2223,13 @@ async function countDoctorsWorkingNow(doctors) {
     }));
 
     return {
-        working: results.filter(Boolean).length,
-        total: activeDoctors.length
+        working: results.filter(Boolean).length, total: activeDoctors.length
     };
 }
 
 
 function staffAppointmentPatientName(appointment, patientMap) {
+    if (!appointment.patientId) return 'Данные удалены';
     const direct = appointment.patientFullName ?? appointment.patientName;
     if (direct) return direct;
     const patient = patientMap.get(String(appointment.patientId));
@@ -2633,16 +2348,11 @@ async function loadStaffCalendarSchedulesForDate({force = false} = {}) {
     if (missing.length) {
         await Promise.all(missing.map(async doctor => {
             const cacheBuster = force ? `?refresh=${Date.now()}` : '';
-            const [hoursResult, availabilityResult] = await Promise.allSettled([
-                api(`/api/v1/public/doctors/${doctor.id}/working-hours${cacheBuster}`, {
-                    method: 'GET',
-                    cache: 'no-store'
-                }),
-                api(`/api/v1/public/doctors/${doctor.id}/availability?durationMinutes=30&days=60${force ? `&refresh=${Date.now()}` : ''}`, {
-                    method: 'GET',
-                    cache: 'no-store'
-                })
-            ]);
+            const [hoursResult, availabilityResult] = await Promise.allSettled([api(`/api/v1/public/doctors/${doctor.id}/working-hours${cacheBuster}`, {
+                method: 'GET', cache: 'no-store'
+            }), api(`/api/v1/public/doctors/${doctor.id}/availability?durationMinutes=30&days=60${force ? `&refresh=${Date.now()}` : ''}`, {
+                method: 'GET', cache: 'no-store'
+            })]);
             const hours = hoursResult.status === 'fulfilled' && Array.isArray(hoursResult.value) ? hoursResult.value : [];
             const availability = availabilityResult.status === 'fulfilled' && Array.isArray(availabilityResult.value) ? availabilityResult.value : [];
             staffDashboardCalendarState.schedules.set(String(doctor.id), hours);
@@ -2807,17 +2517,10 @@ function renderStaffAttention(appointments, patients) {
 
 async function refreshStaffDashboard({silent = false} = {}) {
     try {
-        const [patients, doctors, appointments] = await Promise.all([
-            api('/api/v1/patients', {method: 'GET'}),
-            api('/api/v1/doctors', {method: 'GET'}),
-            api('/api/v1/appointments', {method: 'GET'})
-        ]);
+        const [patients, doctors, appointments] = await Promise.all([api('/api/v1/patients', {method: 'GET'}), api('/api/v1/doctors', {method: 'GET'}), api('/api/v1/appointments', {method: 'GET'})]);
 
         const todayKey = dashboardDateKey(new Date());
-        const appointmentsToday = appointments.filter(appointment =>
-            dashboardDateKey(getAppointmentDateValue(appointment)) === todayKey
-            && String(appointment.status || '').toUpperCase() !== 'CANCELLED'
-        ).length;
+        const appointmentsToday = appointments.filter(appointment => dashboardDateKey(getAppointmentDateValue(appointment)) === todayKey && String(appointment.status || '').toUpperCase() !== 'CANCELLED').length;
 
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
@@ -2830,9 +2533,7 @@ async function refreshStaffDashboard({silent = false} = {}) {
         const doctorStats = await countDoctorsWorkingNow(doctors);
 
         $('#metricPatients').textContent = patients.length;
-        $('#metricPatientsWeek').textContent = patientsWeekValues.length
-            ? `+${patientsWeekValues.length} за неделю`
-            : '0 за неделю';
+        $('#metricPatientsWeek').textContent = patientsWeekValues.length ? `+${patientsWeekValues.length} за неделю` : '0 за неделю';
         $('#metricAppointmentsToday').textContent = appointmentsToday;
         $('#metricDoctorsTotal').textContent = doctorStats.total;
         $('#metricDoctorsWorking').textContent = `${doctorStats.working} работают сейчас`;
@@ -2866,8 +2567,7 @@ $('#view-staff-dashboard')?.addEventListener('click', async event => {
 
     if (createButton) {
         await openStaffWorkflow('create-appointment', {
-            doctorId: createButton.dataset.doctorId,
-            date: createButton.dataset.date
+            doctorId: createButton.dataset.doctorId, date: createButton.dataset.date
         });
         return;
     }
@@ -2960,9 +2660,7 @@ $('#staffAttentionList')?.addEventListener('click', event => {
 });
 
 function showPatientDetails(patient) {
-    openModal(
-        `${patient.lastName} ${patient.firstName}`,
-        `
+    openModal(`${patient.lastName} ${patient.firstName}`, `
         <div class="detail-grid">
           ${detailItem('Patient ID', patient.id, true)}
           ${detailItem('User ID', patient.userId, true)}
@@ -2973,18 +2671,14 @@ function showPatientDetails(patient) {
           ${detailItem('Хронические заболевания', patient.chronicDiseases, true)}
           ${detailItem('Примечания', patient.notes, true)}
         </div>
-      `,
-        `
+      `, `
         <button class="btn btn-success patient-create-appointment" data-id="${patient.id}">+ Создать запись</button>
         <button class="btn btn-primary patient-edit-modal" data-id="${patient.id}">Редактировать</button>
-      `
-    );
+      `);
 }
 
 function openPatientEdit(patient) {
-    openModal(
-        'Редактировать пациента',
-        `
+    openModal('Редактировать пациента', `
         <form id="modalPatientEditForm" class="form-grid">
           <label>Имя<input name="firstName" required value="${escapeHtml(patient.firstName || '')}"></label>
           <label>Фамилия<input name="lastName" required value="${escapeHtml(patient.lastName || '')}"></label>
@@ -2996,13 +2690,11 @@ function openPatientEdit(patient) {
           <label class="full">Хронические заболевания<textarea name="chronicDiseases">${escapeHtml(patient.chronicDiseases || '')}</textarea></label>
           <label class="full">Примечания<textarea name="notes">${escapeHtml(patient.notes || '')}</textarea></label>
         </form>
-      `,
-        `
+      `, `
         <button class="btn btn-primary patient-save-modal" data-id="${patient.id}">
           Сохранить
         </button>
-      `
-    );
+      `);
 }
 
 async function loadStaffPatients({silent = false} = {}) {
@@ -3011,30 +2703,19 @@ async function loadStaffPatients({silent = false} = {}) {
             method: 'GET'
         });
 
-        caches.patients = new Map(
-            patients.map(patient => [patient.id, patient])
-        );
+        caches.patients = new Map(patients.map(patient => [patient.id, patient]));
 
-        renderTable(
-            $('#staffPatients'),
-            patients,
-            [
-                {
-                    label: 'ФИО',
-                    render: patient => `
+        renderTable($('#staffPatients'), patients, [{
+            label: 'ФИО', render: patient => `
               <button class="link-button patient-details" data-id="${patient.id}">
                 ${escapeHtml(patient.lastName)} ${escapeHtml(patient.firstName)}
               </button>
             `
-                },
-                {label: 'Телефон', key: 'phone'},
-                {label: 'Email', key: 'email'},
-                {label: 'Дата рождения', key: 'birthDate'}
-            ],
-            patient => `
+        }, {label: 'Телефон', key: 'phone'}, {label: 'Email', key: 'email'}, {
+            label: 'Дата рождения', key: 'birthDate'
+        }], patient => `
           <div class="actions"><button class="btn btn-success btn-sm patient-book" data-id="${patient.id}">Записать</button><button class="btn btn-secondary btn-sm patient-edit" data-id="${patient.id}">Изменить</button></div>
-        `
-        );
+        `);
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -3052,8 +2733,7 @@ $('#createPatientForm').addEventListener('submit', async event => {
 
     try {
         await api('/api/v1/patients', {
-            method: 'POST',
-            body: formToObject(form)
+            method: 'POST', body: formToObject(form)
         });
 
         toast('Пациент создан', 'success');
@@ -3090,15 +2770,7 @@ $('#staffPatients').addEventListener('click', event => {
     }
 });
 
-const WORKING_DAY_ORDER = [
-    'MONDAY',
-    'TUESDAY',
-    'WEDNESDAY',
-    'THURSDAY',
-    'FRIDAY',
-    'SATURDAY',
-    'SUNDAY'
-];
+const WORKING_DAY_ORDER = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
 function groupWorkingHours(hours = []) {
     return hours.reduce((groups, interval) => {
@@ -3160,13 +2832,7 @@ function renderCompactWorkingHours(hours = []) {
 
     const grouped = groupWorkingHours(hours);
     const shortDays = {
-        MONDAY: 'пн',
-        TUESDAY: 'вт',
-        WEDNESDAY: 'ср',
-        THURSDAY: 'чт',
-        FRIDAY: 'пт',
-        SATURDAY: 'сб',
-        SUNDAY: 'вс'
+        MONDAY: 'пн', TUESDAY: 'вт', WEDNESDAY: 'ср', THURSDAY: 'чт', FRIDAY: 'пт', SATURDAY: 'сб', SUNDAY: 'вс'
     };
 
     return WORKING_DAY_ORDER
@@ -3192,15 +2858,11 @@ function renderCachedDoctorSchedule(doctorId) {
 
     const hours = doctorScheduleCache.get(String(doctorId)) || [];
     target.innerHTML = renderWorkingHours(hours, {
-        editable: true,
-        doctorId
+        editable: true, doctorId
     });
 }
 
-async function loadDoctorSchedule(
-    doctorId,
-    {silent = false, force = false} = {}
-) {
+async function loadDoctorSchedule(doctorId, {silent = false, force = false} = {}) {
     const target = $('#doctorScheduleList');
     const requestVersion = ++doctorScheduleRequestVersion;
 
@@ -3217,15 +2879,10 @@ async function loadDoctorSchedule(
 
     try {
         const cacheBuster = force ? `?refresh=${Date.now()}` : '';
-        const hours = await api(
-            `/api/v1/public/doctors/${doctorId}/working-hours${cacheBuster}`,
-            {
-                method: 'GET',
-                cache: 'no-store'
-            }
-        );
+        const hours = await api(`/api/v1/public/doctors/${doctorId}/working-hours${cacheBuster}`, {
+            method: 'GET', cache: 'no-store'
+        });
 
-        // Старый запрос не должен перерисовывать список поверх более свежего.
         if (requestVersion !== doctorScheduleRequestVersion) {
             return;
         }
@@ -3243,22 +2900,18 @@ async function loadDoctorSchedule(
 }
 
 function openScheduleEdit(button) {
-    openModal(
-        'Изменить рабочий интервал',
-        `
+    openModal('Изменить рабочий интервал', `
         <form id="modalScheduleEditForm" class="form-grid">
           <label>Начало<input name="startTime" required type="time" value="${escapeHtml(button.dataset.startTime)}"></label>
           <label>Окончание<input name="endTime" required type="time" value="${escapeHtml(button.dataset.endTime)}"></label>
         </form>
-      `,
-        `
+      `, `
         <button class="btn btn-primary schedule-save-modal"
           data-doctor-id="${escapeHtml(button.dataset.doctorId)}"
           data-schedule-id="${escapeHtml(button.dataset.scheduleId)}">
           Сохранить
         </button>
-      `
-    );
+      `);
 }
 
 function doctorDetailsHtml(doctor, hours = []) {
@@ -3292,34 +2945,24 @@ async function getStaffDoctorById(doctorId) {
     let hours = [];
 
     try {
-        hours = await api(
-            `/api/v1/public/doctors/${doctorId}/working-hours`,
-            {
-                method: 'GET'
-            }
-        );
+        hours = await api(`/api/v1/public/doctors/${doctorId}/working-hours`, {
+            method: 'GET'
+        });
     } catch {
-        // Профиль неактивного врача всё равно должен открываться для staff.
     }
 
     caches.doctors.set(doctor.id, doctor);
 
-    openModal(
-        `${doctor.lastName} ${doctor.firstName}`,
-        doctorDetailsHtml(doctor, hours),
-        `
+    openModal(`${doctor.lastName} ${doctor.firstName}`, doctorDetailsHtml(doctor, hours), `
         <button class="btn btn-success doctor-create-appointment" data-id="${doctor.id}">+ Создать запись</button>
         <button class="btn btn-secondary doctor-schedule-modal" data-id="${doctor.id}">Расписание</button>
         <button class="btn btn-secondary doctor-services-modal" data-id="${doctor.id}">Услуги</button>
         <button class="btn btn-primary doctor-edit-modal" data-id="${doctor.id}">Редактировать</button>
-      `
-    );
+      `);
 }
 
 function openDoctorEdit(doctor) {
-    openModal(
-        'Редактировать врача',
-        `
+    openModal('Редактировать врача', `
         <form id="modalDoctorEditForm" class="form-grid">
           <label>Имя<input name="firstName" required value="${escapeHtml(doctor.firstName || '')}"></label>
           <label>Фамилия<input name="lastName" required value="${escapeHtml(doctor.lastName || '')}"></label>
@@ -3338,71 +2981,43 @@ function openDoctorEdit(doctor) {
           </div>
           <label class="full">Описание<textarea name="description">${escapeHtml(doctor.description || '')}</textarea></label>
         </form>
-      `,
-        `
+      `, `
         <button class="btn btn-primary doctor-save-modal" data-id="${doctor.id}" disabled>
           Сохранить
         </button>
-      `
-    );
+      `);
 
-    setupDoctorAvatarForm(
-        $('#modalDoctorEditForm'),
-        $('#detailModalActions .doctor-save-modal')
-    );
+    setupDoctorAvatarForm($('#modalDoctorEditForm'), $('#detailModalActions .doctor-save-modal'));
 }
 
 async function loadDoctorServiceManagementOptions({silent = false} = {}) {
     try {
-        const [doctors, services] = await Promise.all([
-            api('/api/v1/doctors', {method: 'GET'}),
-            api('/api/v1/services', {method: 'GET'})
-        ]);
+        const [doctors, services] = await Promise.all([api('/api/v1/doctors', {method: 'GET'}), api('/api/v1/services', {method: 'GET'})]);
 
-        caches.doctors = new Map(
-            doctors.map(doctor => [doctor.id, doctor])
-        );
+        caches.doctors = new Map(doctors.map(doctor => [doctor.id, doctor]));
 
-        caches.services = new Map(
-            services.map(service => [service.id, service])
-        );
+        caches.services = new Map(services.map(service => [service.id, service]));
 
-        populateSelect(
-            $('#doctorServiceDoctorSelect'),
-            doctors,
-            {
-                placeholder: doctors.length
-                    ? 'Выберите врача'
-                    : 'Врачей пока нет',
-                getValue: doctor => doctor.id,
-                getLabel: doctor => {
-                    const fullName = [
-                        doctor.lastName,
-                        doctor.firstName,
-                        doctor.middleName
-                    ]
-                        .filter(Boolean)
-                        .join(' ');
+        populateSelect($('#doctorServiceDoctorSelect'), doctors, {
+            placeholder: doctors.length ? 'Выберите врача' : 'Врачей пока нет',
+            getValue: doctor => doctor.id,
+            getLabel: doctor => {
+                const fullName = [doctor.lastName, doctor.firstName, doctor.middleName]
+                    .filter(Boolean)
+                    .join(' ');
 
-                    return `${fullName} — ${doctor.specialty ?? 'специализация не указана'}`;
-                }
+                return `${fullName} — ${doctor.specialty ?? 'специализация не указана'}`;
             }
-        );
+        });
 
-        populateSelect(
-            $('#doctorServiceClinicServiceSelect'),
-            services,
-            {
-                placeholder: services.length
-                    ? 'Выберите услугу'
-                    : 'Услуг клиники пока нет',
-                getValue: service => service.id,
-                getLabel: service => {
-                    const title = service.title ?? `Услуга ${service.id}`;
-                    return `${title} — ${service.price} ₽, ${service.durationMinutes} мин`;
-                }
+        populateSelect($('#doctorServiceClinicServiceSelect'), services, {
+            placeholder: services.length ? 'Выберите услугу' : 'Услуг клиники пока нет',
+            getValue: service => service.id,
+            getLabel: service => {
+                const title = service.title ?? `Услуга ${service.id}`;
+                return `${title} — ${service.price} ₽, ${service.durationMinutes} мин`;
             }
-        );
+        });
 
         const selectedDoctorId = $('#doctorServiceDoctorSelect').value;
 
@@ -3420,10 +3035,7 @@ async function loadDoctorServiceManagementOptions({silent = false} = {}) {
     }
 }
 
-async function loadAssignedDoctorServices(
-    doctorId,
-    {silent = false} = {}
-) {
+async function loadAssignedDoctorServices(doctorId, {silent = false} = {}) {
     const container = $('#assignedDoctorServices');
 
     if (!doctorId) {
@@ -3438,10 +3050,7 @@ async function loadAssignedDoctorServices(
   `;
 
     try {
-        const relations = await api(
-            `/api/v1/public/doctors/${doctorId}/services`,
-            {method: 'GET'}
-        );
+        const relations = await api(`/api/v1/public/doctors/${doctorId}/services`, {method: 'GET'});
 
         if (!relations.length) {
             container.innerHTML = `
@@ -3498,10 +3107,7 @@ $('#assignDoctorService').addEventListener('click', async () => {
     }
 
     try {
-        await api(
-            `/api/v1/doctors/${doctorId}/services/${clinicServiceId}`,
-            {method: 'POST'}
-        );
+        await api(`/api/v1/doctors/${doctorId}/services/${clinicServiceId}`, {method: 'POST'});
 
         toast('Услуга привязана к врачу', 'success');
         await loadAssignedDoctorServices(doctorId);
@@ -3520,10 +3126,7 @@ $('#removeDoctorService').addEventListener('click', async () => {
     }
 
     try {
-        await api(
-            `/api/v1/doctors/${doctorId}/services/${clinicServiceId}`,
-            {method: 'DELETE'}
-        );
+        await api(`/api/v1/doctors/${doctorId}/services/${clinicServiceId}`, {method: 'DELETE'});
 
         toast('Услуга отвязана от врача', 'success');
         await loadAssignedDoctorServices(doctorId);
@@ -3540,10 +3143,7 @@ $('#assignedDoctorServices').addEventListener('click', async event => {
     }
 
     try {
-        await api(
-            `/api/v1/doctors/${button.dataset.doctorId}/services/${button.dataset.serviceId}`,
-            {method: 'DELETE'}
-        );
+        await api(`/api/v1/doctors/${button.dataset.doctorId}/services/${button.dataset.serviceId}`, {method: 'DELETE'});
 
         toast('Услуга отвязана от врача', 'success');
         await loadAssignedDoctorServices(button.dataset.doctorId);
@@ -3558,9 +3158,7 @@ async function loadStaffDoctors({silent = false} = {}) {
             method: 'GET'
         });
 
-        caches.doctors = new Map(
-            doctors.map(doctor => [doctor.id, doctor])
-        );
+        caches.doctors = new Map(doctors.map(doctor => [doctor.id, doctor]));
 
         const scheduleDoctorSelect = $('#doctorScheduleDoctorSelect');
         const selectedScheduleDoctorId = scheduleDoctorSelect?.value ?? '';
@@ -3581,13 +3179,8 @@ async function loadStaffDoctors({silent = false} = {}) {
             }
         }
 
-        renderTable(
-            $('#staffDoctors'),
-            doctors,
-            [
-                {
-                    label: 'ФИО',
-                    render: doctor => `
+        renderTable($('#staffDoctors'), doctors, [{
+            label: 'ФИО', render: doctor => `
               <div class="doctor-table-person">
                 ${doctorAvatarHtml(doctor, 'doctor-avatar doctor-avatar-small')}
                 <button class="link-button doctor-details" data-id="${doctor.id}">
@@ -3595,18 +3188,13 @@ async function loadStaffDoctors({silent = false} = {}) {
                 </button>
               </div>
             `
-                },
-                {label: 'Специальность', key: 'specialty'},
-                {
-                    label: 'Статус',
-                    render: doctor => `
+        }, {label: 'Специальность', key: 'specialty'}, {
+            label: 'Статус', render: doctor => `
               <span class="badge ${doctor.active ? 'success' : 'danger'}">
                 ${doctor.active ? 'Активен' : 'Отключён'}
               </span>
             `
-                }
-            ],
-            doctor => `
+        }], doctor => `
           <div class="actions">
             <button class="btn btn-success btn-sm doctor-book" data-id="${doctor.id}">Записать</button>
             <button class="btn btn-secondary btn-sm doctor-schedule-action" data-id="${doctor.id}">Расписание</button>
@@ -3624,8 +3212,7 @@ async function loadStaffDoctors({silent = false} = {}) {
               </button>
             `}
           </div>
-        `
-        );
+        `);
 
         await loadDoctorServiceManagementOptions({silent: true});
 
@@ -3654,8 +3241,7 @@ $('#createDoctorForm').addEventListener('submit', async event => {
         if (avatarFile) body.avatarUrl = await uploadDoctorAvatar(avatarFile);
 
         await api('/api/v1/doctors', {
-            method: 'POST',
-            body
+            method: 'POST', body
         });
 
         toast('Врач создан', 'success');
@@ -3667,10 +3253,7 @@ $('#createDoctorForm').addEventListener('submit', async event => {
     }
 });
 
-setupDoctorAvatarForm(
-    $('#createDoctorForm'),
-    $('#createDoctorForm button[type="submit"], #createDoctorForm button:not([type])')
-);
+setupDoctorAvatarForm($('#createDoctorForm'), $('#createDoctorForm button[type="submit"], #createDoctorForm button:not([type])'));
 
 $('#doctorScheduleForm').addEventListener('submit', async event => {
     event.preventDefault();
@@ -3682,16 +3265,12 @@ $('#doctorScheduleForm').addEventListener('submit', async event => {
 
     try {
         const createdInterval = await api(`/api/v1/doctors/${doctorId}/working-hours`, {
-            method: 'POST',
-            body
+            method: 'POST', body
         });
 
         if (createdInterval?.id) {
             const current = doctorScheduleCache.get(String(doctorId)) || [];
-            doctorScheduleCache.set(String(doctorId), [
-                ...current.filter(item => String(item.id) !== String(createdInterval.id)),
-                createdInterval
-            ]);
+            doctorScheduleCache.set(String(doctorId), [...current.filter(item => String(item.id) !== String(createdInterval.id)), createdInterval]);
             renderCachedDoctorSchedule(doctorId);
         }
 
@@ -3727,15 +3306,10 @@ $('#doctorScheduleList')?.addEventListener('click', async event => {
         }
 
         try {
-            await api(
-                `/api/v1/doctors/${deleteButton.dataset.doctorId}/working-hours/${deleteButton.dataset.scheduleId}`,
-                {method: 'DELETE'}
-            );
+            await api(`/api/v1/doctors/${deleteButton.dataset.doctorId}/working-hours/${deleteButton.dataset.scheduleId}`, {method: 'DELETE'});
             const doctorId = deleteButton.dataset.doctorId;
             const current = doctorScheduleCache.get(String(doctorId)) || [];
-            doctorScheduleCache.set(String(doctorId), current.filter(item =>
-                String(item.id) !== String(deleteButton.dataset.scheduleId)
-            ));
+            doctorScheduleCache.set(String(doctorId), current.filter(item => String(item.id) !== String(deleteButton.dataset.scheduleId)));
             renderCachedDoctorSchedule(doctorId);
             toast('Рабочий интервал удалён', 'error');
         } catch (error) {
@@ -3746,9 +3320,7 @@ $('#doctorScheduleList')?.addEventListener('click', async event => {
 
 
 async function openDoctorUserLinkModal(doctorId) {
-    openModal(
-        'Привязать пользователя к врачу',
-        `
+    openModal('Привязать пользователя к врачу', `
         <div class="doctor-user-link-panel">
           <label class="full">
             Поиск по email или телефону
@@ -3758,8 +3330,7 @@ async function openDoctorUserLinkModal(doctorId) {
             <p class="muted">Загрузка пользователей…</p>
           </div>
         </div>
-      `
-    );
+      `);
 
     try {
         const users = await api('/api/v1/users', {method: 'GET', cache: 'no-store'});
@@ -3776,17 +3347,14 @@ async function openDoctorUserLinkModal(doctorId) {
             const filtered = availableUsers.filter(user => {
                 const email = String(user.email || '').toLowerCase();
                 const phone = String(user.phone || '').replace(/\D/g, '');
-                return !normalized
-                    || email.includes(normalized)
-                    || (digits && phone.includes(digits));
+                return !normalized || email.includes(normalized) || (digits && phone.includes(digits));
             });
 
-            results.innerHTML = filtered.length
-                ? filtered.map(user => {
-                    const fullName = [user.lastName, user.firstName, user.middleName]
-                        .filter(Boolean)
-                        .join(' ') || 'Без имени';
-                    return `
+            results.innerHTML = filtered.length ? filtered.map(user => {
+                const fullName = [user.lastName, user.firstName, user.middleName]
+                    .filter(Boolean)
+                    .join(' ') || 'Без имени';
+                return `
               <button class="doctor-user-result doctor-user-link-confirm" type="button"
                 data-doctor-id="${escapeHtml(doctorId)}"
                 data-user-email="${escapeHtml(user.email || '')}"
@@ -3798,8 +3366,7 @@ async function openDoctorUserLinkModal(doctorId) {
                 <span class="doctor-user-result-phone">${escapeHtml(user.phone || 'Телефон не указан')}</span>
               </button>
             `;
-                }).join('')
-                : '<p class="muted">Пользователи не найдены.</p>';
+            }).join('') : '<p class="muted">Пользователи не найдены.</p>';
         };
 
         renderUsers('');
@@ -3819,15 +3386,10 @@ async function linkDoctorToUser(doctorId, email, phone) {
         throw new Error('У выбранного пользователя не указан email или телефон');
     }
 
-    // Backend принимает LinkUserToDoctorRequestDto: { email, phone }.
-    // Передаём одно надёжное уникальное поле: сначала email, иначе телефон.
-    const body = normalizedEmail
-        ? {email: normalizedEmail}
-        : {phone: normalizedPhone};
+    const body = normalizedEmail ? {email: normalizedEmail} : {phone: normalizedPhone};
 
     return api(`/api/v1/doctors/${doctorId}/link-user`, {
-        method: 'PATCH',
-        body
+        method: 'PATCH', body
     });
 }
 
@@ -3858,8 +3420,7 @@ $('#staffDoctors').addEventListener('click', async event => {
             $('#doctorServiceDoctorSelect').value = servicesButton.dataset.id;
             await loadAssignedDoctorServices(servicesButton.dataset.id);
             $('#doctorServiceManagement').scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+                behavior: 'smooth', block: 'start'
             });
         }
 
@@ -3871,9 +3432,7 @@ $('#staffDoctors').addEventListener('click', async event => {
         }
 
         if (toggle) {
-            const action = toggle.dataset.active === 'true'
-                ? 'deactivation'
-                : 'activation';
+            const action = toggle.dataset.active === 'true' ? 'deactivation' : 'activation';
 
             await api(`/api/v1/doctors/${toggle.dataset.id}/${action}`, {
                 method: 'PATCH'
@@ -3913,9 +3472,7 @@ function getClinicServiceDescription(service) {
 }
 
 function showClinicServiceDetails(service) {
-    openModal(
-        getClinicServiceTitle(service),
-        `
+    openModal(getClinicServiceTitle(service), `
         <div class="detail-grid">
           ${detailItem('Название', getClinicServiceTitle(service), true)}
           ${detailItem('Описание', getClinicServiceDescription(service), true)}
@@ -3924,29 +3481,23 @@ function showClinicServiceDetails(service) {
           ${detailItem('Длительность', `${service.durationMinutes} мин`)}
           ${detailItem('Статус', service.active === false ? 'Отключена' : 'Активна')}
         </div>
-      `,
-        `
+      `, `
         <button class="btn btn-success service-create-appointment" data-id="${service.id}">+ Создать запись</button>
         <button class="btn btn-primary service-edit-modal" data-id="${service.id}">Редактировать</button>
-      `
-    );
+      `);
 }
 
 function openClinicServiceEdit(service) {
-    openModal(
-        'Редактировать услугу клиники',
-        `
+    openModal('Редактировать услугу клиники', `
         <form id="modalServiceEditForm" class="form-grid">
           <label>Цена<input name="price" required type="number" min="0" value="${service.price}"></label>
           <label>Длительность<input name="durationMinutes" required type="number" min="5" value="${service.durationMinutes}"></label>
         </form>
-      `,
-        `
+      `, `
         <button class="btn btn-primary service-save-modal" data-id="${service.id}">
           Сохранить
         </button>
-      `
-    );
+      `);
 }
 
 async function loadDentalCatalogForClinicServices({silent = false} = {}) {
@@ -3955,9 +3506,7 @@ async function loadDentalCatalogForClinicServices({silent = false} = {}) {
             method: 'GET'
         });
 
-        caches.dentalCatalog = new Map(
-            services.map(service => [String(service.id), service])
-        );
+        caches.dentalCatalog = new Map(services.map(service => [String(service.id), service]));
 
         renderClinicServiceCatalogControls();
         renderDentalCatalogTable(services);
@@ -4020,25 +3569,15 @@ function updateSelectedClinicServiceDescription() {
         return;
     }
 
-    description.textContent = service
-        ? `${service.title}${service.category ? ` · ${service.category}` : ''}${service.description ? ` — ${service.description}` : ''}`
-        : 'Выберите услугу, чтобы увидеть описание.';
+    description.textContent = service ? `${service.title}${service.category ? ` · ${service.category}` : ''}${service.description ? ` — ${service.description}` : ''}` : 'Выберите услугу, чтобы увидеть описание.';
 }
 
 function renderDentalCatalogTable(services = [...caches.dentalCatalog.values()]) {
-    renderTable(
-        $('#dentalCatalog'),
-        services,
-        [
-            {label: 'Название', key: 'title'},
-            {label: 'Категория', key: 'category'},
-            {label: 'Описание', key: 'description'},
-            {
-                label: 'ID',
-                render: service => `<span class="code">${service.id}</span>`
-            }
-        ]
-    );
+    renderTable($('#dentalCatalog'), services, [{label: 'Название', key: 'title'}, {
+        label: 'Категория', key: 'category'
+    }, {label: 'Описание', key: 'description'}, {
+        label: 'ID', render: service => `<span class="code">${service.id}</span>`
+    }]);
 }
 
 function renderServiceStatusGroups(container, services, renderGroupContent) {
@@ -4046,25 +3585,20 @@ function renderServiceStatusGroups(container, services, renderGroupContent) {
         return;
     }
 
-    const previouslyOpened = new Set(
-        [...container.querySelectorAll('.service-status-group[open]')]
-            .map(group => group.dataset.status)
-    );
+    const previouslyOpened = new Set([...container.querySelectorAll('.service-status-group[open]')]
+        .map(group => group.dataset.status));
 
-    const groups = [
-        {
-            status: 'active',
-            title: 'Активированные услуги',
-            items: services.filter(service => service.active !== false),
-            openByDefault: true
-        },
-        {
-            status: 'inactive',
-            title: 'Отключённые услуги',
-            items: services.filter(service => service.active === false),
-            openByDefault: false
-        }
-    ];
+    const groups = [{
+        status: 'active',
+        title: 'Активированные услуги',
+        items: services.filter(service => service.active !== false),
+        openByDefault: true
+    }, {
+        status: 'inactive',
+        title: 'Отключённые услуги',
+        items: services.filter(service => service.active === false),
+        openByDefault: false
+    }];
 
     container.innerHTML = '';
     let rendered = false;
@@ -4078,8 +3612,7 @@ function renderServiceStatusGroups(container, services, renderGroupContent) {
         const details = document.createElement('details');
         details.className = 'appointment-group service-status-group';
         details.dataset.status = group.status;
-        details.open = previouslyOpened.has(group.status)
-            || (!previouslyOpened.size && group.openByDefault);
+        details.open = previouslyOpened.has(group.status) || (!previouslyOpened.size && group.openByDefault);
 
         const summary = document.createElement('summary');
         summary.innerHTML = `
@@ -4101,56 +3634,32 @@ function renderServiceStatusGroups(container, services, renderGroupContent) {
 
 async function loadStaffServices({silent = false} = {}) {
     try {
-        const [services] = await Promise.all([
-            api('/api/v1/services', {method: 'GET'}),
-            loadDentalCatalogForClinicServices({silent: true})
-        ]);
+        const [services] = await Promise.all([api('/api/v1/services', {method: 'GET'}), loadDentalCatalogForClinicServices({silent: true})]);
 
-        caches.services = new Map(
-            services.map(service => [service.id, service])
-        );
+        caches.services = new Map(services.map(service => [service.id, service]));
 
-        renderServiceStatusGroups(
-            $('#staffServices'),
-            services,
-            (container, groupServices) => renderTable(
-                container,
-                groupServices,
-                [
-                    {
-                        label: 'Услуга',
-                        render: service => `
+        renderServiceStatusGroups($('#staffServices'), services, (container, groupServices) => renderTable(container, groupServices, [{
+            label: 'Услуга', render: service => `
                   <button class="link-button service-details" data-id="${service.id}">
                     ${escapeHtml(getClinicServiceTitle(service))}
                   </button>
                 `
-                    },
-                    {
-                        label: 'Описание',
-                        render: service => escapeHtml(getClinicServiceDescription(service))
-                    },
-                    {
-                        label: 'Категория',
-                        render: service => escapeHtml(getCatalogServiceForClinicService(service)?.category ?? service.category ?? '—')
-                    },
-                    {
-                        label: 'Цена',
-                        render: service => `${service.price} ₽`
-                    },
-                    {
-                        label: 'Длительность',
-                        render: service => `${service.durationMinutes} мин`
-                    },
-                    {
-                        label: 'Статус',
-                        render: service => `
+        }, {
+            label: 'Описание', render: service => escapeHtml(getClinicServiceDescription(service))
+        }, {
+            label: 'Категория',
+            render: service => escapeHtml(getCatalogServiceForClinicService(service)?.category ?? service.category ?? '—')
+        }, {
+            label: 'Цена', render: service => `${service.price} ₽`
+        }, {
+            label: 'Длительность', render: service => `${service.durationMinutes} мин`
+        }, {
+            label: 'Статус', render: service => `
                   <span class="badge ${service.active === false ? 'danger' : 'success'}">
                     ${service.active === false ? 'Отключена' : 'Активна'}
                   </span>
                 `
-                    }
-                ],
-                service => `
+        }], service => `
               <div class="actions">
                 <button class="btn btn-primary btn-sm service-edit" data-id="${service.id}">
                   Редактировать
@@ -4165,9 +3674,7 @@ async function loadStaffServices({silent = false} = {}) {
                   </button>
                 `}
               </div>
-            `
-            )
-        );
+            `));
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -4191,8 +3698,7 @@ $('#addClinicServiceForm').addEventListener('submit', async event => {
 
     try {
         await api(`/api/v1/services/${dentalServiceId}`, {
-            method: 'POST',
-            body
+            method: 'POST', body
         });
 
         toast('Услуга подключена', 'success');
@@ -4272,6 +3778,7 @@ $('#staffServices').addEventListener('click', async event => {
 });
 
 function staffAppointmentStatusSelectHtml(appointment, className = 'modal-appointment-status') {
+    if (!appointment.patientId) return '';
     const current = String(appointment?.status || '').toUpperCase();
     return `
     <label class="appointment-status-control">Статус
@@ -4291,61 +3798,39 @@ async function getStaffAppointmentById(appointmentId) {
     });
 
     caches.appointments.set(appointment.id, appointment);
-    openModal(
-        'Запись клиники',
-        appointmentDetailsHtml(appointment),
-        `
-        <button class="btn btn-secondary appointment-open-patient" data-patient-id="${escapeHtml(appointment.patientId || '')}">Пациент</button>
+    openModal('Запись клиники', appointmentDetailsHtml(appointment), `
+        ${appointment.patientId ? `<button class="btn btn-secondary appointment-open-patient" data-patient-id="${escapeHtml(appointment.patientId)}">Пациент</button>` : ''}
         <button class="btn btn-secondary appointment-open-doctor" data-doctor-id="${escapeHtml(appointment.doctorId || '')}">Врач</button>
         ${staffAppointmentStatusSelectHtml(appointment)}
-        <button class="btn btn-primary appointment-modal-change" data-id="${escapeHtml(appointment.id)}">Сохранить статус</button>
-        ${String(appointment.status || '').toUpperCase() === 'CANCELLED' ? '' : `<button class="btn btn-danger appointment-modal-cancel" data-id="${escapeHtml(appointment.id)}">Отменить запись</button>`}
-      `
-    );
+        ${appointment.patientId ? `<button class="btn btn-primary appointment-modal-change" data-id="${escapeHtml(appointment.id)}">Сохранить статус</button>` : ''}
+        ${!appointment.patientId || String(appointment.status || '').toUpperCase() === 'CANCELLED' ? '' : `<button class="btn btn-danger appointment-modal-cancel" data-id="${escapeHtml(appointment.id)}">Отменить запись</button>`}
+      `);
 }
 
 function renderStaffAppointmentList(appointments) {
-    const pendingStatuses = new Map(
-        $$('.appointment-status[data-user-dirty="true"]').map(select => [String(select.dataset.id), select.value])
-    );
+    const pendingStatuses = new Map($$('.appointment-status[data-user-dirty="true"]').map(select => [String(select.dataset.id), select.value]));
 
-    caches.appointments = new Map(
-        appointments.map(appointment => [appointment.id, appointment])
-    );
+    caches.appointments = new Map(appointments.map(appointment => [appointment.id, appointment]));
 
-    renderAppointmentGroups(
-        $('#staffAppointments'),
-        appointments,
-        [
-            {
-                label: 'Дата',
-                render: appointment => `
+    renderAppointmentGroups($('#staffAppointments'), appointments, [{
+        label: 'Дата', render: appointment => `
             <button class="link-button staff-appointment-link" data-id="${appointment.id}">
               ${escapeHtml(formatDate(appointment.scheduledAt))}
             </button>
           `
-            },
-            {
-                label: 'Пациент',
-                render: appointment => {
-                    const patient = caches.patients.get(String(appointment.patientId)) || caches.patients.get(appointment.patientId);
-                    return escapeHtml(patient ? [patient.lastName, patient.firstName].filter(Boolean).join(' ') : appointment.patientId);
-                }
-            },
-            {
-                label: 'Врач',
-                render: appointment => escapeHtml(getDoctorDisplayName(appointment))
-            },
-            {
-                label: 'Цена',
-                render: appointment => `${appointment.totalPrice} ₽`
-            },
-            {
-                label: 'Статус',
-                render: appointment => `<span class="badge">${escapeHtml(appointmentStatusLabel(appointment.status))}</span>`
-            }
-        ],
-        appointment => `
+    }, {
+        label: 'Пациент', render: appointment => {
+            const patient = caches.patients.get(String(appointment.patientId)) || caches.patients.get(appointment.patientId);
+            return escapeHtml(!appointment.patientId ? 'Данные удалены' : patient ? [patient.lastName, patient.firstName].filter(Boolean).join(' ') : appointment.patientId);
+        }
+    }, {
+        label: 'Врач', render: appointment => escapeHtml(getDoctorDisplayName(appointment))
+    }, {
+        label: 'Цена', render: appointment => `${appointment.totalPrice} ₽`
+    }, {
+        label: 'Статус',
+        render: appointment => `<span class="badge">${escapeHtml(appointmentStatusLabel(appointment.status))}</span>`
+    }], appointment => !appointment.patientId ? '<span class="muted">Данные удалены</span>' : `
         <div class="actions">
           <select class="appointment-status" data-id="${appointment.id}">
             <option value="CREATED" ${appointment.status === 'CREATED' ? 'selected' : ''}>Создана</option>
@@ -4354,12 +3839,11 @@ function renderStaffAppointmentList(appointments) {
             <option value="CANCELLED" ${appointment.status === 'CANCELLED' ? 'selected' : ''}>Отменена</option>
           </select>
           <button class="btn btn-primary btn-sm appointment-change" data-id="${appointment.id}">Изменить</button>
-          ${String(appointment.status || '').toUpperCase() === 'CANCELLED' ? '' : `
+          ${!appointment.patientId || String(appointment.status || '').toUpperCase() === 'CANCELLED' ? '' : `
             <button class="btn btn-danger btn-sm staff-cancel" data-id="${appointment.id}">Отменить</button>
           `}
         </div>
-      `
-    );
+      `);
 
     pendingStatuses.forEach((value, id) => {
         const select = document.querySelector(`.appointment-status[data-id="${CSS.escape(id)}"]`);
@@ -4374,35 +3858,22 @@ async function refreshStaffAppointmentListOnly({silent = true} = {}) {
         const appointments = await api('/api/v1/appointments', {method: 'GET'});
         renderStaffAppointmentList(appointments);
     } catch (error) {
-        if (!silent) toast(error.message, 'error');
-        else console.warn('Не удалось обновить список записей:', error);
+        if (!silent) toast(error.message, 'error'); else console.warn('Не удалось обновить список записей:', error);
     }
 }
 
 async function loadStaffAppointments({silent = false} = {}) {
     try {
-        const [appointments, doctors, services, patients] = await Promise.all([
-            api('/api/v1/appointments', {method: 'GET'}),
-            api('/api/v1/doctors', {method: 'GET'}),
-            api('/api/v1/services', {method: 'GET'}),
-            api('/api/v1/patients', {method: 'GET'})
-        ]);
+        const [appointments, doctors, services, patients] = await Promise.all([api('/api/v1/appointments', {method: 'GET'}), api('/api/v1/doctors', {method: 'GET'}), api('/api/v1/services', {method: 'GET'}), api('/api/v1/patients', {method: 'GET'})]);
 
         const activeDoctors = doctors.filter(doctor => doctor.active !== false);
         const activeServices = services.filter(service => service.active !== false);
 
-        caches.doctors = new Map(
-            doctors.map(doctor => [doctor.id, doctor])
-        );
+        caches.doctors = new Map(doctors.map(doctor => [doctor.id, doctor]));
 
-        caches.services = new Map(
-            services.map(service => [service.id, service])
-        );
+        caches.services = new Map(services.map(service => [service.id, service]));
 
-        populateStaffAppointmentSelects(
-            activeDoctors,
-            activeServices
-        );
+        populateStaffAppointmentSelects(activeDoctors, activeServices);
 
         renderStaffAppointmentList(appointments);
     } catch (error) {
@@ -4446,10 +3917,7 @@ $('#staffAppointmentForm').addEventListener('submit', async event => {
     const form = event.currentTarget;
     const values = formToObject(form);
     const patientId = values.patientId;
-    const scheduledAt = combineDateAndTime(
-        values.appointmentDate,
-        values.appointmentTime
-    );
+    const scheduledAt = combineDateAndTime(values.appointmentDate, values.appointmentTime);
 
     if (!scheduledAt) {
         toast('Выберите дату и время записи', 'error');
@@ -4458,17 +3926,10 @@ $('#staffAppointmentForm').addEventListener('submit', async event => {
 
     try {
         await api(`/api/v1/appointments/patients/${patientId}`, {
-            method: 'POST',
-            body: {
-                doctorId: values.doctorId,
-                scheduledAt,
-                services: [
-                    {
-                        clinicServiceId: values.clinicServiceId,
-                        quantity: Number(values.quantity || 1)
-                    }
-                ],
-                comment: values.comment || null
+            method: 'POST', body: {
+                doctorId: values.doctorId, scheduledAt, services: [{
+                    clinicServiceId: values.clinicServiceId, quantity: Number(values.quantity || 1)
+                }], comment: values.comment || null
             }
         });
 
@@ -4502,8 +3963,7 @@ $('#staffAppointments').addEventListener('click', async event => {
             const select = $(`.appointment-status[data-id="${change.dataset.id}"]`);
 
             await api(`/api/v1/appointments/${change.dataset.id}/change`, {
-                method: 'PATCH',
-                body: {
+                method: 'PATCH', body: {
                     status: select.value
                 }
             });
@@ -4528,65 +3988,43 @@ async function getUserById(userId) {
         method: 'GET'
     });
 
-    openModal(
-        `${user.lastName} ${user.firstName}`,
-        `
+    openModal(`${user.lastName} ${user.firstName}`, `
         <div class="detail-grid">
           ${detailItem('Email', user.email)}
           ${detailItem('Телефон', user.phone)}
           ${detailItem('Роли', (user.roles || []).join(', '), true)}
           ${detailItem('Статус', user.enabled ? 'Активен' : 'Отключён')}
         </div>
-      `,
-        `<button class="btn btn-success user-create-appointment" data-user-id="${user.id}">+ Создать запись</button>`
-    );
+      `, `<button class="btn btn-success user-create-appointment" data-user-id="${user.id}">+ Создать запись</button>`);
 }
 
 async function loadStaffUsers({silent = false} = {}) {
     try {
-        const [users, patients] = await Promise.all([
-            api('/api/v1/users', {method: 'GET'}),
-            api('/api/v1/patients', {method: 'GET'})
-        ]);
+        const [users, patients] = await Promise.all([api('/api/v1/users', {method: 'GET'}), api('/api/v1/patients', {method: 'GET'})]);
 
         caches.patients = new Map(patients.map(patient => [patient.id, patient]));
 
-        caches.users = new Map(
-            users.map(user => [user.id, user])
-        );
+        caches.users = new Map(users.map(user => [user.id, user]));
 
-        renderTable(
-            $('#staffUsers'),
-            users,
-            [
-                {
-                    label: 'ФИО',
-                    render: user => `
+        renderTable($('#staffUsers'), users, [{
+            label: 'ФИО', render: user => `
               <button class="link-button user-details" data-id="${user.id}">
                 ${escapeHtml(user.lastName)} ${escapeHtml(user.firstName)}
               </button>
             `
-                },
-                {label: 'Email', key: 'email'},
-                {
-                    label: 'Роли',
-                    render: user => escapeHtml((user.roles || []).join(', '))
-                },
-                {
-                    label: 'Статус',
-                    render: user => `
+        }, {label: 'Email', key: 'email'}, {
+            label: 'Роли', render: user => escapeHtml((user.roles || []).join(', '))
+        }, {
+            label: 'Статус', render: user => `
               <span class="badge ${user.enabled ? 'success' : 'danger'}">
                 ${user.enabled ? 'Активен' : 'Отключён'}
               </span>
             `
-                }
-            ],
-            user => `
+        }], user => `
           <button class="btn btn-secondary btn-sm user-toggle" data-id="${user.id}" data-enabled="${user.enabled}">
             ${user.enabled ? 'Отключить' : 'Активировать'}
           </button>
-        `
-        );
+        `);
     } catch (error) {
         if (!silent) {
             toast(error.message, 'error');
@@ -4608,9 +4046,7 @@ $('#staffUsers').addEventListener('click', async event => {
         }
 
         if (toggle) {
-            const action = toggle.dataset.enabled === 'true'
-                ? 'deactivation'
-                : 'activation';
+            const action = toggle.dataset.enabled === 'true' ? 'deactivation' : 'activation';
 
             await api(`/api/v1/users/${toggle.dataset.id}/${action}`, {
                 method: 'PATCH'
@@ -4648,13 +4084,11 @@ $('#detailModalActions').addEventListener('click', async event => {
             const select = $(`.modal-appointment-status[data-id="${appointmentChange.dataset.id}"]`);
             if (!select) throw new Error('Не удалось определить новый статус записи');
             await api(`/api/v1/appointments/${appointmentChange.dataset.id}/change`, {
-                method: 'PATCH',
-                body: {status: select.value}
+                method: 'PATCH', body: {status: select.value}
             });
             closeModal();
             toast('Статус записи обновлён', 'success');
-            if (getCurrentViewName() === 'staff-dashboard') await refreshStaffDashboard({silent: true});
-            else await refreshStaffAppointmentListOnly({silent: true});
+            if (getCurrentViewName() === 'staff-dashboard') await refreshStaffDashboard({silent: true}); else await refreshStaffAppointmentListOnly({silent: true});
             return;
         }
 
@@ -4662,8 +4096,7 @@ $('#detailModalActions').addEventListener('click', async event => {
             await api(`/api/v1/appointments/${appointmentCancel.dataset.id}/cancel`, {method: 'PATCH'});
             closeModal();
             toast('Запись отменена', 'success');
-            if (getCurrentViewName() === 'staff-dashboard') await refreshStaffDashboard({silent: true});
-            else await refreshStaffAppointmentListOnly({silent: true});
+            if (getCurrentViewName() === 'staff-dashboard') await refreshStaffDashboard({silent: true}); else await refreshStaffAppointmentListOnly({silent: true});
             return;
         }
 
@@ -4731,8 +4164,7 @@ $('#detailModalActions').addEventListener('click', async event => {
 
         if (patientSave) {
             await api(`/api/v1/patients/${patientSave.dataset.id}`, {
-                method: 'PATCH',
-                body: formToObject($('#modalPatientEditForm'))
+                method: 'PATCH', body: formToObject($('#modalPatientEditForm'))
             });
 
             closeModal();
@@ -4745,17 +4177,14 @@ $('#detailModalActions').addEventListener('click', async event => {
         if (scheduleSave) {
             const body = formToObject($('#modalScheduleEditForm'));
 
-            const updatedInterval = await api(
-                `/api/v1/doctors/${scheduleSave.dataset.doctorId}/working-hours/${scheduleSave.dataset.scheduleId}`,
-                {method: 'PATCH', body}
-            );
+            const updatedInterval = await api(`/api/v1/doctors/${scheduleSave.dataset.doctorId}/working-hours/${scheduleSave.dataset.scheduleId}`, {
+                method: 'PATCH', body
+            });
 
             if (updatedInterval?.id) {
                 const doctorId = scheduleSave.dataset.doctorId;
                 const current = doctorScheduleCache.get(String(doctorId)) || [];
-                doctorScheduleCache.set(String(doctorId), current.map(item =>
-                    String(item.id) === String(updatedInterval.id) ? updatedInterval : item
-                ));
+                doctorScheduleCache.set(String(doctorId), current.map(item => String(item.id) === String(updatedInterval.id) ? updatedInterval : item));
                 renderCachedDoctorSchedule(doctorId);
             }
 
@@ -4782,8 +4211,7 @@ $('#detailModalActions').addEventListener('click', async event => {
             if (avatarFile) body.avatarUrl = await uploadDoctorAvatar(avatarFile);
 
             await api(`/api/v1/doctors/${doctorSave.dataset.id}`, {
-                method: 'PATCH',
-                body
+                method: 'PATCH', body
             });
 
             closeModal();
@@ -4804,8 +4232,7 @@ $('#detailModalActions').addEventListener('click', async event => {
             body.durationMinutes = Number(body.durationMinutes);
 
             await api(`/api/v1/services/${serviceSave.dataset.id}`, {
-                method: 'PATCH',
-                body
+                method: 'PATCH', body
             });
 
             closeModal();
@@ -4834,11 +4261,7 @@ const viewLoaders = {
     'public-services': loadPublicServices,
     'patient-card': loadPatientCard,
     'patient-appointments': async options => {
-        await Promise.all([
-            loadPublicDoctors({silent: true}),
-            loadPublicServices({silent: true}),
-            loadPatientAppointments(options)
-        ]);
+        await Promise.all([loadPublicDoctors({silent: true}), loadPublicServices({silent: true}), loadPatientAppointments(options)]);
     },
     'patient-notifications': loadNotifications,
     'profile': loadProfile,
@@ -4853,26 +4276,15 @@ const viewLoaders = {
 function getCurrentViewName() {
     const activeView = $('.view.active');
 
-    return activeView
-        ? activeView.id.replace('view-', '')
-        : null;
+    return activeView ? activeView.id.replace('view-', '') : null;
 }
 
 function isUserEditingCurrentView() {
     const activeView = $('.view.active');
     const activeElement = document.activeElement;
-    const modalIsOpen = Boolean(
-        document.querySelector('.modal:not(.hidden), [role="dialog"]:not(.hidden)')
-    );
-    const focusedControlIsInsideView = Boolean(
-        activeView
-        && activeElement
-        && activeView.contains(activeElement)
-        && activeElement.matches('input, select, textarea, button, [contenteditable="true"]')
-    );
-    const dirtyFormExists = Boolean(
-        activeView?.querySelector('form[data-user-dirty="true"]')
-    );
+    const modalIsOpen = Boolean(document.querySelector('.modal:not(.hidden), [role="dialog"]:not(.hidden)'));
+    const focusedControlIsInsideView = Boolean(activeView && activeElement && activeView.contains(activeElement) && activeElement.matches('input, select, textarea, button, [contenteditable="true"]'));
+    const dirtyFormExists = Boolean(activeView?.querySelector('form[data-user-dirty="true"]'));
 
     return modalIsOpen || focusedControlIsInsideView || dirtyFormExists;
 }
@@ -4920,9 +4332,6 @@ async function loadView(viewName, {silent = true} = {}) {
         return;
     }
 
-    // Не запускаем два одинаковых запроса параллельно. При этом загрузки
-    // разных разделов друг друга не блокируют, поэтому быстрый переход между
-    // страницами больше не оставляет новый раздел пустым.
     const existingPromise = viewLoadPromises.get(viewName);
     if (existingPromise) {
         return existingPromise;
@@ -4932,12 +4341,7 @@ async function loadView(viewName, {silent = true} = {}) {
         try {
             await loader({silent});
         } catch (error) {
-            console.error(
-                silent
-                    ? 'Ошибка автоматического обновления:'
-                    : 'Ошибка загрузки раздела:',
-                error
-            );
+            console.error(silent ? 'Ошибка автоматического обновления:' : 'Ошибка загрузки раздела:', error);
         } finally {
             viewLoadPromises.delete(viewName);
         }
@@ -4970,10 +4374,7 @@ async function refreshCurrentView() {
 function startAutoRefresh() {
     stopAutoRefresh();
 
-    autoRefreshTimer = window.setInterval(
-        refreshCurrentView,
-        AUTO_REFRESH_INTERVAL_MS
-    );
+    autoRefreshTimer = window.setInterval(refreshCurrentView, AUTO_REFRESH_INTERVAL_MS);
 
     refreshCurrentView();
 }
@@ -4992,8 +4393,6 @@ document.addEventListener('visibilitychange', () => {
 });
 
 async function initialize() {
-    // Ошибка декоративной разметки обязательных полей не должна останавливать
-    // восстановление JWT-сессии и инициализацию всего приложения.
     try {
         initPatientBookingStepper();
         setupRequiredFieldMarkers();
@@ -5009,8 +4408,6 @@ async function initialize() {
 
     const ssrCatalog = hydratePublicCatalogFromSsr();
 
-    // Сначала восстанавливаем сохранённую сессию и права, затем рисуем UI.
-    // Access token lives in memory; only the HttpOnly refresh cookie survives reload.
     try {
         await restoreSession();
     } catch (error) {
@@ -5030,12 +4427,9 @@ async function initialize() {
                 showView('home', {updateUrl: true});
             }
         } else {
-            const initialCatalogWasRendered =
-                (initialView === 'public-doctors' && ssrCatalog.doctors)
-                || (initialView === 'public-services' && ssrCatalog.services);
+            const initialCatalogWasRendered = (initialView === 'public-doctors' && ssrCatalog.doctors) || (initialView === 'public-services' && ssrCatalog.services);
             showView(initialView, {
-                updateUrl: false,
-                load: !initialCatalogWasRendered
+                updateUrl: false, load: !initialCatalogWasRendered
             });
         }
     }
@@ -5045,13 +4439,6 @@ async function initialize() {
     }
 }
 
-
-// --- Near real-time appointment updates ------------------------------------
-// The current Spring API has no native event stream yet. The Next.js server
-// keeps a single SSE connection open to this browser and checks appointments
-// server-side. When the snapshot changes, only an event is pushed to the UI.
-// Native Spring SSE/RabbitMQ events can replace this endpoint later without
-// changing the UI contract.
 let appointmentLiveController = null;
 let appointmentLiveReconnectTimer = null;
 let appointmentLiveFallbackTimer = null;
@@ -5113,7 +4500,6 @@ async function handleAppointmentLiveChange() {
 
     const currentView = getCurrentViewName();
     if (currentView === 'staff-appointments') {
-        // Refresh only the list: never overwrite a form that the employee is filling in.
         await refreshStaffAppointmentListOnly({silent: true});
     } else if (currentView === 'staff-dashboard') {
         await refreshStaffDashboard({silent: true});
@@ -5161,13 +4547,9 @@ async function startAppointmentLiveUpdates() {
 
     try {
         const response = await fetch('/live/appointments', {
-            method: 'GET',
-            headers: {
-                'Accept': 'text/event-stream',
-                'Authorization': `Bearer ${token}`
-            },
-            cache: 'no-store',
-            signal: controller.signal
+            method: 'GET', headers: {
+                'Accept': 'text/event-stream', 'Authorization': `Bearer ${token}`
+            }, cache: 'no-store', signal: controller.signal
         });
 
         if (!response.ok || !response.body) {

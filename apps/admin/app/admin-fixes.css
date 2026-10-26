@@ -149,3 +149,15 @@
 .clinic-origins form {
     margin-top: 16px;
 }
+
+.erasure-retention {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+}
+
+.erasure-retention input[type="checkbox"] {
+    width: auto;
+    flex: 0 0 auto;
+    margin-top: 0.2rem;
+}

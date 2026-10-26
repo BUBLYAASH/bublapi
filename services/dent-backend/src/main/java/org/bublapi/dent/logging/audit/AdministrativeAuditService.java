@@ -44,6 +44,10 @@ public class AdministrativeAuditService {
       logAfterCommit(AuditAction.DEACTIVATE, AuditEntityType.USER, targetUserId, clinicId);
    }
 
+   public void userErased(UUID targetUserId, UUID clinicId) {
+      logAfterCommit(AuditAction.DELETE, AuditEntityType.USER, targetUserId, clinicId);
+   }
+
    public void userActivated(UUID targetUserId, UUID clinicId) {
       logAfterCommit(AuditAction.ACTIVATE, AuditEntityType.USER, targetUserId, clinicId);
    }

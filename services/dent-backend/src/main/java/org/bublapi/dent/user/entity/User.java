@@ -40,6 +40,8 @@ public class User {
    private Clinic clinic;
    @Column(name = "joined_at", nullable = false)
    private LocalDateTime joinedAt;
+   @Column(name = "last_login")
+   private LocalDateTime lastLogin;
    @Column(name = "updated_at")
    private LocalDateTime updatedAt;
    @Column(nullable = false)

@@ -7,12 +7,14 @@ import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.integration.IntegrationTestSupport;
 import org.bublapi.dent.role.entity.RoleName;
 import org.bublapi.dent.user.entity.User;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -33,7 +35,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
    @Test
    void adminShouldCreateApiKeyForClinic() throws Exception {
       Clinic clinic = dataFactory.createClinic();
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
       CreateApiKeyRequestDto request = new CreateApiKeyRequestDto("Clinic API key");
 
       mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
@@ -51,7 +53,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
    @Test
    void shouldNotCreateSecondActiveApiKeyForSameClinic() throws Exception {
       Clinic clinic = dataFactory.createClinic();
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
       CreateApiKeyRequestDto request = new CreateApiKeyRequestDto("Clinic API key");
 
       mockMvc.perform(post("/api/v1/admin/api-keys/{clinicId}", clinic.getId()).header("Authorization",
@@ -78,7 +80,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
    @Test
    void adminShouldRenewApiKey() throws Exception {
       Clinic clinic = dataFactory.createClinic();
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
       dataFactory.createApiKey(clinic);
       ApiKey before = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
       LocalDateTime oldExpiresAt = before.getExpiresAt();
@@ -95,7 +97,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
    @Test
    void adminShouldRotateApiKeyAndKeepHistory() throws Exception {
       Clinic clinic = dataFactory.createClinic();
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
       String oldRawKey = dataFactory.createApiKey(clinic).rawKey();
       ApiKey oldApiKey = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
 
@@ -104,7 +106,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
                                                                                                       admin.getId())))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$.rawKey", startsWith("pk_live_")))
-             .andExpect(jsonPath("$.rawKey").value(org.hamcrest.Matchers.not(oldRawKey)));
+             .andExpect(jsonPath("$.rawKey").value(Matchers.not(oldRawKey)));
 
       List<ApiKey> clinicApiKeys = apiKeyRepository.findAll()
                                                    .stream()
@@ -119,7 +121,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
    @Test
    void adminShouldRevokeApiKey() throws Exception {
       Clinic clinic = dataFactory.createClinic();
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
       dataFactory.createApiKey(clinic);
       ApiKey apiKey = apiKeyRepository.findByClinic_IdAndActiveTrue(clinic.getId()).orElseThrow();
 
@@ -136,7 +138,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
    void adminShouldSeeAllApiKeysWithoutSecrets() throws Exception {
       Clinic firstClinic = dataFactory.createClinic();
       Clinic secondClinic = dataFactory.createClinic();
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
       dataFactory.createApiKey(firstClinic);
       dataFactory.createApiKey(secondClinic);
 
@@ -169,7 +171,7 @@ class ApiKeyIntegrationTest extends IntegrationTestSupport {
 
    @Test
    void adminEndpointShouldWorkWithoutApiKey() throws Exception {
-      User admin = dataFactory.createAdmin("admin-" + java.util.UUID.randomUUID() + "@test.com");
+      User admin = dataFactory.createAdmin("admin-" + UUID.randomUUID() + "@test.com");
 
       mockMvc.perform(get("/api/v1/admin/clinics").header("Authorization", jwtHelper.token(admin.getId())))
              .andExpect(status().isOk());

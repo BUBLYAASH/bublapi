@@ -2,6 +2,7 @@ package org.bublapi.dent.user.dto;
 
 import org.bublapi.dent.role.entity.RoleName;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,7 +15,8 @@ public record UserResponseDto(
         String middleName,
         UUID clinicId,
         Set<RoleName> roles,
-        Boolean enabled
+        Boolean enabled,
+        LocalDateTime lastLogin
 ) {
 
 }

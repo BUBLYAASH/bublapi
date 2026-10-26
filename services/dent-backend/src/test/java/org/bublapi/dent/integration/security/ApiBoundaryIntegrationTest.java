@@ -3,6 +3,7 @@ package org.bublapi.dent.integration.security;
 import org.bublapi.dent.apikey.repository.ApiKeyRepository;
 import org.bublapi.dent.apikey.service.ApiKeyService;
 import org.bublapi.dent.clinic.service.ClinicOriginService;
+import org.bublapi.dent.common.context.ClinicContext;
 import org.bublapi.dent.integration.IntegrationTestSupport;
 import org.bublapi.dent.role.entity.RoleName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -68,7 +70,7 @@ class ApiBoundaryIntegrationTest extends IntegrationTestSupport {
          data.user().setEnabled(false);
          dataFactory.saveUser(data.user());
       }
-      if (scenario.equals("deleted")) token = jwtHelper.token(java.util.UUID.randomUUID());
+      if (scenario.equals("deleted")) token = jwtHelper.token(UUID.randomUUID());
       if (scenario.equals("malformed")) token = "Bearer invalid.token.signature";
       var request = get("/api/v1/patients").header("X-API-KEY", data.apiKey().rawKey());
       if (!scenario.equals("missing")) request.header("Authorization", token);
@@ -132,6 +134,6 @@ class ApiBoundaryIntegrationTest extends IntegrationTestSupport {
                                       "/api/v1/public/services/" + service.getId() + "/doctors"}) {
          mockMvc.perform(get(path).header("X-API-KEY", key)).andExpect(status().isNotFound());
       }
-      assertThat(org.bublapi.dent.common.context.ClinicContext.get()).isNull();
+      assertThat(ClinicContext.get()).isNull();
    }
 }

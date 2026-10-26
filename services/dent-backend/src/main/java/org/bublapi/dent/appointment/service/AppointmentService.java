@@ -136,6 +136,8 @@ public class AppointmentService {
                                                      .orElseThrow(() -> new ResourceNotFoundException(
                                                              APPOINTMENT_NOT_FOUND));
 
+      requireIdentifiedPatient(appointment);
+
       AppointmentStatus oldStatus = appointment.getStatus();
       AppointmentStatus newStatus = request.status();
 
@@ -220,7 +222,14 @@ public class AppointmentService {
                                   .toList();
    }
 
+   private void requireIdentifiedPatient(Appointment appointment) {
+      if (appointment.getPatient() == null) {
+         throw new BadRequestException("Anonymized appointment history is read-only");
+      }
+   }
+
    private AppointmentResponseDto cancelInternal(Appointment appointment) {
+      requireIdentifiedPatient(appointment);
       if (appointment.getStatus() == AppointmentStatus.CANCELLED) {
          throw new BadRequestException("Appointment is already cancelled");
       }
@@ -404,7 +413,7 @@ public class AppointmentService {
    }
 
    private void publishAppointmentNotification(Appointment appointment, NotificationType type) {
-      if (appointment.getPatient().getUser() == null) {
+      if (appointment.getPatient() == null || appointment.getPatient().getUser() == null) {
          return;
       }
 

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -260,8 +261,8 @@ class AppointmentAvailabilityIntegrationTest extends IntegrationTestBase {
       doctorScheduleExceptionRepository.save(exception);
    }
 
-   private org.springframework.test.web.servlet.ResultActions createAppointment(TestContext context,
-                                                                                LocalDateTime scheduledAt) throws
+   private ResultActions createAppointment(TestContext context,
+                                           LocalDateTime scheduledAt) throws
            Exception {
       CreateAppointmentRequestDto request = new CreateAppointmentRequestDto(context.doctor().getId(), scheduledAt,
                                                                             List.of(new AppointmentServiceRequestDto(
