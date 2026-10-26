@@ -57,6 +57,9 @@ jobs:
       contents: read
       packages: write
 
+    outputs:
+      image: ${{ steps.publish.outputs.image }}
+
     defaults:
       run:
         working-directory: services/dent-backend
@@ -113,12 +116,24 @@ jobs:
               --username "$GITHUB_ACTOR"\
               --password-stdin
 
-      - name: Publish backend image
+      - name: Publish image
+        id: publish
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
-          IMAGE: ${{steps.image.outputs.name}}
-        run:
+          IMAGE: ${{ steps.image.outputs.name }}
+        run: |
+          set -euo pipefail
+
           docker push "$IMAGE:$GITHUB_SHA"
+
+          IMAGE_REF="$(docker image inspect \
+            --format '{{index .RepoDigests 0}}' \
+            "$IMAGE:$GITHUB_SHA")"
+
+          [[ "$IMAGE_REF" == "$IMAGE@sha256:"* ]]
+
+          printf 'image=%s\n' "$IMAGE_REF" >> "$GITHUB_OUTPUT"
+          printf 'Published `%s`\n' "$IMAGE_REF" >> "$GITHUB_STEP_SUMMARY"
   admin:
     name: Build and publish admin
     needs: changes
@@ -129,6 +144,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+
+    outputs:
+      image: ${{ steps.publish.outputs.image }}
 
     steps:
       - name: Checkout repository
@@ -161,11 +179,24 @@ jobs:
               --username "$GITHUB_ACTOR" \
               --password-stdin
 
-      - name: Publish admin image
+      - name: Publish image
+        id: publish
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
           IMAGE: ${{ steps.image.outputs.name }}
-        run: docker push "$IMAGE:$GITHUB_SHA"
+        run: |
+          set -euo pipefail
+
+          docker push "$IMAGE:$GITHUB_SHA"
+
+          IMAGE_REF="$(docker image inspect \
+            --format '{{index .RepoDigests 0}}' \
+            "$IMAGE:$GITHUB_SHA")"
+
+          [[ "$IMAGE_REF" == "$IMAGE@sha256:"* ]]
+
+          printf 'image=%s\n' "$IMAGE_REF" >> "$GITHUB_OUTPUT"
+          printf 'Published `%s`\n' "$IMAGE_REF" >> "$GITHUB_STEP_SUMMARY"
 
   demo:
     name: Build and publish demo
@@ -177,6 +208,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+
+    outputs:
+      image: ${{ steps.publish.outputs.image }}
 
     steps:
       - name: Checkout repository
@@ -209,11 +243,24 @@ jobs:
               --username "$GITHUB_ACTOR" \
               --password-stdin
 
-      - name: Publish demo image
+      - name: Publish image
+        id: publish
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
           IMAGE: ${{ steps.image.outputs.name }}
-        run: docker push "$IMAGE:$GITHUB_SHA"
+        run: |
+          set -euo pipefail
+
+          docker push "$IMAGE:$GITHUB_SHA"
+
+          IMAGE_REF="$(docker image inspect \
+            --format '{{index .RepoDigests 0}}' \
+            "$IMAGE:$GITHUB_SHA")"
+
+          [[ "$IMAGE_REF" == "$IMAGE@sha256:"* ]]
+
+          printf 'image=%s\n' "$IMAGE_REF" >> "$GITHUB_OUTPUT"
+          printf 'Published `%s`\n' "$IMAGE_REF" >> "$GITHUB_STEP_SUMMARY"
 
   deploy:
     name: Deploy to server
