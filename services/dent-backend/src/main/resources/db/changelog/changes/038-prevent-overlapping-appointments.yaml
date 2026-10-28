@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 038-prevent-overlapping-appoinments
+      author: Gleb Kovalev
+      changes:
+        - sql:
+            sql: |
+              CREATE EXTENSION IF NOT EXISTS btree_gist;
+              ALTER TABLE appointments ADD CONSTRAINT ex_appoinments_doctor_time
+              EXCLUDE USING gist (doctor_id WITH =, tsrange(scheduled_at, end_at, '[)') WITH &&)
+              WHERE (status <> 'CANCELLED');

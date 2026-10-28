@@ -250,7 +250,7 @@ public class AppointmentService {
    private AppointmentResponseDto createInternal(Patient patient, CreateAppointmentRequestDto request) {
       Clinic clinic = ClinicContext.get();
 
-      Doctor doctor = doctorRepository.findByClinic_IdAndIdAndActiveTrue(clinic.getId(), request.doctorId())
+      Doctor doctor = doctorRepository.findActiveByIdForUpdate(clinic.getId(), request.doctorId())
                                       .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
 
       List<ResolvedAppointmentService> resolvedServices = new ArrayList<>();

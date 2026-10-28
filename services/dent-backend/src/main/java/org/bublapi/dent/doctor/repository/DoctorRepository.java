@@ -1,7 +1,9 @@
 package org.bublapi.dent.doctor.repository;
 
+import jakarta.persistence.LockModeType;
 import org.bublapi.dent.doctor.entity.Doctor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,4 +41,13 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
            WHERE d.clinic.id = :clinicId AND d.disabledByClinic = true
            """)
    void enableAllDisabledByClinic(@Param("clinicId") UUID clinicId);
+
+   @Lock(LockModeType.PESSIMISTIC_WRITE)
+   @Query("""
+           SELECT d FROM Doctor d
+           WHERE d.clinic.id = :clinicId
+           AND d.id = :doctorId
+           AND d.active = true
+           """)
+   Optional<Doctor> findActiveByIdForUpdate(@Param("clinicId") UUID clinicId, @Param("doctorId") UUID doctorId);
 }

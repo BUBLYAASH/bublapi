@@ -18,7 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "appointments", uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "scheduled_at"}))
+@Table(name = "appointments")
 @Filter(name = "clinicFilter")
 public class Appointment {
    @Id
