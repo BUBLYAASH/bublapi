@@ -1,5 +1,6 @@
 package org.bublapi.dent.appointment.service;
 
+import lombok.RequiredArgsConstructor;
 import org.bublapi.dent.appointment.dto.AppointmentResponseDto;
 import org.bublapi.dent.appointment.dto.AppointmentServiceRequestDto;
 import org.bublapi.dent.appointment.dto.ChangeAppointmentStatusRequestDto;
@@ -8,6 +9,9 @@ import org.bublapi.dent.appointment.entity.Appointment;
 import org.bublapi.dent.appointment.entity.AppointmentStatus;
 import org.bublapi.dent.appointment.mapper.AppointmentMapper;
 import org.bublapi.dent.appointment.repository.AppointmentRepository;
+import org.bublapi.dent.appointment_reminder.entity.AppointmentReminder;
+import org.bublapi.dent.appointment_reminder.entity.ReminderStatus;
+import org.bublapi.dent.appointment_reminder.repository.AppointmentReminderRepository;
 import org.bublapi.dent.appointment_service.entity.AppointmentServiceItem;
 import org.bublapi.dent.appointment_service.repository.AppointmentServiceRepository;
 import org.bublapi.dent.clinic.entity.Clinic;
@@ -44,6 +48,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AppointmentService {
    private static final DateTimeFormatter APPOINTMENT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
            "dd.MM.yyyy HH:mm");
@@ -58,29 +63,10 @@ public class AppointmentService {
    private final DoctorRepository doctorRepository;
    private final DoctorWorkingHoursRepository doctorWorkingHoursRepository;
    private final DoctorScheduleExceptionRepository doctorScheduleExceptionRepository;
+   private final AppointmentReminderRepository appointmentReminderRepository;
    private final AppointmentMapper appointmentMapper;
    private final NotificationPublisher notificationPublisher;
    private final UserAuditService userAuditService;
-
-   public AppointmentService(AppointmentRepository appointmentRepository,
-                             AppointmentServiceRepository appointmentServiceRepository,
-                             ClinicServiceRepository clinicServiceRepository, PatientRepository patientRepository,
-                             DoctorRepository doctorRepository,
-                             DoctorWorkingHoursRepository doctorWorkingHoursRepository,
-                             DoctorScheduleExceptionRepository doctorScheduleExceptionRepository,
-                             AppointmentMapper appointmentMapper, NotificationPublisher notificationPublisher,
-                             UserAuditService userAuditService) {
-      this.appointmentRepository = appointmentRepository;
-      this.appointmentServiceRepository = appointmentServiceRepository;
-      this.clinicServiceRepository = clinicServiceRepository;
-      this.patientRepository = patientRepository;
-      this.doctorRepository = doctorRepository;
-      this.doctorWorkingHoursRepository = doctorWorkingHoursRepository;
-      this.doctorScheduleExceptionRepository = doctorScheduleExceptionRepository;
-      this.appointmentMapper = appointmentMapper;
-      this.notificationPublisher = notificationPublisher;
-      this.userAuditService = userAuditService;
-   }
 
    @Transactional
    public AppointmentResponseDto createForPatient(UUID userId, CreateAppointmentRequestDto request) {
@@ -242,6 +228,11 @@ public class AppointmentService {
 
       publishAppointmentNotification(appointment, NotificationType.APPOINTMENT_CANCELLED);
 
+      appointmentReminderRepository.findAllByAppointment_Id(appointment.getId())
+                                   .stream()
+                                   .filter(reminder -> reminder.getStatus() == ReminderStatus.PENDING)
+                                   .forEach(reminder -> reminder.setStatus(ReminderStatus.CANCELLED));
+
       userAuditService.appointmentCancelled(appointment.getId());
 
       return appointmentMapper.toResponse(appointment);
@@ -317,6 +308,15 @@ public class AppointmentService {
       }
 
       publishAppointmentNotification(saved, NotificationType.APPOINTMENT_CREATED);
+
+      AppointmentReminder reminder = new AppointmentReminder();
+
+      reminder.setAppointment(saved);
+      reminder.setReminderType("BEFORE_24_HOURS");
+      reminder.setDueAt(saved.getScheduledAt().minusDays(1));
+      reminder.setStatus(ReminderStatus.PENDING);
+
+      appointmentReminderRepository.save(reminder);
 
       userAuditService.appointmentCreated(saved.getId());
 

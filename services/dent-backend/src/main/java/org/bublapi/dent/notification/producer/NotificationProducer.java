@@ -11,8 +11,7 @@ public class NotificationProducer {
    private final RabbitTemplate rabbitTemplate;
    private final NotificationQueueService queue;
 
-   public NotificationProducer(RabbitTemplate rabbitTemplate,
-                               NotificationQueueService queue) {
+   public NotificationProducer(RabbitTemplate rabbitTemplate, NotificationQueueService queue) {
       this.rabbitTemplate = rabbitTemplate;
       this.queue = queue;
    }

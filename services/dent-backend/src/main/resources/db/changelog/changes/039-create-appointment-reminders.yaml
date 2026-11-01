@@ -1,0 +1,80 @@
+databaseChangeLog:
+  - changeSet:
+      id: 039-create-appointment-reminders
+      author: Gleb Kovalev
+      changes:
+        - createTable:
+            tableName: appointment_reminders
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: appointment_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: reminder_type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: due_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: varchar(25)
+                  defaultValue: PENDING
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: published_at
+                  type: timestamp
+
+        - addForeignKeyConstraint:
+            baseTableName: appointment_reminders
+            baseColumnNames: appointment_id
+            referencedTableName: appointments
+            referencedColumnNames: id
+            constraintName: fk_appointment_reminders_appointment
+            onDelete: CASCADE
+
+        - addUniqueConstraint:
+            tableName: appointment_reminders
+            columnNames: appointment_id, reminder_type
+            constraintName: uk_appointment_reminders_type
+
+        - sql:
+            sql: |
+              CREATE INDEX idx_appointment_reminders_due
+              ON appointment_reminders (due_at, id)
+              WHERE status = 'PENDING';
+
+        - sql:
+            sql: |
+              ALTER TABLE appointment_reminders
+              ADD CONSTRAINT chk_appointment_reminder_status
+              CHECK (status IN (
+                  'PENDING',
+                  'PROCESSING',
+                  'PUBLISHED',
+                  'CANCELLED'
+              ));
