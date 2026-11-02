@@ -27,19 +27,19 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
    Optional<Doctor> findByClinic_IdAndId(UUID clinicId, UUID doctorId);
 
    @Modifying
-   @Query("""
-           UPDATE Doctor AS d
-           SET d.active = false, d.disabledByClinic = true
-           WHERE d.clinic.id = :clinicId AND d.active = true
-           """)
+   @Query(value = """
+           UPDATE doctors
+           SET active = false, disabled_by_clinic = true
+           WHERE clinic_id = :clinicId AND active = true
+           """, nativeQuery = true)
    void disableAllByClinicId(@Param("clinicId") UUID clinicId);
 
    @Modifying
-   @Query("""
-           UPDATE Doctor AS d
-           SET d.active = true, d.disabledByClinic = false
-           WHERE d.clinic.id = :clinicId AND d.disabledByClinic = true
-           """)
+   @Query(value = """
+           UPDATE doctors
+           SET active = true, disabled_by_clinic = false
+           WHERE clinic_id = :clinicId AND disabled_by_clinic = true
+           """, nativeQuery = true)
    void enableAllDisabledByClinic(@Param("clinicId") UUID clinicId);
 
    @Lock(LockModeType.PESSIMISTIC_WRITE)

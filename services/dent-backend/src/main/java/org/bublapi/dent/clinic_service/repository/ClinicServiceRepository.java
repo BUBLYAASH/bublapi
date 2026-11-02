@@ -25,18 +25,18 @@ public interface ClinicServiceRepository extends JpaRepository<ClinicService, UU
    List<ClinicService> findAllByClinic_IdAndDisabledByClinicTrue(UUID clinicId);
 
    @Modifying
-   @Query("""
-           UPDATE ClinicService AS cs
-           SET cs.active = false, cs.disabledByClinic = true
-           WHERE cs.clinic.id = :clinicId AND cs.active = true
-           """)
-   void disableAllByClinicId(@Param("clinicId") UUID clinicId);
+   @Query(value = """
+           UPDATE clinic_services
+           SET active = false, disabled_by_clinic = true
+           WHERE clinic_id = :clinicId AND active = true
+           """, nativeQuery = true)
+   int disableAllByClinicId(@Param("clinicId") UUID clinicId);
 
    @Modifying
-   @Query("""
-           UPDATE ClinicService AS cs
-           SET cs.active = true, cs.disabledByClinic = false
-           WHERE cs.clinic.id = :clinicId AND cs.disabledByClinic = true
-           """)
+   @Query(value = """
+           UPDATE clinic_services
+           SET active = true, disabled_by_clinic = false
+           WHERE clinic_id = :clinicId AND disabled_by_clinic = true
+           """, nativeQuery = true)
    void enableAllDisabledByClinic(@Param("clinicId") UUID clinicId);
 }
