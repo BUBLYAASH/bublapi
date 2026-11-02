@@ -6,6 +6,7 @@ import org.bublapi.dent.apikey.entity.ApiKey;
 import org.bublapi.dent.apikey.repository.ApiKeyRepository;
 import org.bublapi.dent.clinic.entity.Clinic;
 import org.bublapi.dent.clinic.repository.ClinicRepository;
+import org.bublapi.dent.clinic.service.ClinicService;
 import org.bublapi.dent.common.exception.ResourceNotFoundException;
 import org.bublapi.dent.logging.audit.AdministrativeAuditService;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,14 @@ public class ApiKeyService {
    private final ApiKeyRepository apiKeyRepository;
    private final ClinicRepository clinicRepository;
    private final AdministrativeAuditService administrativeAuditService;
+   private final ClinicService clinicService;
 
    public ApiKeyService(ApiKeyRepository apiKeyRepository, ClinicRepository clinicRepository,
-                        AdministrativeAuditService administrativeAuditService) {
+                        AdministrativeAuditService administrativeAuditService, ClinicService clinicService) {
       this.apiKeyRepository = apiKeyRepository;
       this.clinicRepository = clinicRepository;
       this.administrativeAuditService = administrativeAuditService;
+      this.clinicService = clinicService;
    }
 
    @Transactional
@@ -57,6 +60,10 @@ public class ApiKeyService {
       } else {
          apiKey.setExpiresAt(now.plusMonths(1));
          apiKey.setGraceUntil(now.plusMonths(1).plusDays(14));
+      }
+
+      if (!apiKey.getClinic().isActive()) {
+         clinicService.activate(clinicId);
       }
 
       administrativeAuditService.apiKeyRenewed(apiKey.getId(), clinicId);
